@@ -1,7 +1,6 @@
 [![Logo](https://github.com/DevilDipan/timetable_geneticalgo/blob/master/logo.png)](https://github.com/DevilDipan/timetable_geneticalgo/blob/master/logo.png)
 <br>
 ![Test Status](https://github.com/gobuffalo/tags/workflows/Tests/badge.svg)
-![Build Passing](https://api.travis-ci.org/php/php-src.svg?branch=master)
 <br>
 Time Table scheduing done using [mutation](https://en.wikipedia.org/wiki/Mutation_(genetic_algorithm)) and [crossover](https://en.wikipedia.org/wiki/Crossover_(genetic_algorithm)) in [genetic algorithms](https://en.wikipedia.org/wiki/Genetic_algorithm) using python.
 

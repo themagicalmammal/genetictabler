@@ -1,20 +1,14 @@
 import random
 
 generation = 1
-
 POPULATION_SIZE = 2
-
 GENES = '01'
-
 TARGET = "01011101"
-
 zap = [0]*32
 uap = [5]*8
 gap = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
 fap = [0]*32
-
 kapap = 0
-
 x = "00000000"
 
 class Individual(object):

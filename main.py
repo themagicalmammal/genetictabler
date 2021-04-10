@@ -2,14 +2,48 @@ import random
 
 generation = 1
 POPULATION_SIZE = 2
-GENES = '01'
+GENES = "01"
 TARGET = "01011101"
-zap = [0]*32
-uap = [5]*8
-gap = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
-fap = [0]*32
+zap = [0] * 32
+uap = [5] * 8
+gap = [
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+]
+fap = [0] * 32
 kapap = 0
 x = "00000000"
+
 
 class Individual(object):
     def __init__(self, chromosome):
@@ -57,27 +91,27 @@ class Individual(object):
         i = 1
         gan = 0
         for gs, gt, gx in zip(self.chromosome, TARGET, x):
-            dz = dz + int(gs)*i
-            dx = dx + int(gx)*i
-            i = i*10
+            dz = dz + int(gs) * i
+            dx = dx + int(gx) * i
+            i = i * 10
             if i == 1000000:
                 dz = dz + 100000000
                 dx = dx + 100000000
 
         dzo = dz
         dzod = 0
-        while (dzo > 0):
+        while dzo > 0:
             Reminder = dzo % 10
             dzod = (dzod * 10) + Reminder
             dzo = dzo // 10
-        dzodd = int(dzod/10) + 100000000
-        gaud = int(dzodd/100000)
-        gaur = int(dzodd%100000)
+        dzodd = int(dzod / 10) + 100000000
+        gaud = int(dzodd / 100000)
+        gaur = int(dzodd % 100000)
         jok = 1
         dafwo = 0
-        for i in range(0,3):
+        for i in range(0, 3):
             dfdo = gaud % 10
-            gaud = int(gaud/10)
+            gaud = int(gaud / 10)
             dafwo += dfdo * jok
             jok = jok * 2
         if uap[dafwo] == 0:
@@ -94,13 +128,16 @@ class Individual(object):
         if int(dz) == int(dx):
             generation -= 1
             fitness += 4
-        if int(dzodd/100000) == 1111: fitness += 6
-        if dzod%100000 == 11110 or dzod%100000 == 11111: fitness += 6
+        if int(dzodd / 100000) == 1111:
+            fitness += 6
+        if dzod % 100000 == 11110 or dzod % 100000 == 11111:
+            fitness += 6
         if zap[29] == 0:
             fitness += 1
         else:
             fitness = 0
         return fitness
+
 
 def main():
     global POPULATION_SIZE, dafq
@@ -112,7 +149,8 @@ def main():
     global fap
     global kapap
 
-    if generation == 1: generation = 1
+    if generation == 1:
+        generation = 1
 
     found = False
     population = []
@@ -143,19 +181,19 @@ def main():
 
         x = population[0].chromosome
         z = 100000000
-        for ij in range(0,8):
-            lam = 10**(7-ij)
-            z += int(x[ij])*lam
+        for ij in range(0, 8):
+            lam = 10**(7 - ij)
+            z += int(x[ij]) * lam
 
         flag = 0
         fak = z
-        majq = int(fak/100000)
-        majw = int(fak%100000)
+        majq = int(fak / 100000)
+        majw = int(fak % 100000)
         jok = 1
         dafw = 0
-        for iz in range(0,3):
+        for iz in range(0, 3):
             dfdo = majq % 10
-            majq = int(majq/10)
+            majq = int(majq / 10)
             dafw += dfdo * jok
             jok = jok * 2
         uap[dafw] = uap[dafw] - 1
@@ -188,22 +226,23 @@ def main():
         hau = generation
         if generation > 24:
             hau = 25
-        for hh in range(0,hau):
-            if z == zap[hh]:flag = 1
+        for hh in range(0, hau):
+            if z == zap[hh]:
+                flag = 1
         if flag == 0:
             zap[kapap] = z
             kapap += 1
 
-#        print("Generation: {}\tString: {}\tFitness: {}". \
-#              format(generation,
-#                     "".join(population[0].chromosome),
-#                     population[0].fitness))
+        #        print("Generation: {}\tString: {}\tFitness: {}". \
+        #              format(generation,
+        #                     "".join(population[0].chromosome),
+        #                     population[0].fitness))
 
         generation += 1
 
         fd = population[0].fitness
 
-        #if generation == 1:
+        # if generation == 1:
         #    print("Generation: {}\tString: {}\tFitness: {}". \
         #        format(generation,
         #                 "".join(population[0].chromosome),
@@ -211,10 +250,10 @@ def main():
 
     if fd == 0:
         print(zap)
-        for i in range(0,30):
+        for i in range(0, 30):
             dd = zap[i]
             majw = 0
-            majw = int(dd)%100000
+            majw = int(dd) % 100000
             dafq = 0
             joke = 1
             for idom in range(0, 5):
@@ -231,25 +270,25 @@ def main():
                 dafw += dfdo * jok
                 jok = jok * 2
             fap[dafq] = dafw
-#        print(fap)
-        for i in range(0,5):
+        #        print(fap)
+        for i in range(0, 5):
             if i == 0:
-                print(" Mon ",end=" ")
+                print(" Mon ", end=" ")
             elif i == 1:
-                print("\n Tue ",end=" ")
+                print("\n Tue ", end=" ")
             elif i == 2:
-                print("\n Wed ",end=" ")
+                print("\n Wed ", end=" ")
             elif i == 3:
-                print("\n Thu ",end=" ")
+                print("\n Thu ", end=" ")
             elif i == 4:
-                print("\n Fri ",end=" ")
-            for j in range(0,6):
+                print("\n Fri ", end=" ")
+            for j in range(0, 6):
                 zad = 0
-                zad = fap[i*6+j] + 1
-                if j  == 3:
-                    print("// R //",end=" ")
-                print(zad,end=" ")
+                zad = fap[i * 6 + j] + 1
+                if j == 3:
+                    print("// R //", end=" ")
+                print(zad, end=" ")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

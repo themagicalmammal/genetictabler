@@ -3,10 +3,10 @@ import random
 Gen = 1
 Population = 2
 Genes = "01"
-TARGET = "01011101"
+Target = "01011101"
 zap = [0] * 32
 uap = [5] * 8
-gap = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, ]
+gap = [1] * 32
 fap = [0] * 32
 kapap = 0
 x = "00000000"
@@ -18,16 +18,16 @@ class Individual(object):
         self.fitness = self.cal_fitness()
 
     @classmethod
-    def mutated_genes(self):
+    def mutated_genes(cls):
         global Genes
         gene = random.choice(Genes)
         return gene
 
     @classmethod
-    def create_gnome(self):
-        global TARGET
-        gnome_len = len(TARGET)
-        return [self.mutated_genes() for _ in range(gnome_len)]
+    def create_gnome(cls):
+        global Target
+        gnome_len = len(Target)
+        return [cls.mutated_genes() for _ in range(gnome_len)]
 
     def mate(self, par2):
         child_chromosome = []
@@ -35,34 +35,25 @@ class Individual(object):
             prob = random.random()
             if prob < 0.33:
                 child_chromosome.append(gp1)
-
             elif prob < 0.66:
                 child_chromosome.append(gp2)
-
             else:
                 child_chromosome.append(self.mutated_genes())
-
         return Individual(child_chromosome)
 
     def cal_fitness(self):
-        global TARGET
-        global Gen
-        global x
-        global zap
-        global uap
-        global gap
-        global fitness
+        global Target, Gen, x, zap, uap, gap, fitness
         fitness = 0
         dz = 0
         dx = 0
         i = 1
-        for gs, gt, gx in zip(self.chromosome, TARGET, x):
-            dz = dz + int(gs) * i
-            dx = dx + int(gx) * i
-            i = i * 10
+        for gs, gt, gx in zip(self.chromosome, Target, x):
+            dz += int(gs) * i
+            dx += int(gx) * i
+            i *= 10
             if i == 1000000:
-                dz = dz + 100000000
-                dx = dx + 100000000
+                dz += 100000000
+                dx += 100000000
 
         dzo = dz
         dzod = 0
@@ -106,17 +97,7 @@ class Individual(object):
 
 
 def main():
-    global Population, dafq
-    global x
-    global Gen
-    global zap
-    global gap
-    global uap
-    global fap
-    global kapap
-
-    if Gen == 1:
-        Gen = 1
+    global Population, dafq, x, Gen, zap, gap, uap, fap, kapap
 
     found = False
     population = []
@@ -159,9 +140,9 @@ def main():
         dafw = 0
         for iz in range(0, 3):
             dfdo = majq % 10
-            majq = majq // 10
+            majq //= 10
             dafw += dfdo * jok
-            jok = jok * 2
+            jok *= 2
         uap[dafw] = uap[dafw] - 1
         if uap[dafw] == -1:
             flag = 1
@@ -174,9 +155,9 @@ def main():
             joke = 1
             for idom in range(0, 5):
                 dfd = majw % 10
-                majw = majw // 10
+                majw //= 10
                 dafq += dfd * joke
-                joke = joke * 2
+                joke *= 2
             gap[dafq] = gap[dafq] - 1
             if gap[dafq] == -1:
                 flag = 1
@@ -205,7 +186,6 @@ def main():
         #                     population[0].fitness))
 
         Gen += 1
-
         fd = population[0].fitness
 
         # if Gen == 1:
@@ -218,25 +198,23 @@ def main():
         print(zap)
         for i in range(0, 30):
             dd = zap[i]
-            majw = 0
-            majw = int(dd) % 100000
+            majw = int(dd % 100000)
             dafq = 0
             joke = 1
             for idom in range(0, 5):
                 dfd = majw % 10
-                majw = int(majw / 10)
+                majw //= 10
                 dafq += dfd * joke
-                joke = joke * 2
-            majq = int(dd / 100000)
+                joke *= 2
+            majq = dd // 100000
             jok = 1
             dafw = 0
             for iz in range(0, 3):
                 dfdo = majq % 10
-                majq = int(majq / 10)
+                majq //= 10
                 dafw += dfdo * jok
-                jok = jok * 2
+                jok *= 2
             fap[dafq] = dafw
-        #        print(fap)
         for i in range(0, 5):
             if i == 0:
                 print(" Mon ", end=" ")
@@ -249,7 +227,6 @@ def main():
             elif i == 4:
                 print("\n Fri ", end=" ")
             for j in range(0, 6):
-                zad = 0
                 zad = fap[i * 6 + j] + 1
                 if j == 3:
                     print("// R //", end=" ")

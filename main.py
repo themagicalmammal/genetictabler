@@ -4,7 +4,7 @@ Gen = 1
 Population = 2
 Genes = "01"
 Target = "01011101"
-zap = [0] * 32
+Chromosomes = [0] * 32
 uap = [5] * 8
 gap = [1] * 32
 fap = [0] * 32
@@ -42,7 +42,7 @@ class Individual(object):
         return Individual(child_chromosome)
 
     def cal_fitness(self):
-        global Target, Gen, x, zap, uap, gap, fitness
+        global Target, Gen, x, Chromosomes, uap, gap, fitness
         fitness = 0
         dz = 0
         dx = 0
@@ -89,7 +89,7 @@ class Individual(object):
             fitness += 6
         if dzod % 100000 == 11110 or dzod % 100000 == 11111:
             fitness += 6
-        if zap[29] == 0:
+        if Chromosomes[29] == 0:
             fitness += 1
         else:
             fitness = 0
@@ -97,7 +97,7 @@ class Individual(object):
 
 
 def main():
-    global Population, dafq, x, Gen, zap, gap, uap, fap, kapap
+    global Population, dafq, x, Gen, Chromosomes, gap, uap, fap, kapap
 
     found = False
     population = []
@@ -109,22 +109,21 @@ def main():
     while not found:
         population = sorted(population, key=lambda x: x.fitness)
         if population[0].fitness <= 0:
-            found = True
             break
 
-        new_Gen = []
+        Next = []
 
-        s = (10 * Population) // 100
-        new_Gen.extend(population[:s])
+        s = Population // 10
+        Next.extend(population[:s])
 
-        s = (90 * Population) // 100
+        s = 9 * Population // 10
         for _ in range(s):
             parent1 = random.choice(population[:50])
             parent2 = random.choice(population[:50])
             child = parent1.mate(parent2)
-            new_Gen.append(child)
+            Next.append(child)
 
-        population = new_Gen
+        population = Next
 
         x = population[0].chromosome
         z = 100000000
@@ -174,30 +173,19 @@ def main():
         if Gen > 24:
             hau = 25
         for hh in range(0, hau):
-            if z == zap[hh]:
+            if z == Chromosomes[hh]:
                 flag = 1
         if flag == 0:
-            zap[kapap] = z
+            Chromosomes[kapap] = z
             kapap += 1
-
-        #        print("Gen: {}\tString: {}\tFitness: {}". \
-        #              format(Gen,
-        #                     "".join(population[0].chromosome),
-        #                     population[0].fitness))
 
         Gen += 1
         fd = population[0].fitness
 
-        # if Gen == 1:
-        #    print("Gen: {}\tString: {}\tFitness: {}". \
-        #        format(Gen,
-        #                 "".join(population[0].chromosome),
-        #                 population[0].fitness))
-
     if fd == 0:
-        print(zap)
-        for i in range(0, 30):
-            dd = zap[i]
+        print(Chromosomes)
+        for i in range(30):
+            dd = Chromosomes[i]
             majw = int(dd % 100000)
             dafq = 0
             joke = 1

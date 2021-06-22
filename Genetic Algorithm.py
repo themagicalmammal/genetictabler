@@ -52,7 +52,7 @@ def sort_population(population, fitness_func):
     return sorted(population, key=fitness_func, reverse=True)
    
     
-def run_evolution(populate_func, fitness_func, max_fitness, selection_func=selection_pair,
+def run_evolution(fitness_func, max_fitness, populate_func=generate_population, selection_func=selection_pair,
                   mate_func=single_point_crossover, mutate_func=mutation, max_generations=100):
     
     population = populate_func()

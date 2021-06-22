@@ -2,10 +2,9 @@
 # coding: utf-8
 
 import random
+from TimeTable_Problem import *
 
-def generate_genome(genome_length):
-    # Our genome will be a list of random 0s and 1s of the specified size.
-    return random.choices([0, 1], k=genome_length)
+
 
 def generate_population(size, genome_length):
     # our population will be a list of genomes.
@@ -29,7 +28,7 @@ def single_point_crossover(genome_a, genome_b):
     
     return genome_c, genome_d
 
-def mutation(genome, num=1, probability=0.5):
+def mutation(genome, num=1, probability=0.5, course_count):
     for _ in range(num):
     
         # we choose a random position "p" in the genome which we will mutate.
@@ -37,9 +36,10 @@ def mutation(genome, num=1, probability=0.5):
 
         x = random.uniform(0, 1)
         if x > probability:
+            
             genome[p] = genome[p]
         else:
-            genome[p] = abs(genome[p]-1)
+            genome[p] = TimeTable_Problem.generate_courses(course_count)
     return genome
 
 def population_fitness(population, fitness_func):
@@ -54,7 +54,7 @@ def sort_population(population, fitness_func):
    
     
 def run_evolution(populate_func, fitness_func, max_fitness, selection_func=selection_pair,
-                  mate_func=single_point_crossover, mutate_func=mutation, max_generations=100):
+                  mate_func=single_point_crossover, mutate_func=mutation, max_generations=100, course_count):
     
     population = populate_func()
     for i in range(max_generations):

@@ -10,14 +10,16 @@ import random
 # 5 bit numbers but none of them will have value more than 17 or less than 1.
 
 course_count = 0
+
+
 def generate_courses():
     global course_count
-    bit_length = len(bin(course_count))-2
-    
+    bit_length = len(bin(course_count)) - 2
+
     n = random.randint(1, course_count)
     course = bin(n)[2:]
     course = "0" * (bit_length - len(course)) + course
-    
+
     return course
 
 
@@ -27,9 +29,9 @@ def generate_genome(genome_length, no_courses):
     course_count = no_courses
     return [generate_courses() for i in range(genome_length)]
 
+
 def calculate_fitness():
     return 0
-
 
 # x = generate_genome(5,2,17),
 # print(x)

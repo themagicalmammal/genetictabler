@@ -41,8 +41,8 @@ def mutation(genome, num=1, probability=0.5):
             genome[p] = generate_courses()
     return genome
 
-def population_fitness(population, fitness_func):
-    return sum([fitness_func(genome) for genome in population])
+def population_fitness(population):
+    return sum([calculate_fitness(genome) for genome in population])
 
 
 def selection_pair(population, fitness_func):
@@ -52,24 +52,23 @@ def sort_population(population, fitness_func):
     return sorted(population, key=fitness_func, reverse=True)
    
     
-def run_evolution(fitness_func, max_fitness, populate_func=generate_population, selection_func=selection_pair,
-                  mate_func=single_point_crossover, mutate_func=mutation, max_generations=100):
+def run_evolution(population_size, genome_length, max_fitness, max_generations=100):
     
-    population = populate_func()
+    population = generate_population(population_size, genome_length)
     for i in range(max_generations):
-        population = sorted(population, key=lambda genome: fitness_func(genome), reverse=True)
+        population = sorted(population, key=lambda genome: calculate_fitness(genome), reverse=True)
         
-        if fitness_func(population[0]) >= max_fitness:
+        if calculate_fitness(population[0]) >= max_fitness:
             break
         
         next_generation = population[0:2]
         
         for j in range(int(len(population)/2)-1):
-            parents = selection_func(population, fitness_func)
-            child_a, child_b = mate_func(parents[0], parents[1])
+            parents = selection_pair(population)
+            child_a, child_b = mutation(parents[0], parents[1])
             
-            child_a = mutate_func(child_a)
-            child_b = mutate_func(child_b)
+            child_a = mutation(child_a)
+            child_b = mutation(child_b)
             
             next_generation += [child_a, child_b]
             

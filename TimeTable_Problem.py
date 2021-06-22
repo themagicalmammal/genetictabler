@@ -27,6 +27,9 @@ def generate_genome(genome_length, no_courses):
     course_count = no_courses
     return [generate_courses() for i in range(genome_length)]
 
+def calculate_fitness():
+    return 0
+
 
 # x = generate_genome(5,2,17),
 # print(x)

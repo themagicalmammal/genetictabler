@@ -2,6 +2,7 @@
 # coding: utf-8
 
 import random
+
 from schedule import *
 
 
@@ -19,7 +20,7 @@ def single_point_crossover(genome_a, genome_b):
     if length < 2:
         return genome_a, genome_b
 
-    # Now we choose the point/location for single point crossover which will be a random index 
+    # Now we choose the point/location for single point crossover which will be a random index
     # between 2nd element and the second last element.
     p = random.randint(1, length - 1)
 
@@ -47,19 +48,28 @@ def population_fitness(population):
 
 
 def selection_pair(population, fitness_func):
-    return random.choices(population=population, weights=[fitness_func(gene) for gene in population], k=2)
+    return random.choices(population=population,
+                          weights=[fitness_func(gene) for gene in population],
+                          k=2)
 
 
 def sort_population(population, fitness_func):
     return sorted(population, key=fitness_func, reverse=True)
 
 
-def run_evolution(total_days, slots, no_courses, population_size, max_fitness, max_generations=100):
+def run_evolution(total_days,
+                  slots,
+                  no_courses,
+                  population_size,
+                  max_fitness,
+                  max_generations=100):
 
     initialize_genotype(no_courses, slots, total_days)
     population = generate_population(population_size)
     for i in range(max_generations):
-        population = sorted(population, key=lambda genome: calculate_fitness(genome), reverse=True)
+        population = sorted(population,
+                            key=lambda genome: calculate_fitness(genome),
+                            reverse=True)
 
         if calculate_fitness(population[0]) >= max_fitness:
             break

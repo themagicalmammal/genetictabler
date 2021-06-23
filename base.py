@@ -35,9 +35,7 @@ def mutation(genome, num=1, probability=0.5):
         # we choose a random position "p" in the genome which we will mutate.
         p = random.randrange(len(genome))
 
-        x = random.uniform(0, 1)
-        if x > probability:
-
+        if random.uniform(0, 1) > probability:
             genome[p] = genome[p]
         else:
             genome[p] = generate_courses()
@@ -68,12 +66,10 @@ def run_evolution(total_days, slots, no_courses, population_size, max_fitness, m
 
         next_generation = population[0:2]
 
-        for j in range(int(len(population) / 2) - 1):
+        for j in range(len(population) // 2 - 1):
             parents = selection_pair(population)
             child_a, child_b = mutation(parents[0], parents[1])
-
-            child_a = mutation(child_a)
-            child_b = mutation(child_b)
+            child_a, child_b = mutation(child_a), mutation(child_b)
 
             next_generation += [child_a, child_b]
 

@@ -13,6 +13,7 @@ course_count = 0
 daily_slots = 0
 working_days = 0
 
+
 def initialize_genotype(no_courses, slots=6, days=5):
     global course_count
     global daily_slots
@@ -43,13 +44,12 @@ def generate_genome():
 
 
 def calculate_fitness(genome):
-
     fitness = 0
 
     # First we create a dictionary (courses) of subjects to store counting of how many times
     # a course appears in a genome.
     courses = {}
-    for i in range(1, course_count+1):
+    for i in range(1, course_count + 1):
         bit_length = len(bin(course_count)) - 2
         c = bin(i)[2:]
         c = "0" * (bit_length - len(c)) + c
@@ -60,11 +60,11 @@ def calculate_fitness(genome):
         courses[j] += 1
 
     # Logic to decrease fitness if a course appears too many times.
-    if max(courses.values()) > (int(len(genome)/course_count) + 1):
+    if max(courses.values()) > len(genome) // course_count + 1:
         fitness -= 2
     if min(courses.values()) < 1:
         fitness -= 4
-    if max(courses.values()) == int(len(genome) / course_count) + 1:
+    if max(courses.values()) == len(genome) // course_count + 1:
         fitness += 6
 
     return fitness

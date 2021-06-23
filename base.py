@@ -2,12 +2,12 @@
 # coding: utf-8
 
 import random
-from TimeTable_Problem import *
+from schedule import *
 
 
-def generate_population(size, genome_length):
+def generate_population(size):
     # our population will be a list of genomes.
-    return [generate_genome(genome_length) for _ in range(size)]
+    return [generate_genome() for _ in range(size)]
 
 
 def single_point_crossover(genome_a, genome_b):
@@ -56,8 +56,10 @@ def sort_population(population, fitness_func):
     return sorted(population, key=fitness_func, reverse=True)
 
 
-def run_evolution(population_size, genome_length, max_fitness, max_generations=100):
-    population = generate_population(population_size, genome_length)
+def run_evolution(total_days, slots, no_courses, population_size, max_fitness, max_generations=100):
+
+    initialize_genotype(no_courses, slots, total_days)
+    population = generate_population(population_size)
     for i in range(max_generations):
         population = sorted(population, key=lambda genome: calculate_fitness(genome), reverse=True)
 

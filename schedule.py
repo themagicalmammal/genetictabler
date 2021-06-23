@@ -43,8 +43,17 @@ def calculate_fitness(genome):
         c = "0" * (bit_length - len(c)) + c
         courses[c] = 0
 
-    
+    # We count the occurrences of each subject and update it in the dictionary.
+    for j in genome:
+        courses[j] += 1
 
+    # Logic to decrease fitness if a course appears too many times.
+    if max(courses.values()) > (int(len(genome)/course_count) + 1):
+        fitness -= 2
+    if min(courses.values()) < 1:
+        fitness -= 4
+    if max(courses.values()) == int(len(genome) / course_count) + 1:
+        fitness += 6
 
     return fitness
 

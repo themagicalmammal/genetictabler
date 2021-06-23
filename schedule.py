@@ -10,6 +10,17 @@ import random
 # 5 bit numbers but none of them will have value more than 17 or less than 1.
 
 course_count = 0
+daily_slots = 0
+working_days = 0
+
+def initialize_genotype(no_courses, slots=6, days=5):
+    global course_count
+    global daily_slots
+    global working_days
+
+    course_count = no_courses
+    daily_slots = slots
+    working_days = days
 
 
 def generate_courses():
@@ -24,9 +35,10 @@ def generate_courses():
 
 
 # A function that generates the genome of specified length using generate courses function.
-def generate_genome(genome_length, no_courses):
-    global course_count
-    course_count = no_courses
+def generate_genome():
+    global daily_slots
+    global working_days
+    genome_length = daily_slots * working_days
     return [generate_courses() for i in range(genome_length)]
 
 
@@ -38,7 +50,7 @@ def calculate_fitness(genome):
     # a course appears in a genome.
     courses = {}
     for i in range(1, course_count+1):
-        bit_length = len(bin(course_count)) -2
+        bit_length = len(bin(course_count)) - 2
         c = bin(i)[2:]
         c = "0" * (bit_length - len(c)) + c
         courses[c] = 0

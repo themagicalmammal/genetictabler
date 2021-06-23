@@ -30,8 +30,23 @@ def generate_genome(genome_length, no_courses):
     return [generate_courses() for i in range(genome_length)]
 
 
-def calculate_fitness():
-    return 0
+def calculate_fitness(genome):
+
+    fitness = 0
+
+    # First we create a dictionary (courses) of subjects to store counting of how many times
+    # a course appears in a genome.
+    courses = {}
+    for i in range(1, course_count+1):
+        bit_length = len(bin(course_count)) -2
+        c = bin(i)[2:]
+        c = "0" * (bit_length - len(c)) + c
+        courses[c] = 0
+
+    
+
+
+    return fitness
 
 # x = generate_genome(5,2,17),
 # print(x)

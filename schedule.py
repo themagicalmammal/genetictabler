@@ -1,12 +1,11 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-
 import random
 
 # The generate_courses() generates random binary strings representing different
 # courses based on the total number of courses specified.
-# IF total courses are 8 then it will generate 4 bit numbers. If 17 courses then it generates 
+# IF total courses are 8 then it will generate 4 bit numbers. If 17 courses then it generates
 # 5 bit numbers but none of them will have value more than 17 or less than 1.
 
 course_count = 0
@@ -68,6 +67,7 @@ def calculate_fitness(genome):
         fitness += 6
 
     return fitness
+
 
 # x = generate_genome(5,2,17),
 # print(x)

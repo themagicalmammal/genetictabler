@@ -38,6 +38,20 @@ def generate_courses():
 def generate_genome():
     global daily_slots
     global working_days
+
+    total_slots = daily_slots * working_days
+    q_max = total_slots // course_count
+    if total_slots % course_count == 0:
+        course_quota = [q_max] * course_count
+    else:
+        course_qouta =[q_max + 1] * course_count
+
+        extra_slots = total_slots - (q_max * course_count)
+
+
+
+    for _ in range():
+
     genome_length = daily_slots * working_days
     return [generate_courses() for i in range(genome_length)]
 

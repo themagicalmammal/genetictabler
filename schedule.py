@@ -50,7 +50,7 @@ def generate_genome():
 
 
 
-    for _ in range():
+    
 
     genome_length = daily_slots * working_days
     return [generate_courses() for i in range(genome_length)]

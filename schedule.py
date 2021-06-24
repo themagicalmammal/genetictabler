@@ -11,6 +11,7 @@ import random
 course_count = 0
 daily_slots = 0
 working_days = 0
+total_slots = 0
 
 
 def initialize_genotype(no_courses, slots=6, days=5):
@@ -22,22 +23,38 @@ def initialize_genotype(no_courses, slots=6, days=5):
     daily_slots = slots
     working_days = days
 
-
+"""
 def generate_courses():
     global course_count
-    bit_length = len(bin(course_count)) - 2
+    course_bit_len = len(bin(course_count)) - 2
 
     n = random.randint(1, course_count)
     course = bin(n)[2:]
-    course = "0" * (bit_length - len(course)) + course
+    course = "0" * (course_bit_len - len(course)) + course
 
     return course
+
+def generate_slots():
+    global daily_slots
+    global working_days
+    global total_slots
+
+    slot_bit_len = len(bin(total_slots))-2
+    n = random.randint(1,total_slots)
+    slots = bin(n)[2:]
+    slots = "0"
+
+"""
+
+
+
 
 
 # A function that generates the genome of specified length using generate courses function.
 def generate_genome():
     global daily_slots
     global working_days
+    global total_slots
 
     total_slots = daily_slots * working_days
     q_max = total_slots // course_count
@@ -52,7 +69,16 @@ def generate_genome():
         for i in range(extra_slots):
             course_quota[n + i] -= 1
 
-    return [generate_courses() for i in range(total_slots)]
+    course_bit_len = len(bin(course_count)) - 2
+    slot_bit_len = len(bin(total_slots)) - 2
+    gene_length = slot_bit_len + course_bit_len
+
+
+
+    genome =[]
+
+
+    #return [generate_courses() for i in range(total_slots)]
 
 
 def calculate_fitness(genome):

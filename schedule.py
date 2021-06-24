@@ -48,9 +48,9 @@ def generate_genome():
 
         extra_slots = (q_max + 1) * course_count - total_slots
 
-        n = random.randint(1,course_count-extra_slots)
+        n = random.randint(1, course_count - extra_slots)
         for i in range(extra_slots):
-            course_quota[n+i] -= 1
+            course_quota[n + i] -= 1
 
     return [generate_courses() for i in range(total_slots)]
 

@@ -8,7 +8,8 @@ from schedule import *
 
 def generate_population(size):
     # our population will be a list of genomes.
-    return [generate_genome() for _ in range(size)]
+    gene_length = initialize_genome()
+    return [generate_genome(gene_length) for _ in range(size)]
 
 
 def single_point_crossover(genome_a, genome_b):

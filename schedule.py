@@ -44,16 +44,16 @@ def generate_genome():
     if total_slots % course_count == 0:
         course_quota = [q_max] * course_count
     else:
-        course_qouta =[q_max + 1] * course_count
+        course_quota = [q_max + 1] * course_count
 
-        extra_slots = total_slots - (q_max * course_count)
+        extra_slots = (q_max + 1) * course_count - total_slots
 
+        n = random.randint(1,course_count-extra_slots+1)
+        ########## VULNERABLE TO ERROR OUT OF BOUND ##########
+        for i in range(extra_slots):
+            course_qouta[n+i] -= 1
 
-
-    for _ in range():
-
-    genome_length = daily_slots * working_days
-    return [generate_courses() for i in range(genome_length)]
+    return [generate_courses() for i in range(total_slots)]
 
 
 def calculate_fitness(genome):

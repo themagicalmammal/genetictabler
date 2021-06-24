@@ -12,7 +12,7 @@ course_count = 0
 daily_slots = 0
 working_days = 0
 total_slots = 0
-course_quota =[]
+course_quota = []
 
 
 def initialize_genotype(no_courses, slots=6, days=5):
@@ -23,6 +23,7 @@ def initialize_genotype(no_courses, slots=6, days=5):
     course_count = no_courses
     daily_slots = slots
     working_days = days
+
 
 """
 def generate_courses():
@@ -46,6 +47,7 @@ def generate_slots():
     slots = "0"
 
 """
+
 
 def initialize_genome():
     global daily_slots
@@ -73,21 +75,15 @@ def initialize_genome():
     return gene_length
 
 
-
-
 # A function that generates the genome of specified length using generate courses function.
 def generate_genome(gene_length):
     global total_slots
 
-    genome =[]
+    genome = []
 
     gene = ""
     for _ in range(gene_length):
-        gene += random.choice(["0","1"])
-
-
-
-
+        gene += random.choice(["0", "1"])
 
 
 def calculate_fitness(genome):

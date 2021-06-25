@@ -19,6 +19,7 @@ def single_point_crossover(gene_a, gene_b, gene_length):
 
     return gene_a, gene_b
 
+
 def multi_point_crossover(gene_a, gene_b, gene_length, points):
 
     # We use the single point crossover, multiple times
@@ -40,29 +41,29 @@ def mutation(gene, num=1, probability=0.5):
             gene[p] = generate_courses()
     return gene
 
+
 def selection_pair(population):
-    return random.choices(population=population,
-                          weights=[calculate_fitness(gene) for gene in population],
-                          k=2)
+    return random.choices(
+        population=population,
+        weights=[calculate_fitness(gene) for gene in population],
+        k=2,
+    )
 
 
 def sort_population(population):
     return sorted(population, key=calculate_fitness, reverse=True)
 
 
-def run_evolution(total_days,
-                  slots,
-                  no_courses,
-                  population_size,
-                  max_fitness,
-                  max_generations=100):
+def run_evolution(
+    total_days, slots, no_courses, population_size, max_fitness, max_generations=100
+):
 
     initialize_genotype(no_courses, slots, total_days)
     population = generate_population(population_size)
     for i in range(max_generations):
-        population = sorted(population,
-                            key=lambda gene: calculate_fitness(gene),
-                            reverse=True)
+        population = sorted(
+            population, key=lambda gene: calculate_fitness(gene), reverse=True
+        )
 
         if calculate_fitness(population[0]) >= max_fitness:
             break

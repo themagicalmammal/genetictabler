@@ -30,7 +30,7 @@ def initialize_gene():
 
     total_slots = daily_slots * working_days
     # First we create a dictionary (courses) of subjects to store counting of how many times
-    # a course appears in a genome.
+    # a course appears in a gene.
     q_max = total_slots // course_count
     if total_slots % course_count == 0:
         course_quota = [q_max] * course_count
@@ -58,7 +58,7 @@ def generate_gene(gene_length):
     return gene
 
 
-def calculate_fitness(genome):
+def calculate_fitness(gene):
     fitness = 100
 
 

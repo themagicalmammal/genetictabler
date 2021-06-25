@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
 import random
 
 # The generate_courses() generates random binary strings representing different
@@ -25,7 +22,7 @@ def initialize_genotype(no_courses, slots=6, days=5):
     working_days = days
 
 
-def initialize_genome():
+def initialize_gene():
     global daily_slots
     global working_days
     global total_slots
@@ -53,10 +50,7 @@ def initialize_genome():
     return gene_length
 
 
-# A function that generates the genome of specified length using generate courses function.
-def generate_genome(gene_length):
-    global total_slots
-
+def generate_gene(gene_length):
     gene = ""
     for _ in range(gene_length):
         gene += random.choice(["0","1"])
@@ -65,13 +59,7 @@ def generate_genome(gene_length):
 
 
 def calculate_fitness(genome):
-    fitness = 0
-
-
+    fitness = 100
 
 
     return fitness
-
-
-# x = generate_genome(5,2,17),
-# print(x)

@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
 import random
 
 from schedule import *
@@ -8,8 +5,8 @@ from schedule import *
 
 def generate_population(size):
     # our population will be a list of genomes.
-    gene_length = initialize_genome()
-    return [generate_genome(gene_length) for _ in range(size)]
+    gene_length = initialize_gene()
+    return [generate_gene(gene_length) for _ in range(size)]
 
 
 def single_point_crossover(genome_a, genome_b):
@@ -27,7 +24,7 @@ def single_point_crossover(genome_a, genome_b):
 def mutation(genome, num=1, probability=0.5):
     for _ in range(num):
 
-        # we choose a random position "p" in the genome which we will mutate.
+        # we choose a random position "p" in the gene which we will mutate.
         p = random.randrange(len(genome))
 
         if random.uniform(0, 1) > probability:
@@ -35,11 +32,6 @@ def mutation(genome, num=1, probability=0.5):
         else:
             genome[p] = generate_courses()
     return genome
-
-'''
-def population_fitness(population):
-    return sum([calculate_fitness(genome) for genome in population])
-'''
 
 def selection_pair(population):
     return random.choices(population=population,
@@ -79,4 +71,4 @@ def run_evolution(total_days,
 
         population = next_generation
 
-    return population
+    return population[0]

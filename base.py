@@ -36,15 +36,19 @@ def mutation(genome, num=1, probability=0.5):
             genome[p] = generate_courses()
     return genome
 
-'''
+
+"""
 def population_fitness(population):
     return sum([calculate_fitness(genome) for genome in population])
-'''
+"""
+
 
 def selection_pair(population):
-    return random.choices(population=population,
-                          weights=[calculate_fitness(gene) for gene in population],
-                          k=2)
+    return random.choices(
+        population=population,
+        weights=[calculate_fitness(gene) for gene in population],
+        k=2,
+    )
 
 
 def sort_population(population):

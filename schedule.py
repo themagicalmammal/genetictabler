@@ -12,7 +12,7 @@ course_count = 0
 daily_slots = 0
 working_days = 0
 total_slots = 0
-course_quota =[]
+course_quota = []
 
 
 def initialize_genotype(no_courses, slots=6, days=5):
@@ -59,16 +59,13 @@ def generate_genome(gene_length):
 
     gene = ""
     for _ in range(gene_length):
-        gene += random.choice(["0","1"])
+        gene += random.choice(["0", "1"])
 
     return gene
 
 
 def calculate_fitness(genome):
     fitness = 0
-
-
-
 
     return fitness
 

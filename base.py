@@ -13,13 +13,6 @@ def generate_population(size):
 
 
 def single_point_crossover(genome_a, genome_b):
-    if len(genome_a) != len(genome_b):
-        raise ValueError("Parent genomes must be of same length for crossover")
-
-    length = len(genome_a)
-
-    if length < 2:
-        return genome_a, genome_b
 
     # Now we choose the point/location for single point crossover which will be a random index
     # between 2nd element and the second last element.
@@ -43,19 +36,19 @@ def mutation(genome, num=1, probability=0.5):
             genome[p] = generate_courses()
     return genome
 
-
+'''
 def population_fitness(population):
     return sum([calculate_fitness(genome) for genome in population])
+'''
 
-
-def selection_pair(population, fitness_func):
+def selection_pair(population):
     return random.choices(population=population,
-                          weights=[fitness_func(gene) for gene in population],
+                          weights=[calculate_fitness(gene) for gene in population],
                           k=2)
 
 
-def sort_population(population, fitness_func):
-    return sorted(population, key=fitness_func, reverse=True)
+def sort_population(population):
+    return sorted(population, key=calculate_fitness, reverse=True)
 
 
 def run_evolution(total_days,

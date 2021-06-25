@@ -62,7 +62,7 @@ def run_evolution(
     population = generate_population(population_size)
     for i in range(max_generations):
         population = sorted(
-            population, key=lambda gene: calculate_fitness(gene), reverse=True
+            population, key=calculate_fitness, reverse=True
         )
 
         if calculate_fitness(population[0]) >= max_fitness:

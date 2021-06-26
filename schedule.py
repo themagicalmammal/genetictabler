@@ -51,12 +51,6 @@ def initialize_gene():
         for i in range(extra_slots):
             course_quota[n + i] -= 1
 
-    course_bit_len = len(bin(course_count)) - 2
-    slot_bit_len = len(bin(total_slots)) - 2
-    gene_length = slot_bit_len + course_bit_len
-
-    return gene_length
-
 
 def encode_class():
     return bin(random.randint(1, class_count))[2:]
@@ -66,15 +60,15 @@ def encode_slot():
     return bin(random.randint(1, total_slots))[2:]
 
 
-def encode_mudule():
+def encode_module():
     return bin(random.randint(1, course_count))[2:]
 
-def generate_gene(gene_length):
-
+def generate_gene():
     module_code = encode_mudule()
     class_code = encode_class()
     slot_code = encode_slot()
 
+    return module_code + class_code + slot_code
 
 def calculate_fitness(gene):
     fitness = 100

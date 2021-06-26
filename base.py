@@ -5,26 +5,26 @@ from schedule import *
 
 def generate_population(size):
     # our population will be a list of genes
-    gene_length = initialize_gene()
-    return [generate_gene(gene_length) for _ in range(size)]
+    initialize_gene()
+    return [generate_gene() for _ in range(size)]
 
 
-def single_point_crossover(gene_a, gene_b, gene_length):
+def single_point_crossover(gene_a, gene_b):
 
     # Now we choose the point/location for single point crossover which will be a random index
     # between 2nd element and the second last element.
-    p = random.randint(1, gene_length - 1)
+    p = random.randint(1, len(gene_a) - 1)
 
     gene_a, gene_b = gene_a[0:p] + gene_b[p:], gene_b[0:p] + gene_a[p:]
 
     return gene_a, gene_b
 
 
-def multi_point_crossover(gene_a, gene_b, gene_length, points):
+def multi_point_crossover(gene_a, gene_b, points):
 
     # We use the single point crossover, multiple times
     for _ in range(points):
-        gene_a, gene_b = single_point_crossover(gene_a, gene_b, gene_length)
+        gene_a, gene_b = single_point_crossover(gene_a, gene_b)
 
     return gene_a, gene_b
 

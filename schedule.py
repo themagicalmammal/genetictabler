@@ -10,16 +10,19 @@ daily_slots = 0
 working_days = 0
 total_slots = 0
 course_quota = []
+class_count = 0
 
 
-def initialize_genotype(no_courses, slots=6, days=5):
+def initialize_genotype(clases, no_courses, slots=6, days=5, ):
     global course_count
     global daily_slots
     global working_days
+    global class_count
 
     course_count = no_courses
     daily_slots = slots
     working_days = days
+    class_count = clases
 
 
 def initialize_gene():
@@ -27,6 +30,7 @@ def initialize_gene():
     global working_days
     global total_slots
     global course_quota
+
 
     total_slots = daily_slots * working_days
     # First we create a dictionary (courses) of subjects to store counting of how many times
@@ -50,12 +54,17 @@ def initialize_gene():
     return gene_length
 
 
-def generate_gene(gene_length):
-    gene = ""
-    for _ in range(gene_length):
-        gene += random.choice(["0", "1"])
+def encode_class():
+    return bin(random.randint(1, class_count))[2:]
 
-    return gene
+def encode_slot():
+    return bin(random.randint(1,total_slots))[2:1]
+
+def generate_gene(gene_length):
+    class_code = encode_class()
+    slot_code = encode_slot()
+
+
 
 
 def calculate_fitness(gene):

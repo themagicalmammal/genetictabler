@@ -55,10 +55,10 @@ def sort_population(population):
 
 
 def run_evolution(
-    total_days, slots, no_courses, population_size, max_fitness, max_generations=100
+    class_count, total_days, slots, no_courses, population_size, max_fitness, max_generations=100
 ):
 
-    initialize_genotype(no_courses, slots, total_days)
+    initialize_genotype(class_count, no_courses, slots, total_days)
     population = generate_population(population_size)
     for i in range(max_generations):
         population = sorted(population, key=calculate_fitness, reverse=True)

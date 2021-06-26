@@ -24,7 +24,6 @@ def single_point_crossover(gene_a, gene_b):
     elif c == 3:
         gene[slot_bits:] = encode_class()
 
-
     return gene_a, gene_b
 
 
@@ -38,8 +37,8 @@ def multi_point_crossover(gene_a, gene_b, points):
 
 
 def mutation(gene):
-    #global course_count
-    #global total_slots
+    # global course_count
+    # global total_slots
 
     course_bits = len(bin(course_count)) - 2
     slot_bits = len(bin(total_slots)) - 2

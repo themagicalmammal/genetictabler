@@ -79,7 +79,7 @@ def run_evolution(
         population = sorted(population, key=calculate_fitness, reverse=True)
 
         if calculate_fitness(population[0]) >= max_fitness:
-            break
+            return population[0]
 
         next_generation = population[0:2]
 
@@ -104,7 +104,15 @@ def fill_timetable(class_count, no_courses, slots, total_days, population_size, 
     all_slots = total_slots * class_count
 
     while all_slots > 0:
-        slot = run_evolution(population_size, max_fitness, max_generations)
+
+        gene= run_evolution(population_size, max_fitness, max_generations)
+        if gene!= 0:
+            fit_slot(gene, table)
+            all_slots -= 1
+
+
+
+
 
 
     return table

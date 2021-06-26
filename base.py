@@ -28,7 +28,7 @@ def single_point_crossover(gene_a, gene_b):
         )
     elif c == 3:
         gene_a[slot_bits:], gene_b[slot_bits:] = gene_b[slot_bits:], gene_a[
-                                                                     slot_bits:]
+            slot_bits:]
 
     return gene_a, gene_b
 
@@ -70,10 +70,7 @@ def sort_population(population):
     return sorted(population, key=calculate_fitness, reverse=True)
 
 
-def run_evolution(
-        population_size,
-        max_fitness,
-        max_generations=100):
+def run_evolution(population_size, max_fitness, max_generations=100):
     population = generate_population(population_size)
     for _ in range(max_generations):
         population = sorted(population, key=calculate_fitness, reverse=True)
@@ -95,7 +92,15 @@ def run_evolution(
     return 0
 
 
-def fill_timetable(class_count, no_courses, slots, total_days, population_size, max_fitness, max_generations):
+def fill_timetable(
+    class_count,
+    no_courses,
+    slots,
+    total_days,
+    population_size,
+    max_fitness,
+    max_generations,
+):
 
     initialize_genotype(class_count, no_courses, slots, total_days)
     table = generate_table_skeleton()
@@ -105,14 +110,9 @@ def fill_timetable(class_count, no_courses, slots, total_days, population_size, 
 
     while all_slots > 0:
 
-        gene= run_evolution(population_size, max_fitness, max_generations)
-        if gene!= 0:
+        gene = run_evolution(population_size, max_fitness, max_generations)
+        if gene != 0:
             fit_slot(gene, table)
             all_slots -= 1
-
-
-
-
-
 
     return table

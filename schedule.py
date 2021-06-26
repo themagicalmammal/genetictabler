@@ -51,9 +51,17 @@ def initialize_gene():
 
 
 def generate_gene(gene_length):
-    gene = ""
-    for _ in range(gene_length):
-        gene += random.choice(["0", "1"])
+    global course_count
+    global total_slots
+
+    gene = ''
+    course_num = random.randint(1, course_count)
+    course_bit = bin(course_num)
+    gene += course_bit[2:]
+
+    slot_num = random.randint(1, total_slots)
+    slot_bit = bin(slot_num)
+    gene += slot_bit[2:]
 
     return gene
 

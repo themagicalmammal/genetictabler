@@ -54,7 +54,7 @@ def generate_gene(gene_length):
     global course_count
     global total_slots
 
-    gene = ''
+    gene = ""
     course_num = random.randint(1, course_count)
     course_bit = bin(course_num)
     gene += course_bit[2:]

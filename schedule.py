@@ -80,6 +80,7 @@ def calculate_fitness(gene):
 
     return fitness
 
+
 def generate_table_skeleton():
 
     global class_count
@@ -96,6 +97,7 @@ def generate_table_skeleton():
 
     return tables
 
+
 def fit_slot(gene, table):
     course_bits = len(bin(course_count)) - 2
     slot_bits = len(bin(total_slots)) - 2
@@ -104,7 +106,7 @@ def fit_slot(gene, table):
     class_slot = gene[course_bits:slot_bits]
 
     slot_no = int(class_slot, 2) % daily_slots
-    day_no = int(class_slot, 2)//daily_slots
+    day_no = int(class_slot, 2) // daily_slots
 
     if slot_no == 0:
         slot_no = daily_slots
@@ -113,13 +115,3 @@ def fit_slot(gene, table):
     class_no = gene[slot_bits:]
 
     table[class_no][day_no][slot_no] = int(module, 2)
-
-
-
-
-
-
-
-
-
-

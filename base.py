@@ -12,9 +12,18 @@ def generate_population(size):
 def single_point_crossover(gene_a, gene_b):
     # Now we choose the point/location for single point crossover which will be a random index
     # between 2nd element and the second last element.
-    p = random.randint(1, len(gene_a) - 1)
 
-    gene_a, gene_b = gene_a[0:p] + gene_b[p:], gene_b[0:p] + gene_a[p:]
+    c = random.choice([1, 2, 3])
+    course_bits = len(bin(course_count)) - 2
+    slot_bits = len(bin(total_slots)) - 2
+    c = random.choice([1, 2, 3])
+    if c == 1:
+        gene[0:course_bits] = encode_module()
+    elif c == 2:
+        gene[course_bits:slot_bits] = encode_slot()
+    elif c == 3:
+        gene[slot_bits:] = encode_class()
+
 
     return gene_a, gene_b
 
@@ -29,11 +38,18 @@ def multi_point_crossover(gene_a, gene_b, points):
 
 
 def mutation(gene):
-    p = random.randint(0, len(gene) - 1)
-    if gene[p] == "1":
-        gene[p] = "0"
-    else:
-        gene[p] = "1"
+    #global course_count
+    #global total_slots
+
+    course_bits = len(bin(course_count)) - 2
+    slot_bits = len(bin(total_slots)) - 2
+    c = random.choice([1, 2, 3])
+    if c == 1:
+        gene[0:course_bits] = encode_module()
+    elif c == 2:
+        gene[course_bits:slot_bits] = encode_slot()
+    elif c == 3:
+        gene[slot_bits:] = encode_class()
 
     return gene
 

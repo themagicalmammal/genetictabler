@@ -72,7 +72,7 @@ def generate_gene():
     class_code = encode_class()
     slot_code = encode_slot()
 
-    return module_code + class_code + slot_code
+    return module_code + slot_code + class_code
 
 
 def calculate_fitness(gene):

@@ -29,7 +29,7 @@ def multi_point_crossover(gene_a, gene_b, points):
     return gene_a, gene_b
 
 
-def mutation(gene, num=1, probability=0.5):
+def mutation(gene, num=1):
     for _ in range(num):
 
         # we choose a random position "p" in the gene which we will mutate.
@@ -51,7 +51,7 @@ def selection_pair(population):
 
 
 def sort_population(population):
-    return sorted(population, key=calculate_fitness, reverse=True)
+    return sorted(population, key=calculate_fitness(gene), reverse=True)
 
 
 def run_evolution(
@@ -74,13 +74,13 @@ def run_evolution(
 
         next_generation = population[0:2]
 
-        for j in range(len(population) // 2 - 1):
+        for _ in range(len(population) // 2 - 1):
             parents = selection_pair(population)
-            child_a, child_b = mutation(parents[0], parents[1])
+            child_a, child_b = single_point_crossover(parents[0], parents[1])
             child_a, child_b = mutation(child_a), mutation(child_b)
 
             next_generation += [child_a, child_b]
 
         population = next_generation
 
-    return population[0]
+    return population

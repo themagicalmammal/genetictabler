@@ -58,7 +58,7 @@ def encode_class():
     return bin(random.randint(1, class_count))[2:]
 
 def encode_slot():
-    return bin(random.randint(1,total_slots))[2:1]
+    return bin(random.randint(1,total_slots))[2:]
 
 def generate_gene(gene_length):
     class_code = encode_class()

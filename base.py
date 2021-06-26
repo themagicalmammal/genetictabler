@@ -10,7 +10,6 @@ def generate_population(size):
 
 
 def single_point_crossover(gene_a, gene_b):
-
     # Now we choose the point/location for single point crossover which will be a random index
     # between 2nd element and the second last element.
     p = random.randint(1, len(gene_a) - 1)
@@ -29,16 +28,13 @@ def multi_point_crossover(gene_a, gene_b, points):
     return gene_a, gene_b
 
 
-def mutation(gene, num=1):
-    for _ in range(num):
+def mutation(gene):
+    p = random.randint(0, len(gene)-1)
+    if gene[p] == "1":
+        gene[p] = "0"
+    else:
+        gene[p] = "1"
 
-        # we choose a random position "p" in the gene which we will mutate.
-        p = random.randrange(len(gene))
-
-        if random.uniform(0, 1) > probability:
-            gene[p] = gene[p]
-        else:
-            gene[p] = generate_courses()
     return gene
 
 

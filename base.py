@@ -17,12 +17,18 @@ def single_point_crossover(gene_a, gene_b):
     slot_bits = len(bin(total_slots)) - 2
     c = random.choice([1, 2, 3])
     if c == 1:
-        gene_a[0:course_bits], gene_b[0:course_bits] = gene_b[0:course_bits], gene_a[0:course_bits]
+        gene_a[0:course_bits], gene_b[0:course_bits] = (
+            gene_b[0:course_bits],
+            gene_a[0:course_bits],
+        )
     elif c == 2:
-        gene_a[course_bits:slot_bits], gene_b[course_bits:slot_bits] = \
-            gene_b[course_bits:slot_bits], gene_a[course_bits:slot_bits]
+        gene_a[course_bits:slot_bits], gene_b[course_bits:slot_bits] = (
+            gene_b[course_bits:slot_bits],
+            gene_a[course_bits:slot_bits],
+        )
     elif c == 3:
-        gene_a[slot_bits:], gene_b[slot_bits:] = gene_b[slot_bits:], gene_a[slot_bits:]
+        gene_a[slot_bits:], gene_b[slot_bits:] = gene_b[slot_bits:], gene_a[
+            slot_bits:]
 
     return gene_a, gene_b
 
@@ -65,13 +71,13 @@ def sort_population(population):
 
 
 def run_evolution(
-        class_count,
-        total_days,
-        slots,
-        no_courses,
-        population_size,
-        max_fitness,
-        max_generations=100,
+    class_count,
+    total_days,
+    slots,
+    no_courses,
+    population_size,
+    max_fitness,
+    max_generations=100,
 ):
     initialize_genotype(class_count, no_courses, slots, total_days)
     population = generate_population(population_size)

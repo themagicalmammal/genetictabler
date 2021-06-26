@@ -14,7 +14,7 @@ class_count = 0
 
 
 def initialize_genotype(
-    clases,
+    classes,
     no_courses,
     slots=6,
     days=5,
@@ -27,7 +27,7 @@ def initialize_genotype(
     course_count = no_courses
     daily_slots = slots
     working_days = days
-    class_count = clases
+    class_count = classes
 
 
 def initialize_gene():

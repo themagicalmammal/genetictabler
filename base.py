@@ -62,7 +62,7 @@ def run_evolution(
 
     initialize_genotype(class_count, no_courses, slots, total_days)
     population = generate_population(population_size)
-    for i in range(max_generations):
+    for _ in range(max_generations):
         population = sorted(population, key=calculate_fitness, reverse=True)
 
         if calculate_fitness(population[0]) >= max_fitness:

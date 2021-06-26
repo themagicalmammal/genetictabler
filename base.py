@@ -55,7 +55,13 @@ def sort_population(population):
 
 
 def run_evolution(
-    class_count, total_days, slots, no_courses, population_size, max_fitness, max_generations=100
+    class_count,
+    total_days,
+    slots,
+    no_courses,
+    population_size,
+    max_fitness,
+    max_generations=100,
 ):
 
     initialize_genotype(class_count, no_courses, slots, total_days)

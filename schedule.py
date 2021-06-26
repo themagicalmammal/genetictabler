@@ -69,6 +69,7 @@ def encode_slot():
 def encode_mudule():
     return bin(random.randint(1, course_count))[2:]
 
+
 def generate_gene(gene_length):
 
     module_code = encode_mudule()

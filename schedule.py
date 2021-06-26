@@ -60,7 +60,12 @@ def encode_class():
 def encode_slot():
     return bin(random.randint(1,total_slots))[2:]
 
+def encode_mudule():
+    return bin(random.randint(1, course_count))[2:]
+
 def generate_gene(gene_length):
+
+    module_code = encode_mudule()
     class_code = encode_class()
     slot_code = encode_slot()
 

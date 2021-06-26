@@ -63,12 +63,14 @@ def encode_slot():
 def encode_module():
     return bin(random.randint(1, course_count))[2:]
 
+
 def generate_gene():
     module_code = encode_mudule()
     class_code = encode_class()
     slot_code = encode_slot()
 
     return module_code + class_code + slot_code
+
 
 def calculate_fitness(gene):
     fitness = 100

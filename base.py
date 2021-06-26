@@ -54,9 +54,12 @@ def sort_population(population):
     return sorted(population, key=calculate_fitness, reverse=True)
 
 
-def run_evolution(
-    total_days, slots, no_courses, population_size, max_fitness, max_generations=100
-):
+def run_evolution(total_days,
+                  slots,
+                  no_courses,
+                  population_size,
+                  max_fitness,
+                  max_generations=100):
 
     initialize_genotype(no_courses, slots, total_days)
     population = generate_population(population_size)

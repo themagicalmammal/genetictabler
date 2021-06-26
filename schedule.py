@@ -1,4 +1,4 @@
-import random
+from random import randint
 
 # The generate_courses() generates random binary strings representing different
 # courses based on the total number of courses specified.
@@ -47,24 +47,24 @@ def initialize_gene():
 
         extra_slots = (q_max + 1) * course_count - total_slots
 
-        n = random.randint(1, course_count - extra_slots)
+        n = randint(1, course_count - extra_slots)
         for i in range(extra_slots):
             course_quota[n + i] -= 1
 
 
 def encode_class():
     global class_count
-    return bin(random.randint(1, class_count))[2:]
+    return bin(randint(1, class_count))[2:]
 
 
 def encode_slot():
     global total_slots
-    return bin(random.randint(1, total_slots))[2:]
+    return bin(randint(1, total_slots))[2:]
 
 
 def encode_module():
     global course_count
-    return bin(random.randint(1, course_count))[2:]
+    return bin(randint(1, course_count))[2:]
 
 
 def generate_gene():

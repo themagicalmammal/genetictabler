@@ -1,5 +1,4 @@
-import random
-
+from random import choice, choices
 from schedule import *
 
 
@@ -15,7 +14,7 @@ def single_point_crossover(gene_a, gene_b):
 
     course_bits = len(bin(course_count)) - 2
     slot_bits = len(bin(total_slots)) - 2
-    c = random.choice([1, 2, 3])
+    c = choice([1, 2, 3])
     if c == 1:
         gene_a[0:course_bits], gene_b[0:course_bits] = (
             gene_b[0:course_bits],
@@ -47,7 +46,7 @@ def mutation(gene):
 
     course_bits = len(bin(course_count)) - 2
     slot_bits = len(bin(total_slots)) - 2
-    c = random.choice([1, 2, 3])
+    c = choice([1, 2, 3])
     if c == 1:
         gene[0:course_bits] = encode_module()
     elif c == 2:
@@ -59,7 +58,7 @@ def mutation(gene):
 
 
 def selection_pair(population):
-    return random.choices(
+    return choices(
         population=population,
         weights=[calculate_fitness(gene) for gene in population],
         k=2,
@@ -93,7 +92,7 @@ def run_evolution(population_size, max_fitness, max_generations=100):
 
 
 def fill_timetable(
-    class_count,
+    total_classes,
     no_courses,
     slots,
     total_days,
@@ -102,7 +101,7 @@ def fill_timetable(
     max_generations,
 ):
 
-    initialize_genotype(class_count, no_courses, slots, total_days)
+    initialize_genotype(total_classes, no_courses, slots, total_days)
     table = generate_table_skeleton()
 
     # all_slots is the sum of total_slots in all the classes.

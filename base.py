@@ -29,7 +29,7 @@ def multi_point_crossover(gene_a, gene_b, points):
 
 
 def mutation(gene):
-    p = random.randint(0, len(gene)-1)
+    p = random.randint(0, len(gene) - 1)
     if gene[p] == "1":
         gene[p] = "0"
     else:

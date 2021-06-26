@@ -47,7 +47,7 @@ def selection_pair(population):
 
 
 def sort_population(population):
-    return sorted(population, key=calculate_fitness(gene), reverse=True)
+    return sorted(population, key=calculate_fitness, reverse=True)
 
 
 def run_evolution(

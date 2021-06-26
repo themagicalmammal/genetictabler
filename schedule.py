@@ -53,19 +53,22 @@ def initialize_gene():
 
 
 def encode_class():
+    global class_count
     return bin(random.randint(1, class_count))[2:]
 
 
 def encode_slot():
+    global total_slots
     return bin(random.randint(1, total_slots))[2:]
 
 
 def encode_module():
+    global course_count
     return bin(random.randint(1, course_count))[2:]
 
 
 def generate_gene():
-    module_code = encode_mudule()
+    module_code = encode_module()
     class_code = encode_class()
     slot_code = encode_slot()
 

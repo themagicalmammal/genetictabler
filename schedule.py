@@ -79,3 +79,12 @@ def calculate_fitness(gene):
     fitness = 100
 
     return fitness
+
+def generate_table_skeleton():
+
+    global class_count
+    global total_slots
+
+    return [[0 for _ in range(total_slots)] for _ in range(class_count)]
+
+

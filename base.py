@@ -13,21 +13,24 @@ def single_point_crossover(gene_a, gene_b):
     # between 2nd element and the second last element.
 
     c = choice([1, 2, 3])
-    if c == 1:
-        gene_a[0:course_bits], gene_b[0:course_bits] = (
-            gene_b[0:course_bits],
-            gene_a[0:course_bits],
-        )
-    elif c == 2:
-        gene_a[course_bits:slot_bits], gene_b[course_bits:slot_bits] = (
-            gene_b[course_bits:slot_bits],
-            gene_a[course_bits:slot_bits],
-        )
-    elif c == 3:
-        gene_a[slot_bits:], gene_b[slot_bits:] = gene_b[slot_bits:], gene_a[
-            slot_bits:]
 
-    return gene_a, gene_b
+    #Test: changed bits swap logic, since string is immutable.
+
+    if c == 1:
+
+        gene_c = gene_b[0:course_bits] + gene_a[course_bits:]
+        gene_d = gene_a[0:course_bits] + gene_b[course_bits:]
+
+    elif c == 2:
+        gene_c = gene_a[:course_bits] + gene_b[course_bits:course_bits + slot_bits] + gene_a[course_bits+slot_bits:]
+        gene_d = gene_b[:course_bits] + gene_a[course_bits:course_bits + slot_bits] + gene_b[course_bits + slot_bits:]
+
+    elif c == 3:
+        gene_c = gene_a[:course_bits + slot_bits] + gene_b[course_bits + slot_bits:]
+        gene_d = gene_b[:course_bits + slot_bits] + gene_a[course_bits + slot_bits:]
+
+
+    return gene_c, gene_d
 
 
 def multi_point_crossover(gene_a, gene_b, points):

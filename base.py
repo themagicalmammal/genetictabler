@@ -1,4 +1,5 @@
 from random import choice, choices
+
 from schedule import *
 
 
@@ -24,8 +25,7 @@ def single_point_crossover(gene_a, gene_b):
             gene_a[course_bits:slot_bits],
         )
     elif c == 3:
-        gene_a[slot_bits:], gene_b[slot_bits:] = gene_b[slot_bits:], gene_a[
-            slot_bits:]
+        gene_a[slot_bits:], gene_b[slot_bits:] = gene_b[slot_bits:], gene_a[slot_bits:]
 
     return gene_a, gene_b
 

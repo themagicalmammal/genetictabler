@@ -107,7 +107,9 @@ def calculate_fitness(gene):
     if slot_no != 1 and tables[class_no][day_no][slot_no - 1] == int(module, 2):
         fitness *= 0.6
 
-    if slot_no != daily_slots and tables[class_no][day_no][slot_no + 1] == int(module, 2):
+    if slot_no != daily_slots and tables[class_no][day_no][slot_no + 1] == int(
+        module, 2
+    ):
         fitness *= 0.6
 
     return fitness

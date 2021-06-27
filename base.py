@@ -1,4 +1,5 @@
 from random import choice, choices
+
 from schedule import *
 
 
@@ -24,8 +25,7 @@ def single_point_crossover(gene_a, gene_b):
             gene_a[course_bits:slot_bits],
         )
     elif c == 3:
-        gene_a[slot_bits:], gene_b[slot_bits:] = gene_b[slot_bits:], gene_a[
-            slot_bits:]
+        gene_a[slot_bits:], gene_b[slot_bits:] = gene_b[slot_bits:], gene_a[slot_bits:]
 
     return gene_a, gene_b
 
@@ -95,7 +95,7 @@ def fill_timetable(
     population_size,
     max_fitness,
     max_generations,
-    daily_repetition
+    daily_repetition,
 ):
     # initialize the genotype and a skeletal table
     initialize_genotype(no_courses, total_classes, slots, total_days, daily_repetition)

@@ -64,6 +64,7 @@ def initialize_gene():
 
     course_quota = [course_quota for _ in range(class_count)]
 
+
 def encode_class():
     global class_count
     return bin(randint(1, class_count))[2:]
@@ -114,7 +115,7 @@ def calculate_fitness(gene):
 
     if slot_no != daily_slots and tables[class_no][day_no][slot_no + 1] == module:
         fitness *= 0.6
-        
+
     if course_quota[class_no][module - 1] == 0:
         fitness *= 0
 

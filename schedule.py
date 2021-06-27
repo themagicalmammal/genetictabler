@@ -96,6 +96,7 @@ def generate_gene():
     class_code = encode_class()
     slot_code = encode_slot()
 
+    print(module_code , slot_code , class_code)
     return module_code + slot_code + class_code
 
 
@@ -103,17 +104,18 @@ def calculate_fitness(gene):
     fitness = 100
 
     module = int(gene[0:course_bits], 2)
-    class_slot = gene[course_bits:slot_bits]
+    class_slot = int(gene[course_bits:course_bits+slot_bits], 2)
 
-    slot_no = int(class_slot, 2) % daily_slots
-    day_no = int(class_slot, 2) // daily_slots
+    slot_no = class_slot % daily_slots
+    day_no = class_slot // daily_slots
 
     if slot_no == 0:
         slot_no = daily_slots
         day_no -= 1
 
-    class_no = int(gene[slot_bits:], 2)
-
+    class_no = int(gene[course_bits+slot_bits:], 2)
+    print(gene[0:course_bits], gene[course_bits:course_bits+slot_bits], gene[course_bits+slot_bits:])
+    print(module, class_slot, class_no)
     if tables[class_no][day_no][slot_no] != 0:
         fitness *= 0
 
@@ -157,7 +159,7 @@ def fit_slot(gene):
     global course_quota
 
     module = int(gene[0:course_bits], 2)
-    class_slot = int(gene[course_bits:slot_bits], 2)
+    class_slot = int(gene[course_bits:course_bits+slot_bits], 2)
 
     slot_no = class_slot % daily_slots
     day_no = class_slot // daily_slots
@@ -166,7 +168,7 @@ def fit_slot(gene):
         slot_no = daily_slots
         day_no -= 1
 
-    class_no = int(gene[slot_bits:], 2)
+    class_no = int(gene[course_bits+slot_bits:], 2)
 
     tables[class_no][day_no][slot_no] = module
     course_quota[class_no][module - 1] -= 1

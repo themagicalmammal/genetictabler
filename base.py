@@ -95,9 +95,10 @@ def fill_timetable(
     population_size,
     max_fitness,
     max_generations,
+    daily_repetition
 ):
     # initialize the genotype and a skeletal table
-    initialize_genotype(no_courses, total_classes, slots, total_days)
+    initialize_genotype(no_courses, total_classes, slots, total_days, daily_repetition)
     generate_table_skeleton()
 
     # all_slots is the sum of total_slots in all the classes.

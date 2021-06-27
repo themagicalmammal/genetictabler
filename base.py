@@ -47,13 +47,14 @@ def mutation(gene):
 
     c = choice([1, 2, 3])
     if c == 1:
-        gene[0:course_bits] = encode_module()
+        mutated_gene = encode_module() + gene[course_bits:]
+        #gene[0:course_bits] = encode_module()
     elif c == 2:
-        gene[course_bits:slot_bits] = encode_slot()
+        mutated_gene = gene[:course_bits] + encode_slot() + gene[course_bits+slot_bits:]
     elif c == 3:
-        gene[slot_bits:] = encode_class()
+        mutated_gene = gene[:course_bits+slot_bits] + encode_slot()
 
-    return gene
+    return mutated_gene
 
 
 def selection_pair(population):

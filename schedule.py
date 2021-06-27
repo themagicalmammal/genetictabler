@@ -43,7 +43,7 @@ def initialize_genotype(
     course_bits = len(bin(course_count)) - 2
     total_slots = daily_slots * working_days
     slot_bits = len(bin(total_slots)) - 2
-    class_bits = len(bin(course_count)) -2
+    class_bits = len(bin(course_count)) - 2
 
 
 def initialize_gene():
@@ -66,24 +66,25 @@ def initialize_gene():
 
     course_quota = [course_quota for _ in range(class_count)]
 
+
 def encode_class():
     global class_count
     class_code = bin(randint(1, class_count))[2:]
-    class_code = "0"*(class_bits - len(str)) + class_code
+    class_code = "0" * (class_bits - len(str)) + class_code
     return class_code
 
 
 def encode_slot():
     global total_slots
     slot_code = bin(randint(1, total_slots))[2:]
-    slot_code = "0"*(slot_bits - len(str)) + slot_code
+    slot_code = "0" * (slot_bits - len(str)) + slot_code
     return slot_code
 
 
 def encode_module():
     global course_count
     module_code = bin(randint(1, course_count))[2:]
-    module_code = "0"*(course_bits - len(module_code)) + module_code
+    module_code = "0" * (course_bits - len(module_code)) + module_code
     return module_code
 
 
@@ -122,7 +123,7 @@ def calculate_fitness(gene):
 
     if slot_no != daily_slots and tables[class_no][day_no][slot_no + 1] == module:
         fitness *= 0.6
-        
+
     if course_quota[class_no][module - 1] == 0:
         fitness *= 0
 

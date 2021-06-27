@@ -1,4 +1,5 @@
 from random import choice, choices
+
 from schedule import *
 
 
@@ -14,7 +15,7 @@ def single_point_crossover(gene_a, gene_b):
 
     c = choice([1, 2, 3])
 
-    #Test: changed bits swap logic, since string is immutable.
+    # Test: changed bits swap logic, since string is immutable.
 
     if c == 1:
 
@@ -22,13 +23,20 @@ def single_point_crossover(gene_a, gene_b):
         gene_d = gene_a[0:course_bits] + gene_b[course_bits:]
 
     elif c == 2:
-        gene_c = gene_a[:course_bits] + gene_b[course_bits:course_bits + slot_bits] + gene_a[course_bits+slot_bits:]
-        gene_d = gene_b[:course_bits] + gene_a[course_bits:course_bits + slot_bits] + gene_b[course_bits + slot_bits:]
+        gene_c = (
+            gene_a[:course_bits]
+            + gene_b[course_bits : course_bits + slot_bits]
+            + gene_a[course_bits + slot_bits :]
+        )
+        gene_d = (
+            gene_b[:course_bits]
+            + gene_a[course_bits : course_bits + slot_bits]
+            + gene_b[course_bits + slot_bits :]
+        )
 
     elif c == 3:
-        gene_c = gene_a[:course_bits + slot_bits] + gene_b[course_bits + slot_bits:]
-        gene_d = gene_b[:course_bits + slot_bits] + gene_a[course_bits + slot_bits:]
-
+        gene_c = gene_a[: course_bits + slot_bits] + gene_b[course_bits + slot_bits :]
+        gene_d = gene_b[: course_bits + slot_bits] + gene_a[course_bits + slot_bits :]
 
     return gene_c, gene_d
 
@@ -98,10 +106,12 @@ def fill_timetable(
     population_size,
     max_fitness,
     max_generations,
-    daily_repetition
+    daily_repetition,
 ):
     # all_slots is the sum of total_slots in all the classes.
-    all_slots = initialize_genotype(no_courses, total_classes, slots, total_days, daily_repetition)
+    all_slots = initialize_genotype(
+        no_courses, total_classes, slots, total_days, daily_repetition
+    )
 
     # initialize the genotype and a skeletal table
     generate_table_skeleton()

@@ -12,8 +12,6 @@ def single_point_crossover(gene_a, gene_b):
     # Now we choose the point/location for single point crossover which will be a random index
     # between 2nd element and the second last element.
 
-    course_bits = len(bin(course_count)) - 2
-    slot_bits = len(bin(total_slots)) - 2
     c = choice([1, 2, 3])
     if c == 1:
         gene_a[0:course_bits], gene_b[0:course_bits] = (
@@ -44,8 +42,6 @@ def mutation(gene):
     # global course_count
     # global total_slots
 
-    course_bits = len(bin(course_count)) - 2
-    slot_bits = len(bin(total_slots)) - 2
     c = choice([1, 2, 3])
     if c == 1:
         gene[0:course_bits] = encode_module()
@@ -100,9 +96,9 @@ def fill_timetable(
     max_fitness,
     max_generations,
 ):
-
-    initialize_genotype(total_classes, no_courses, slots, total_days)
-    table = generate_table_skeleton()
+    # initialize the genotype and a skeletal table
+    initialize_genotype(no_courses, total_classes, slots, total_days)
+    generate_table_skeleton()
 
     # all_slots is the sum of total_slots in all the classes.
     all_slots = total_slots * class_count
@@ -111,7 +107,7 @@ def fill_timetable(
 
         gene = run_evolution(population_size, max_fitness, max_generations)
         if gene != 0:
-            fit_slot(gene, table)
+            fit_slot(gene)
             all_slots -= 1
 
-    return table
+    return tables

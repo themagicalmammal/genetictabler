@@ -23,20 +23,18 @@ def single_point_crossover(gene_a, gene_b):
         gene_d = gene_a[0:course_bits] + gene_b[course_bits:]
 
     elif c == 2:
-        gene_c = (
-            gene_a[:course_bits]
-            + gene_b[course_bits : course_bits + slot_bits]
-            + gene_a[course_bits + slot_bits :]
-        )
-        gene_d = (
-            gene_b[:course_bits]
-            + gene_a[course_bits : course_bits + slot_bits]
-            + gene_b[course_bits + slot_bits :]
-        )
+        gene_c = (gene_a[:course_bits] +
+                  gene_b[course_bits:course_bits + slot_bits] +
+                  gene_a[course_bits + slot_bits:])
+        gene_d = (gene_b[:course_bits] +
+                  gene_a[course_bits:course_bits + slot_bits] +
+                  gene_b[course_bits + slot_bits:])
 
     elif c == 3:
-        gene_c = gene_a[: course_bits + slot_bits] + gene_b[course_bits + slot_bits :]
-        gene_d = gene_b[: course_bits + slot_bits] + gene_a[course_bits + slot_bits :]
+        gene_c = gene_a[:course_bits + slot_bits] + gene_b[course_bits +
+                                                           slot_bits:]
+        gene_d = gene_b[:course_bits + slot_bits] + gene_a[course_bits +
+                                                           slot_bits:]
 
     return [gene_c, gene_d]
 
@@ -70,9 +68,8 @@ def mutation(gene, course_bit_length, slot_bit_length):
 
     elif c == 2:
         d = encode_slot()
-        mutated_gene = (
-            gene[:course_bit_length] + d + gene[course_bit_length + slot_bit_length :]
-        )
+        mutated_gene = (gene[:course_bit_length] + d +
+                        gene[course_bit_length + slot_bit_length:])
         """
         # the below code is only for debugging/ testing
         if len(mutated_gene) > len(gene):
@@ -83,7 +80,7 @@ def mutation(gene, course_bit_length, slot_bit_length):
 
     elif c == 3:
         e = encode_class()
-        mutated_gene = gene[: course_bit_length + slot_bit_length] + e
+        mutated_gene = gene[:course_bit_length + slot_bit_length] + e
         """
         # the below code is only for debugging/ testing
         if len(mutated_gene) > len(gene):

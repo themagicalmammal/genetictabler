@@ -135,9 +135,6 @@ def run_evolution(
 # adding 2 more arguments course_bits, slot_bits. Their values will be returned by initialize genotype ()
 # which we will call before calling fill_timetable()
 def fill_timetable(
-    course_bit_length,
-    slot_bit_length,
-    all_slots,
     total_classes,
     no_courses,
     slots,
@@ -151,6 +148,7 @@ def fill_timetable(
     # config_data = initialize_genotype(no_courses, total_classes, slots, total_days, daily_repetition)
 
     # initialize the genotype and a skeletal table
+    course_bit_length, slot_bit_length, all_slots = initialize_genotype(no_courses, total_classes, slots, total_days, daily_repetition)
     generate_table_skeleton()
 
     while all_slots > 0:

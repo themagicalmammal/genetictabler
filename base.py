@@ -1,4 +1,5 @@
 from random import choice, choices
+
 from schedule import *
 
 
@@ -22,12 +23,20 @@ def single_point_crossover(gene_a, gene_b):
         gene_d = gene_a[0:course_bits] + gene_b[course_bits:]
 
     elif c == 2:
-        gene_c = gene_a[:course_bits] + gene_b[course_bits:course_bits + slot_bits] + gene_a[course_bits + slot_bits:]
-        gene_d = gene_b[:course_bits] + gene_a[course_bits:course_bits + slot_bits] + gene_b[course_bits + slot_bits:]
+        gene_c = (
+            gene_a[:course_bits]
+            + gene_b[course_bits : course_bits + slot_bits]
+            + gene_a[course_bits + slot_bits :]
+        )
+        gene_d = (
+            gene_b[:course_bits]
+            + gene_a[course_bits : course_bits + slot_bits]
+            + gene_b[course_bits + slot_bits :]
+        )
 
     elif c == 3:
-        gene_c = gene_a[:course_bits + slot_bits] + gene_b[course_bits + slot_bits:]
-        gene_d = gene_b[:course_bits + slot_bits] + gene_a[course_bits + slot_bits:]
+        gene_c = gene_a[: course_bits + slot_bits] + gene_b[course_bits + slot_bits :]
+        gene_d = gene_b[: course_bits + slot_bits] + gene_a[course_bits + slot_bits :]
 
     return [gene_c, gene_d]
 
@@ -51,7 +60,6 @@ def mutation(gene, course_bit_length, slot_bit_length):
         c1 = encode_module()
         mutated_gene = c1 + gene[course_bit_length:]
         # gene[0:course_bits] = encode_module()
-
         """
         # the below code is only for debugging/ testing
         if len(mutated_gene) > len(gene):
@@ -62,8 +70,9 @@ def mutation(gene, course_bit_length, slot_bit_length):
 
     elif c == 2:
         d = encode_slot()
-        mutated_gene = gene[:course_bit_length] + d + gene[course_bit_length + slot_bit_length:]
-
+        mutated_gene = (
+            gene[:course_bit_length] + d + gene[course_bit_length + slot_bit_length :]
+        )
         """
         # the below code is only for debugging/ testing
         if len(mutated_gene) > len(gene):
@@ -74,8 +83,7 @@ def mutation(gene, course_bit_length, slot_bit_length):
 
     elif c == 3:
         e = encode_class()
-        mutated_gene = gene[:course_bit_length + slot_bit_length] + e
-
+        mutated_gene = gene[: course_bit_length + slot_bit_length] + e
         """
         # the below code is only for debugging/ testing
         if len(mutated_gene) > len(gene):
@@ -99,7 +107,13 @@ def sort_population(population):
     return sorted(population, key=calculate_fitness, reverse=True)
 
 
-def run_evolution(course_bit_lenght, slot_bit_lenght, population_size, max_fitness, max_generations=100):
+def run_evolution(
+    course_bit_lenght,
+    slot_bit_lenght,
+    population_size,
+    max_fitness,
+    max_generations=100,
+):
     population = generate_population(population_size)
     for _ in range(max_generations):
         population = sorted(population, key=calculate_fitness, reverse=True)
@@ -127,17 +141,17 @@ def run_evolution(course_bit_lenght, slot_bit_lenght, population_size, max_fitne
 # adding 2 more arguments course_bits, slot_bits. Their values will be returned by initialize genotype ()
 # which we will call before calling fill_timetable()
 def fill_timetable(
-        course_bit_length,
-        slot_bit_length,
-        all_slots,
-        total_classes,
-        no_courses,
-        slots,
-        total_days,
-        population_size,
-        max_fitness,
-        max_generations,
-        daily_repetition
+    course_bit_length,
+    slot_bit_length,
+    all_slots,
+    total_classes,
+    no_courses,
+    slots,
+    total_days,
+    population_size,
+    max_fitness,
+    max_generations,
+    daily_repetition,
 ):
     # all_slots is the sum of total_slots in all the classes.
     # config_data = initialize_genotype(no_courses, total_classes, slots, total_days, daily_repetition)
@@ -147,7 +161,13 @@ def fill_timetable(
 
     while all_slots > 0:
 
-        gene = run_evolution(course_bit_length, slot_bit_length, population_size, max_fitness, max_generations)
+        gene = run_evolution(
+            course_bit_length,
+            slot_bit_length,
+            population_size,
+            max_fitness,
+            max_generations,
+        )
         if gene != 0:
             fit_slot(gene)
             all_slots -= 1

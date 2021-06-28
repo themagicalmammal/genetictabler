@@ -144,14 +144,10 @@ def fill_timetable(
     max_generations,
     daily_repetition,
 ):
-    # all_slots is the sum of total_slots in all the classes.
-    # config_data = initialize_genotype(no_courses, total_classes, slots, total_days, daily_repetition)
-
     # initialize the genotype and a skeletal table
     course_bit_length, slot_bit_length, all_slots = initialize_genotype(
         no_courses, total_classes, slots, total_days, daily_repetition)
     generate_table_skeleton()
-
     while all_slots > 0:
 
         gene = run_evolution(

@@ -48,7 +48,6 @@ def multi_point_crossover(gene_a, gene_b, points):
 
 
 def mutation(gene, course_bit_length, slot_bit_length):
-
     c = choice([1, 2, 3])
     if c == 1:
 
@@ -102,11 +101,11 @@ def sort_population(population):
 
 
 def run_evolution(
-    course_bit_length,
-    slot_bit_length,
-    population_size,
-    max_fitness,
-    max_generations=100,
+        course_bit_length,
+        slot_bit_length,
+        population_size,
+        max_fitness,
+        max_generations,
 ):
     population = generate_population(population_size)
     for _ in range(max_generations):
@@ -135,14 +134,14 @@ def run_evolution(
 # adding 2 more arguments course_bits, slot_bits. Their values will be returned by initialize genotype ()
 # which we will call before calling fill_timetable()
 def fill_timetable(
-    total_classes,
-    no_courses,
-    slots,
-    total_days,
-    population_size,
-    max_fitness,
-    max_generations,
-    daily_repetition,
+        total_classes,
+        no_courses,
+        slots,
+        total_days,
+        daily_repetition,
+        population_size=10,
+        max_fitness=100,
+        max_generations=25,
 ):
     # initialize the genotype and a skeletal table
     course_bit_length, slot_bit_length, all_slots = initialize_genotype(

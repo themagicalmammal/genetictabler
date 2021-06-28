@@ -16,6 +16,7 @@ slot_bits = 0
 class_bits = 0
 tables = []
 daily_rep = 2
+total_fitness = 0
 
 
 def initialize_genotype(
@@ -164,6 +165,10 @@ def generate_table_skeleton():
 def fit_slot(gene):
     global tables
     global course_quota
+    global total_fitness
+
+    total_fitness += calculate_fitness(gene)
+    print(total_fitness)
 
     module = int(gene[0:course_bits], 2)
     class_slot = int(gene[course_bits:course_bits + slot_bits], 2)

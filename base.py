@@ -129,7 +129,7 @@ def run_evolution(
 
         population = next_generation
 
-    return population[0]
+    return 0
 
 
 # adding 2 more arguments course_bits, slot_bits. Their values will be returned by initialize genotype ()

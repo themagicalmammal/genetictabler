@@ -158,7 +158,6 @@ def generate_table_skeleton():
             day = [0 for _ in range(daily_slots)]
             class_table.append(day)
         tables.append(class_table)
-
     return tables
 
 

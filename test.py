@@ -1,7 +1,9 @@
-from base import fill_timetable
-from statistics import mean
 import time
-t= []
+from statistics import mean
+
+from base import fill_timetable
+
+t = []
 for _ in range(10):
     t0 = time.time()
 
@@ -14,18 +16,20 @@ for _ in range(10):
     max_generations = 20
     daily_repetition = 2
 
-    table = fill_timetable(total_classes,
+    table = fill_timetable(
+        total_classes,
         no_courses,
         slots,
         total_days,
         population_size,
         max_fitness,
         max_generations,
-        daily_repetition,)
+        daily_repetition,
+    )
 
     t1 = time.time()
-    print(t1 -t0)
-    t.append(t1 -t0)
+    print(t1 - t0)
+    t.append(t1 - t0)
 for i in table:
     for j in i:
         print(j)

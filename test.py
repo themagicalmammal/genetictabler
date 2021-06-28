@@ -1,4 +1,5 @@
 import time
+
 from base import fill_timetable
 
 total_classes = 5
@@ -23,9 +24,7 @@ table = fill_timetable(
 t1 = time.time()
 print((t1 - t0) * 100)
 
-
 for i in table:
     for j in i:
         print(j)
     print("-----------------------------------")
-

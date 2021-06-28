@@ -18,7 +18,6 @@ def single_point_crossover(gene_a, gene_b):
     # Test: changed bits swap logic, since string is immutable.
 
     if c == 1:
-
         gene_c = gene_b[0:course_bits] + gene_a[course_bits:]
         gene_d = gene_a[0:course_bits] + gene_b[course_bits:]
 
@@ -50,7 +49,6 @@ def multi_point_crossover(gene_a, gene_b, points):
 def mutation(gene, course_bit_length, slot_bit_length):
     c = choice([1, 2, 3])
     if c == 1:
-
         # Test : changed the logic for adding mutated part to the gene since str is immutable.
         c1 = encode_module()
         mutated_gene = c1 + gene[course_bit_length:]

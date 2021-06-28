@@ -19,11 +19,11 @@ daily_rep = 2
 
 
 def initialize_genotype(
-        no_courses,
-        classes=4,
-        slots=6,
-        days=5,
-        daily_repetition=2,
+    no_courses,
+    classes=4,
+    slots=6,
+    days=5,
+    daily_repetition=2,
 ):
     global course_count
     global daily_slots
@@ -136,10 +136,12 @@ def calculate_fitness(gene):
         if tables[i][day_no - 1][slot_no - 1] == module:
             fitness *= 0.6
 
-    if slot_no != 1 and tables[class_no - 1][day_no - 1][(slot_no - 1) - 1] == module:
+    if slot_no != 1 and tables[class_no - 1][day_no - 1][(slot_no - 1) -
+                                                         1] == module:
         fitness *= 0.6
 
-    if slot_no != daily_slots and tables[class_no - 1][day_no - 1][(slot_no - 1) + 1] == module:
+    if (slot_no != daily_slots
+            and tables[class_no - 1][day_no - 1][(slot_no - 1) + 1] == module):
         fitness *= 0.6
 
     if course_quota[class_no - 1][(module - 1) - 1] == 0:

@@ -30,7 +30,7 @@ def single_point_crossover(gene_a, gene_b):
                   gene_a[course_bits:course_bits + slot_bits] +
                   gene_b[course_bits + slot_bits:])
 
-    elif c == 3:
+    else:
         gene_c = gene_a[:course_bits + slot_bits] + gene_b[course_bits +
                                                            slot_bits:]
         gene_d = gene_b[:course_bits + slot_bits] + gene_a[course_bits +
@@ -48,8 +48,6 @@ def multi_point_crossover(gene_a, gene_b, points):
 
 
 def mutation(gene, course_bit_length, slot_bit_length):
-    # global course_count
-    # global total_slots
 
     c = choice([1, 2, 3])
     if c == 1:
@@ -57,7 +55,6 @@ def mutation(gene, course_bit_length, slot_bit_length):
         # Test : changed the logic for adding mutated part to the gene since str is immutable.
         c1 = encode_module()
         mutated_gene = c1 + gene[course_bit_length:]
-        # gene[0:course_bits] = encode_module()
         """
         # the below code is only for debugging/ testing
         if len(mutated_gene) > len(gene):
@@ -78,7 +75,7 @@ def mutation(gene, course_bit_length, slot_bit_length):
             print("---------------------------------------------")
         """
 
-    elif c == 3:
+    else:
         e = encode_class()
         mutated_gene = gene[:course_bit_length + slot_bit_length] + e
         """
@@ -105,8 +102,8 @@ def sort_population(population):
 
 
 def run_evolution(
-    course_bit_lenght,
-    slot_bit_lenght,
+    course_bit_length,
+    slot_bit_length,
     population_size,
     max_fitness,
     max_generations=100,
@@ -125,8 +122,8 @@ def run_evolution(
             child_a = single_point_crossover(parents[0], parents[1])[0]
             child_b = single_point_crossover(parents[0], parents[1])[1]
 
-            child_a_ = mutation(child_a, course_bit_lenght, slot_bit_lenght)
-            child_b_ = mutation(child_b, course_bit_lenght, slot_bit_lenght)
+            child_a_ = mutation(child_a, course_bit_length, slot_bit_length)
+            child_b_ = mutation(child_b, course_bit_length, slot_bit_length)
 
             next_generation += [child_a_, child_b_]
 

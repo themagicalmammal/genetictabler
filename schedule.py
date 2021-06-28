@@ -29,10 +29,10 @@ def initialize_genotype(
     global daily_slots
     global working_days
     global class_count
+    global daily_rep
     global course_bits
     global total_slots
     global slot_bits
-    global daily_rep
     global class_bits
 
     course_count = no_courses
@@ -52,8 +52,6 @@ def initialize_genotype(
 
 
 def initialize_gene():
-    global daily_slots
-    global working_days
     global course_quota
 
     q_max = total_slots // course_count
@@ -72,21 +70,18 @@ def initialize_gene():
 
 
 def encode_class():
-    global class_count
     class_code = bin(randint(1, class_count))[2:]
     class_code = "0" * (class_bits - len(class_code)) + class_code
     return class_code
 
 
 def encode_slot():
-    global total_slots
     slot_code = bin(randint(1, total_slots))[2:]
     slot_code = "0" * (slot_bits - len(slot_code)) + slot_code
     return slot_code
 
 
 def encode_module():
-    global course_count
     module_code = bin(randint(1, course_count))[2:]
     module_code = "0" * (course_bits - len(module_code)) + module_code
     return module_code
@@ -97,7 +92,7 @@ def generate_gene():
     class_code = encode_class()
     slot_code = encode_slot()
 
-    print(module_code, slot_code, class_code)
+    # print(module_code, slot_code, class_code)
     return module_code + slot_code + class_code
 
 
@@ -111,7 +106,7 @@ def calculate_fitness(gene):
     """
 
     fitness = 100
-    print(gene)
+    # print(gene)
     module = int(gene[0:course_bits], 2)
     class_slot = int(gene[course_bits:course_bits + slot_bits], 2)
 
@@ -154,9 +149,6 @@ def calculate_fitness(gene):
 
 
 def generate_table_skeleton():
-    global class_count
-    global working_days
-    global daily_slots
     global tables
 
     for _ in range(class_count):

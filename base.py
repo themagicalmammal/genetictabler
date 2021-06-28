@@ -50,12 +50,12 @@ def mutation(gene, course_bit_length, slot_bit_length):
     c = choice([1, 2, 3])
     if c == 1:
         # Test : changed the logic for adding mutated part to the gene since str is immutable.
-        c1 = encode_module()
+        c1 = encode_course()
         mutated_gene = c1 + gene[course_bit_length:]
         """
         # the below code is only for debugging/ testing
         if len(mutated_gene) > len(gene):
-            print("Alert: module mutation gone wrong", course_bit_length, slot_bit_length)
+            print("Alert: course mutation gone wrong", course_bit_length, slot_bit_length)
             print(c1,gene[course_bits:])
             print("---------------------------------------------")
         """

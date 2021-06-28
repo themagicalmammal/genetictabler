@@ -82,19 +82,19 @@ def encode_slot():
     return slot_code
 
 
-def encode_module():
-    module_code = bin(randint(1, course_count))[2:]
-    module_code = "0" * (course_bits - len(module_code)) + module_code
-    return module_code
+def encode_course():
+    course_code = bin(randint(1, course_count))[2:]
+    course_code = "0" * (course_bits - len(course_code)) + course_code
+    return course_code
 
 
 def generate_gene():
-    module_code = encode_module()
+    course_code = encode_course()
     class_code = encode_class()
     slot_code = encode_slot()
 
-    # print(module_code, slot_code, class_code)
-    return module_code + slot_code + class_code
+    # print(course_code, slot_code, class_code)
+    return course_code + slot_code + class_code
 
 
 def calculate_fitness(gene):
@@ -108,7 +108,7 @@ def calculate_fitness(gene):
 
     fitness = 100
     # print(gene)
-    module = int(gene[0:course_bits], 2)
+    course = int(gene[0:course_bits], 2)
     class_slot = int(gene[course_bits:course_bits + slot_bits], 2)
 
     slot_no = class_slot % daily_slots
@@ -121,7 +121,7 @@ def calculate_fitness(gene):
     class_no = int(gene[course_bits + slot_bits:], 2)
 
     # print(gene[0:course_bits], gene[course_bits:course_bits+slot_bits], gene[course_bits+slot_bits:])
-    # print(module, class_slot, class_no)
+    # print(course, class_slot, class_no)
 
     # Test: reduced all table indices by 1.
     if tables[class_no - 1][day_no - 1][slot_no - 1] != 0:
@@ -129,21 +129,21 @@ def calculate_fitness(gene):
 
     # Test: changed range(1, c.. +1) to range(c..)
     for i in range(class_count):
-        if tables[i][day_no - 1][slot_no - 1] == module:
+        if tables[i][day_no - 1][slot_no - 1] == course:
             fitness *= 0.6
 
     if slot_no != 1 and tables[class_no - 1][day_no - 1][(slot_no - 1) -
-                                                         1] == module:
+                                                         1] == course:
         fitness *= 0.6
 
     if (slot_no != daily_slots
-            and tables[class_no - 1][day_no - 1][(slot_no - 1) + 1] == module):
+            and tables[class_no - 1][day_no - 1][(slot_no - 1) + 1] == course):
         fitness *= 0.6
 
-    if course_quota[class_no - 1][(module - 1) - 1] == 0:
+    if course_quota[class_no - 1][(course - 1) - 1] == 0:
         fitness *= 0
 
-    if tables[class_no - 1][day_no - 1].count(module) >= daily_rep:
+    if tables[class_no - 1][day_no - 1].count(course) >= daily_rep:
         fitness *= 0.6
 
     return fitness
@@ -169,7 +169,7 @@ def fit_slot(gene):
     total_fitness += calculate_fitness(gene)
     # print(total_fitness)
 
-    module = int(gene[0:course_bits], 2)
+    course = int(gene[0:course_bits], 2)
     class_slot = int(gene[course_bits:course_bits + slot_bits], 2)
 
     slot_no = class_slot % daily_slots
@@ -181,5 +181,5 @@ def fit_slot(gene):
 
     class_no = int(gene[course_bits + slot_bits:], 2)
 
-    tables[class_no - 1][day_no - 1][slot_no - 1] = module
-    course_quota[class_no - 1][module - 1] -= 1
+    tables[class_no - 1][day_no - 1][slot_no - 1] = course
+    course_quota[class_no - 1][course - 1] -= 1

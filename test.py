@@ -1,5 +1,6 @@
-from base import fill_timetable
 import time
+
+from base import fill_timetable
 
 t0 = time.time()
 
@@ -12,14 +13,16 @@ max_fitness = 100
 max_generations = 20
 daily_repetition = 2
 
-table = fill_timetable(total_classes,
+table = fill_timetable(
+    total_classes,
     no_courses,
     slots,
     total_days,
     population_size,
     max_fitness,
     max_generations,
-    daily_repetition,)
+    daily_repetition,
+)
 
 t1 = time.time()
 for i in table:

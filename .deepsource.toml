@@ -8,31 +8,7 @@ enabled = true
   runtime_version = "3.x.x"
 
 [[transformers]]
-name = "autopep8"
-enabled = true
-
-[[transformers]]
-name = "isort"
-enabled = true
-
-[[transformers]]
 name = "standardrb"
-enabled = true
-
-[[transformers]]
-name = "prettier"
-enabled = true
-
-[[transformers]]
-name = "black"
-enabled = true
-
-[[transformers]]
-name = "gofmt"
-enabled = true
-
-[[transformers]]
-name = "yapf"
 enabled = true
 
 [[transformers]]
@@ -40,5 +16,33 @@ name = "standardjs"
 enabled = true
 
 [[transformers]]
+name = "gofmt"
+enabled = true
+
+[[transformers]]
+name = "google-java-format"
+enabled = true
+
+[[transformers]]
+name = "yapf"
+enabled = true
+
+[[transformers]]
+name = "autopep8"
+enabled = true
+
+[[transformers]]
 name = "rubocop"
+enabled = true
+
+[[transformers]]
+name = "isort"
+enabled = true
+
+[[transformers]]
+name = "black"
+enabled = true
+
+[[transformers]]
+name = "prettier"
 enabled = true

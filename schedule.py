@@ -129,7 +129,7 @@ def calculate_fitness(gene):
 
     # Test: reduced all table indices by 1.
     if tables[class_no - 1][day_no - 1][slot_no - 1] != 0:
-        fitness *= 0
+        fitness *= 0.1
 
     # Test: changed range(1, c.. +1) to range(c..)
     for i in range(class_count):

@@ -1,6 +1,6 @@
 from random import choice, choices
 
-from timetable import *
+from genetictabler.timetable import *
 
 
 def generate_population(size):

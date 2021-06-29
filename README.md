@@ -1,9 +1,9 @@
 # GeneticTabler
-Time Table Scheduling done using [genetic algorithms](https://en.wikipedia.org/wiki/Genetic_algorithm) with a lot of logic and optimisations to achieve multiple tables at the same time.
+Time Table scheduling using genetic algorithm.
 
-Developed by Dipan Nanda and Ashish Shah (c) 2021
+Developed by [Dipan Nanda](https://github.com/themagicalmammal) and [Ashish Shah](https://github.com/ash-R2D2) (c) 2021
 
-## Examples of Usage
+## Example of Usage
 
 ```python
 from genetic import fill_timetable

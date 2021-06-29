@@ -6,7 +6,7 @@ Developed by [Dipan Nanda](https://github.com/themagicalmammal) and [Ashish Shah
 ## Example of Usage
 
 ```python
-from genetic import fill_timetable
+from genetictabler.genetic import fill_timetable
 
 total_classes = 4
 no_courses = 8

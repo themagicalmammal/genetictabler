@@ -9,6 +9,8 @@ def generate_population(size):
 
 
 def single_point_crossover(gene_a, gene_b):
+    # For crossover we randomly choose one out of course_code, slot_code and class_code
+    # to swap between the genes.
     c = choice([1, 2, 3])
 
     if c == 1:
@@ -35,24 +37,27 @@ def single_point_crossover(gene_a, gene_b):
 def multi_point_crossover(gene_a, gene_b, points):
     # We use the single point crossover, multiple times
     for _ in range(points):
-        gene_a, gene_b = single_point_crossover(gene_a, gene_b)
+        gene_c, gene_d = single_point_crossover(gene_a, gene_b)
 
-    return gene_a, gene_b
+    return gene_c, gene_d
 
 
 def mutation(gene, course_bit_length, slot_bit_length):
+    # For mutation we randomly choose any one of course_code, slot_code or class_code and
+    # replace it with another random code of its type.
     c = choice([1, 2, 3])
+
     if c == 1:
-        c1 = encode_course()
-        mutated_gene = c1 + gene[course_bit_length:]
+        random_course = encode_course()
+        mutated_gene = random_course + gene[course_bit_length:]
 
     elif c == 2:
-        d = encode_slot()
-        mutated_gene = (gene[:course_bit_length] + d +
+        random_slot = encode_slot()
+        mutated_gene = (gene[:course_bit_length] + random_slot +
                         gene[course_bit_length + slot_bit_length:])
     else:
-        e = encode_class()
-        mutated_gene = gene[:course_bit_length + slot_bit_length] + e
+        random_class = encode_class()
+        mutated_gene = gene[:course_bit_length + slot_bit_length] + random_class
 
     return mutated_gene
 

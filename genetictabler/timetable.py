@@ -12,6 +12,7 @@ class_bits = 0
 tables = []
 daily_rep = 2
 
+
 # The initialize_genotype() initializes and stores important data relevant to
 # the the user defined timetable(s)'s design in global variables so that they
 # can be easily used multiple times throughout the program as per requirement.
@@ -42,7 +43,6 @@ def initialize_genotype(
     course_bits = len(bin(course_count)) - 2
     slot_bits = len(bin(total_slots)) - 2
     class_bits = len(bin(course_count)) - 2
-
     """
     Course_bits, slot_bits and class bits are the lengths of binary string needed to
     represent them respectively. For example if course_count is 8, then the maximum course
@@ -110,6 +110,7 @@ def generate_gene():
 
     return course_code + slot_code + class_code
 
+
 def extract_slot_day(gene):
     # The class_slot is a cumulative class slot number, we calculate day number
     # and slot number for that day for a gene using this class_slot number.
@@ -122,7 +123,7 @@ def extract_slot_day(gene):
         slot_no = daily_slots
         day_no -= 1
     class_no = int(gene[course_bits + slot_bits:], 2)
-    
+
     return slot_no, day_no
 
 
@@ -136,6 +137,8 @@ by checking few things:-
 3)   If a course is occurring more han a fixed number of times, the fitness_score of 
     that gene is reduced.
 """
+
+
 def calculate_fitness(gene):
     fitness_score = 100
     course = int(gene[0:course_bits], 2)
@@ -150,7 +153,8 @@ def calculate_fitness(gene):
         if tables[i][day_no - 1][slot_no - 1] == course:
             fitness_score *= 0.6
 
-    if slot_no != 1 and tables[class_no - 1][day_no - 1][(slot_no - 1) - 1] == course:
+    if slot_no != 1 and tables[class_no - 1][day_no - 1][(slot_no - 1) -
+                                                         1] == course:
         fitness_score *= 0.6
 
     if (slot_no != daily_slots
@@ -188,9 +192,9 @@ def fit_slot(gene):
 
     course = int(gene[0:course_bits], 2)
 
-    slot_no, day_no = extract_slot_day(gene)  
+    slot_no, day_no = extract_slot_day(gene)
     class_no = int(gene[course_bits + slot_bits:], 2)
-    
+
     # Python list indexing starts from 0, hence we subtract 1 from class_no, day_no,
     # slot_no which are natural numbers.
     tables[class_no - 1][day_no - 1][slot_no - 1] = course

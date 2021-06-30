@@ -108,6 +108,21 @@ def generate_gene():
 
     return course_code + slot_code + class_code
 
+def extract_slot_day(gene):
+    # The class_slot is a cumulative class slot number, we calculate day number
+    # and slot number for that day for a gene using this class_slot number.
+
+    class_slot = int(gene[course_bits:course_bits + slot_bits], 2)
+    slot_no = class_slot % daily_slots
+    day_no = class_slot // daily_slots
+
+    if slot_no == 0:
+        slot_no = daily_slots
+        day_no -= 1
+    class_no = int(gene[course_bits + slot_bits:], 2)
+    
+    return slot_no, day_no
+
 
 # The calculate_fitness() function determines fitness of a gene(course schedule) by checking few things:-
 # If there already exists a course schedule for the same slot of the same or different class, fitness is decreased.
@@ -116,13 +131,8 @@ def generate_gene():
 def calculate_fitness(gene):
     fitness = 100
     course = int(gene[0:course_bits], 2)
-    class_slot = int(gene[course_bits:course_bits + slot_bits], 2)
-    slot_no = class_slot % daily_slots
-    day_no = class_slot // daily_slots
 
-    if slot_no == 0:
-        slot_no = daily_slots
-        day_no -= 1
+    slot_no, day_no = extract_slot_day(gene)
     class_no = int(gene[course_bits + slot_bits:], 2)
 
     if tables[class_no - 1][day_no - 1][slot_no - 1] != 0:
@@ -168,19 +178,11 @@ def fit_slot(gene):
     global course_quota
 
     course = int(gene[0:course_bits], 2)
-    class_slot = int(gene[course_bits:course_bits + slot_bits], 2)
 
-    # The class_slot is a cumulative class slot number, we calculate day number
-    # and slot number for that day using this class_slot number.
-    slot_no = class_slot % daily_slots
-    day_no = class_slot // daily_slots
-
-    if slot_no == 0:
-        slot_no = daily_slots
-        day_no -= 1
-
+    slot_no, day_no = extract_slot_day(gene)  
+    class_no = int(gene[course_bits + slot_bits:], 2)
+    
     # Python list indexing starts from 0, hence we subtract 1 from class_no, day_no,
     # slot_no which are natural numbers.
-    class_no = int(gene[course_bits + slot_bits:], 2)
     tables[class_no - 1][day_no - 1][slot_no - 1] = course
     course_quota[class_no - 1][course - 1] -= 1

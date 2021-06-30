@@ -43,9 +43,11 @@ def initialize_genotype(
     slot_bits = len(bin(total_slots)) - 2
     class_bits = len(bin(course_count)) - 2
 
-    # Course_bits, slot_bits and class bits are the lengths of binary string needed to
-    # represent them respectively. For example if course_count is 8, then the maximum course
-    # number will be 8 which requires 4 bits, hence course_bits will be equal to 4.
+    """
+    Course_bits, slot_bits and class bits are the lengths of binary string needed to
+    represent them respectively. For example if course_count is 8, then the maximum course
+    number will be 8 which requires 4 bits, hence course_bits will be equal to 4.
+    """
 
     calc_course_quota()
 
@@ -79,8 +81,8 @@ def calc_course_quota():
 def encode_class():
     class_code = bin(randint(1, class_count))[2:]
 
-    # Padding of random binary strings is done to ensure each string
-    # is of same consistent length
+    # Left padding of random binary strings with 0 is done to ensure each string
+    # is of same consistent length.
     class_code = "0" * (class_bits - len(class_code)) + class_code
     return class_code
 
@@ -124,38 +126,44 @@ def extract_slot_day(gene):
     return slot_no, day_no
 
 
-# The calculate_fitness() function determines fitness of a gene(course schedule) by checking few things:-
-# If there already exists a course schedule for the same slot of the same or different class, fitness is decreased.
-# If the same course is scheduled for any of the adjacent slots in the same class, fitness is reduced.
-# If a course is occurring more han a fixed number of times, the fitness of that gene is reduced.
+""" 
+The calculate_fitness() function determines fitness_score of a gene(course schedule) 
+by checking few things:-
+#   If there already exists a course schedule for the same slot of the same or different class,
+    fitness_score is decreased.
+#   If the same course is scheduled for any of the adjacent slots in the same class, 
+    fitness_score is reduced.
+#   If a course is occurring more han a fixed number of times, the fitness_score of 
+    that gene is reduced.
+"""
 def calculate_fitness(gene):
-    fitness = 100
+    fitness_score = 100
     course = int(gene[0:course_bits], 2)
 
     slot_no, day_no = extract_slot_day(gene)
     class_no = int(gene[course_bits + slot_bits:], 2)
 
     if tables[class_no - 1][day_no - 1][slot_no - 1] != 0:
-        fitness *= 0.1
+        fitness_score *= 0.1
 
     for i in range(class_count):
         if tables[i][day_no - 1][slot_no - 1] == course:
-            fitness *= 0.6
+            fitness_score *= 0.6
 
     if slot_no != 1 and tables[class_no - 1][day_no - 1][(slot_no - 1) - 1] == course:
-        fitness *= 0.6
+        fitness_score *= 0.6
 
     if (slot_no != daily_slots
             and tables[class_no - 1][day_no - 1][(slot_no - 1) + 1] == course):
-        fitness *= 0.6
+        fitness_score *= 0.6
 
     if course_quota[class_no - 1][(course - 1) - 1] == 0:
-        fitness *= 0
+        fitness_score *= 0
 
     if tables[class_no - 1][day_no - 1].count(course) >= daily_rep:
-        fitness *= 0.6
+        fitness_score *= 0.6
 
-    return fitness
+    return fitness_score
 
 
 # This function returns an 3d array with 0 value for all positions.
@@ -172,7 +180,8 @@ def generate_table_skeleton():
     return tables
 
 
-# The fit_slot() function fills the tables array with fit course schedules that are returned by run_evolution().
+# The fit_slot() function fills the tables array with fit course schedules that
+# are returned by run_evolution().
 def fit_slot(gene):
     global tables
     global course_quota

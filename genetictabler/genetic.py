@@ -71,11 +71,11 @@ def sort_population(population):
 
 
 def run_evolution(
-        course_bit_length,
-        slot_bit_length,
-        population_size,
-        max_fitness,
-        max_generations,
+    course_bit_length,
+    slot_bit_length,
+    population_size,
+    max_fitness,
+    max_generations,
 ):
     population = generate_population(population_size)
     for _ in range(max_generations):
@@ -100,15 +100,16 @@ def run_evolution(
 
     return 0
 
+
 def generate_timetable(
-        total_classes,
-        no_courses,
-        slots,
-        total_days,
-        daily_repetition,
-        population_size=10,
-        max_fitness=100,
-        max_generations=25,
+    total_classes,
+    no_courses,
+    slots,
+    total_days,
+    daily_repetition,
+    population_size=10,
+    max_fitness=100,
+    max_generations=25,
 ):
 
     course_bit_length, slot_bit_length, all_slots = initialize_genotype(

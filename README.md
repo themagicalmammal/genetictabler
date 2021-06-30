@@ -1,4 +1,5 @@
 # GeneticTabler
+
 Time Table scheduling using genetic algorithm.
 
 Developed by [Dipan Nanda](https://github.com/themagicalmammal) and [Ashish Shah](https://github.com/ash-R2D2) (c) 2021
@@ -25,26 +26,26 @@ Variable Definitions:
 		you can generate 4 different yet coherent
 		yet timetables without having any clashes.
 
--no_courses: 	It is the count of total number of 
+-no_courses: 	It is the count of total number of
 		courses/modules/subjects that a class
-		or classes are going to be taught. 
-		For example if a class is going to be 
+		or classes are going to be taught.
+		For example if a class is going to be
 		taught only maths, physics, chemistry and CS
 		then total count will be 4.
 
--slots:		it is the count of total lectures that are 
-		to be scheduled each day. 
+-slots:		it is the count of total lectures that are
+		to be scheduled each day.
 
--total_days:	It is the count of total number of days for 
-		which you want to schedule the timetable. 
+-total_days:	It is the count of total number of days for
+		which you want to schedule the timetable.
 		For example a weekly timetable will have total
 		5/6 days. A monthly schedule can be of 25 days.
 
 -daily_repitition:
-		It is the maximum allowed number of times a 
+		It is the maximum allowed number of times a
 		course/subject/module can have lectures per day.
-		It is used when the slots count is more than 
-		no_courses 
+		It is used when the slots count is more than
+		no_courses
 """
 
 
@@ -60,7 +61,7 @@ table = generate_timetable(
 # It is a list of timetables for each class which in itself are 2d arrays.
 
 
-# Loop to print all the timetables. 
+# Loop to print all the timetables.
 for i in table:
     for j in class:
         print(j)
@@ -68,8 +69,11 @@ for i in table:
 ```
 
 ## Changelog
+
 Go [here](https://github.com/themagicalmammal/genetictabler/blob/default/CHANGELOG.md) to checkout the complete changelog.
 
 ## License
+
 #### This is under GNU GPL v3.0 License
+
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://github.com/themagicalmammal/genetictabler/blob/default/LICENSE)

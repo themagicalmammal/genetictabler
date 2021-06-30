@@ -13,16 +13,16 @@ tables = []
 daily_rep = 2
 total_fitness = 0
 
-
 # initialize_genotype() initializes and stores important data relevant to the the user defined timetable(s)'s design
 # in global variables so that they can be easily used multiple times throughout the program as per requirement.
 
+
 def initialize_genotype(
-        no_courses,
-        classes=4,
-        slots=6,
-        days=5,
-        daily_repetition=2,
+    no_courses,
+    classes=4,
+    slots=6,
+    days=5,
+    daily_repetition=2,
 ):
     global course_count
     global daily_slots
@@ -57,6 +57,7 @@ def initialize_genotype(
 # Below function calculates an array course_quota which stores the maximum allowed
 # occurrence of a a course/subject/module in a week/scheduled number of days.
 
+
 def calc_course_quota():
     global course_quota
 
@@ -82,6 +83,7 @@ def encode_class():
     # Padding of random binary strings is done to ensure each string is of same consistent length
     class_code = "0" * (class_bits - len(class_code)) + class_code
     return class_code
+
 
 # The encode_slot() function generates random binary strings whose integer values represent slot number for a day.
 def encode_slot():
@@ -125,7 +127,8 @@ def calculate_fitness(gene):
         if tables[i][day_no - 1][slot_no - 1] == course:
             fitness *= 0.6
 
-    if slot_no != 1 and tables[class_no - 1][day_no - 1][(slot_no - 1) - 1] == course:
+    if slot_no != 1 and tables[class_no - 1][day_no - 1][(slot_no - 1) -
+                                                         1] == course:
         fitness *= 0.6
 
     if (slot_no != daily_slots

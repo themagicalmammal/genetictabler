@@ -7,9 +7,9 @@ here = os.path.abspath(os.path.dirname(__file__))
 with codecs.open(os.path.join(here, "README.md"), encoding="utf-8") as fh:
     long_description = "\n" + fh.read()
 
-VERSION = '1.0.1'
-DESCRIPTION = 'Time Table scheduling using genetic algorithm.'
-LONG_DESCRIPTION = 'Time Table scheduling using with a modified genetic algorithm which is tailored as per the requirments.'
+VERSION = '1.0.2'
+DESCRIPTION = 'Time Table scheduling using Genetic Algorithm.'
+LONG_DESCRIPTION = 'Time Table scheduling using Genetic Algorithm which is tailored to work such that resource utilization is reduced in accordance with the genes that are being generated.'
 
 # Setting up
 setup(
@@ -22,9 +22,9 @@ setup(
     long_description=long_description,
     packages=find_packages(),
     install_requires=[],
-    keywords=['python', 'geneticalgorithm', 'genes', 'chromosomes', 'timetable'],
+    keywords=['python', 'geneticalgorithm', 'genetics', 'genes', 'chromosomes', 'timetable'],
     classifiers=[
-        "Development Status :: 1 - Planning",
+        "Development Status :: 1 - Stable",
         "Intended Audience :: Developers",
         "Programming Language :: Python :: 3",
         "Operating System :: Unix",

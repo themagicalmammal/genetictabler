@@ -27,3 +27,10 @@ for i in table:
         print(j)
     print("-----------------------------------")
 ```
+
+## Changelog
+Go [here](https://github.com/themagicalmammal/genetictabler/blob/default/CHANGELOG.md) to checkout the complete changelog.
+
+## License
+#### This is under GNU GPL v3.0 License
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://github.com/themagicalmammal/genetictabler/blob/default/LICENSE)

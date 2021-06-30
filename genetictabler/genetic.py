@@ -49,39 +49,16 @@ def multi_point_crossover(gene_a, gene_b, points):
 def mutation(gene, course_bit_length, slot_bit_length):
     c = choice([1, 2, 3])
     if c == 1:
-        # Test : changed the logic for adding mutated part to the gene since str is immutable.
         c1 = encode_course()
         mutated_gene = c1 + gene[course_bit_length:]
-        """
-        # the below code is only for debugging/ testing
-        if len(mutated_gene) > len(gene):
-            print("Alert: course mutation gone wrong", course_bit_length, slot_bit_length)
-            print(c1,gene[course_bits:])
-            print("---------------------------------------------")
-        """
 
     elif c == 2:
         d = encode_slot()
         mutated_gene = (gene[:course_bit_length] + d +
                         gene[course_bit_length + slot_bit_length:])
-        """
-        # the below code is only for debugging/ testing
-        if len(mutated_gene) > len(gene):
-            print("Alert: slot mutation gone wrong", course_bit_length, slot_bit_length)
-            print(gene[:course_bits] , d ,  gene[course_bits+slot_bits:] )
-            print("---------------------------------------------")
-        """
-
     else:
         e = encode_class()
         mutated_gene = gene[:course_bit_length + slot_bit_length] + e
-        """
-        # the below code is only for debugging/ testing
-        if len(mutated_gene) > len(gene):
-            print("Alert: class mutation gone wrong")
-            print(gene[:course_bits+slot_bits], e)
-            print("---------------------------------------------")
-        """
 
     return mutated_gene
 
@@ -99,11 +76,11 @@ def sort_population(population):
 
 
 def run_evolution(
-    course_bit_length,
-    slot_bit_length,
-    population_size,
-    max_fitness,
-    max_generations,
+        course_bit_length,
+        slot_bit_length,
+        population_size,
+        max_fitness,
+        max_generations,
 ):
     population = generate_population(population_size)
     for _ in range(max_generations):
@@ -128,18 +105,15 @@ def run_evolution(
 
     return 0
 
-
-# adding 2 more arguments course_bits, slot_bits. Their values will be returned by initialize genotype ()
-# which we will call before calling fill_timetable()
-def fill_timetable(
-    total_classes,
-    no_courses,
-    slots,
-    total_days,
-    daily_repetition,
-    population_size=10,
-    max_fitness=100,
-    max_generations=25,
+def generate_timetable(
+        total_classes,
+        no_courses,
+        slots,
+        total_days,
+        daily_repetition,
+        population_size=10,
+        max_fitness=100,
+        max_generations=25,
 ):
     # initialize the genotype and a skeletal table
     course_bit_length, slot_bit_length, all_slots = initialize_genotype(

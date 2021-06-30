@@ -1,10 +1,5 @@
 from random import randint
 
-# The generate_courses() generates random binary strings representing different
-# courses based on the total number of courses specified.
-# IF total courses are 8 then it will generate 4 bit numbers. If 17 courses then it generates
-# 5 bit numbers but none of them will have value more than 17 or less than 1.
-
 course_count = 0
 daily_slots = 0
 working_days = 0
@@ -20,11 +15,11 @@ total_fitness = 0
 
 
 def initialize_genotype(
-    no_courses,
-    classes=4,
-    slots=6,
-    days=5,
-    daily_repetition=2,
+        no_courses,
+        classes=4,
+        slots=6,
+        days=5,
+        daily_repetition=2,
 ):
     global course_count
     global daily_slots
@@ -93,24 +88,14 @@ def generate_gene():
     class_code = encode_class()
     slot_code = encode_slot()
 
-    # print(course_code, slot_code, class_code)
     return course_code + slot_code + class_code
 
 
 def calculate_fitness(gene):
-    """
-    # START: Testing/ Debugging code
-    if len(gene) != 11:
-        print("ALERT : Variant gene detected , fitness cannot be identified, System failure Imminent !!.............")
-        print(gene)
-    # END Testing/ Debugging code
-    """
 
     fitness = 100
-    # print(gene)
     course = int(gene[0:course_bits], 2)
     class_slot = int(gene[course_bits:course_bits + slot_bits], 2)
-
     slot_no = class_slot % daily_slots
     day_no = class_slot // daily_slots
 
@@ -120,20 +105,14 @@ def calculate_fitness(gene):
 
     class_no = int(gene[course_bits + slot_bits:], 2)
 
-    # print(gene[0:course_bits], gene[course_bits:course_bits+slot_bits], gene[course_bits+slot_bits:])
-    # print(course, class_slot, class_no)
-
-    # Test: reduced all table indices by 1.
     if tables[class_no - 1][day_no - 1][slot_no - 1] != 0:
         fitness *= 0.1
 
-    # Test: changed range(1, c.. +1) to range(c..)
     for i in range(class_count):
         if tables[i][day_no - 1][slot_no - 1] == course:
             fitness *= 0.6
 
-    if slot_no != 1 and tables[class_no - 1][day_no - 1][(slot_no - 1) -
-                                                         1] == course:
+    if slot_no != 1 and tables[class_no - 1][day_no - 1][(slot_no - 1) -1] == course:
         fitness *= 0.6
 
     if (slot_no != daily_slots
@@ -167,7 +146,6 @@ def fit_slot(gene):
     global total_fitness
 
     total_fitness += calculate_fitness(gene)
-    # print(total_fitness)
 
     course = int(gene[0:course_bits], 2)
     class_slot = int(gene[course_bits:course_bits + slot_bits], 2)
@@ -180,6 +158,5 @@ def fit_slot(gene):
         day_no -= 1
 
     class_no = int(gene[course_bits + slot_bits:], 2)
-
     tables[class_no - 1][day_no - 1][slot_no - 1] = course
     course_quota[class_no - 1][course - 1] -= 1

@@ -11,12 +11,10 @@ slot_bits = 0
 class_bits = 0
 tables = []
 daily_rep = 2
-total_fitness = 0
 
-# initialize_genotype() initializes and stores important data relevant to the the user defined timetable(s)'s design
-# in global variables so that they can be easily used multiple times throughout the program as per requirement.
-
-
+# The initialize_genotype() initializes and stores important data relevant to
+# the the user defined timetable(s)'s design in global variables so that they
+# can be easily used multiple times throughout the program as per requirement.
 def initialize_genotype(
     no_courses,
     classes=4,
@@ -40,8 +38,8 @@ def initialize_genotype(
     class_count = classes
     daily_rep = daily_repetition
 
-    course_bits = len(bin(course_count)) - 2
     total_slots = daily_slots * working_days
+    course_bits = len(bin(course_count)) - 2
     slot_bits = len(bin(total_slots)) - 2
     class_bits = len(bin(course_count)) - 2
 
@@ -76,23 +74,27 @@ def calc_course_quota():
     course_quota = [course_quota for _ in range(class_count)]
 
 
-# The encode_class() function generates random binary strings whose integer values represent a course/module/subject
+# The encode_class() function generates random binary strings whose
+# integer values represent a course/module/subject
 def encode_class():
     class_code = bin(randint(1, class_count))[2:]
 
-    # Padding of random binary strings is done to ensure each string is of same consistent length
+    # Padding of random binary strings is done to ensure each string
+    # is of same consistent length
     class_code = "0" * (class_bits - len(class_code)) + class_code
     return class_code
 
 
-# The encode_slot() function generates random binary strings whose integer values represent slot number for a day.
+# The encode_slot() function generates random binary strings whose integer
+# values represent slot number for a day.
 def encode_slot():
     slot_code = bin(randint(1, total_slots))[2:]
     slot_code = "0" * (slot_bits - len(slot_code)) + slot_code
     return slot_code
 
 
-# The encode_slot() function generates random binary strings whose integer values represents a course/module/subject.
+# The encode_slot() function generates random binary strings whose integer
+# values represents a course/module/subject.
 def encode_course():
     course_code = bin(randint(1, course_count))[2:]
     course_code = "0" * (course_bits - len(course_code)) + course_code
@@ -107,6 +109,10 @@ def generate_gene():
     return course_code + slot_code + class_code
 
 
+# The calculate_fitness() function determines fitness of a gene(course schedule) by checking few things:-
+# If there already exists a course schedule for the same slot of the same or different class, fitness is decreased.
+# If the same course is scheduled for any of the adjacent slots in the same class, fitness is reduced.
+# If a course is occurring more han a fixed number of times, the fitness of that gene is reduced.
 def calculate_fitness(gene):
     fitness = 100
     course = int(gene[0:course_bits], 2)
@@ -117,7 +123,6 @@ def calculate_fitness(gene):
     if slot_no == 0:
         slot_no = daily_slots
         day_no -= 1
-
     class_no = int(gene[course_bits + slot_bits:], 2)
 
     if tables[class_no - 1][day_no - 1][slot_no - 1] != 0:
@@ -127,8 +132,7 @@ def calculate_fitness(gene):
         if tables[i][day_no - 1][slot_no - 1] == course:
             fitness *= 0.6
 
-    if slot_no != 1 and tables[class_no - 1][day_no - 1][(slot_no - 1) -
-                                                         1] == course:
+    if slot_no != 1 and tables[class_no - 1][day_no - 1][(slot_no - 1) - 1] == course:
         fitness *= 0.6
 
     if (slot_no != daily_slots
@@ -145,7 +149,7 @@ def calculate_fitness(gene):
 
 
 # This function returns an 3d array with 0 value for all positions.
-# We use this array to store the data of final timetables.
+# We use this array to store the schedules and the timetables.
 def generate_table_skeleton():
     global tables
 
@@ -158,16 +162,16 @@ def generate_table_skeleton():
     return tables
 
 
+# The fit_slot() function fills the tables array with fit course schedules that are returned by run_evolution().
 def fit_slot(gene):
     global tables
     global course_quota
-    global total_fitness
-
-    total_fitness += calculate_fitness(gene)
 
     course = int(gene[0:course_bits], 2)
     class_slot = int(gene[course_bits:course_bits + slot_bits], 2)
 
+    # The class_slot is a cumulative class slot number, we calculate day number
+    # and slot number for that day using this class_slot number.
     slot_no = class_slot % daily_slots
     day_no = class_slot // daily_slots
 
@@ -175,6 +179,8 @@ def fit_slot(gene):
         slot_no = daily_slots
         day_no -= 1
 
+    # Python list indexing starts from 0, hence we subtract 1 from class_no, day_no,
+    # slot_no which are natural numbers.
     class_no = int(gene[course_bits + slot_bits:], 2)
     tables[class_no - 1][day_no - 1][slot_no - 1] = course
     course_quota[class_no - 1][course - 1] -= 1

@@ -5,7 +5,6 @@ from timetable import *
 
 def generate_population(size):
     # our population will be a list of genes
-    initialize_gene()
     return [generate_gene() for _ in range(size)]
 
 

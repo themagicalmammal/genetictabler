@@ -10,12 +10,7 @@ def generate_population(size):
 
 
 def single_point_crossover(gene_a, gene_b):
-    # Now we choose the point/location for single point crossover which will be a random index
-    # between 2nd element and the second last element.
-
     c = choice([1, 2, 3])
-
-    # Test: changed bits swap logic, since string is immutable.
 
     if c == 1:
         gene_c = gene_b[0:course_bits] + gene_a[course_bits:]
@@ -115,7 +110,7 @@ def generate_timetable(
         max_fitness=100,
         max_generations=25,
 ):
-    # initialize the genotype and a skeletal table
+
     course_bit_length, slot_bit_length, all_slots = initialize_genotype(
         no_courses, total_classes, slots, total_days, daily_repetition)
     generate_table_skeleton()

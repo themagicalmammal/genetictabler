@@ -129,11 +129,11 @@ def extract_slot_day(gene):
 """ 
 The calculate_fitness() function determines fitness_score of a gene(course schedule) 
 by checking few things:-
-#   If there already exists a course schedule for the same slot of the same or different class,
-    fitness_score is decreased.
-#   If the same course is scheduled for any of the adjacent slots in the same class, 
-    fitness_score is reduced.
-#   If a course is occurring more han a fixed number of times, the fitness_score of 
+1)   If there already exists a course schedule for the same slot of the same or different class,
+    fitness_score of the gene is decreased.
+2)   If the same course is scheduled for any of the adjacent slots in the same class, 
+    fitness_score of that gene is reduced.
+3)   If a course is occurring more han a fixed number of times, the fitness_score of 
     that gene is reduced.
 """
 def calculate_fitness(gene):

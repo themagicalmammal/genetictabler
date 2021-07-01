@@ -116,11 +116,10 @@ def generate_timetable(
     population_size=10,
     max_fitness=100,
     max_generations=25,
-
 ):
 
     course_bit_length, slot_bit_length, all_slots = initialize_genotype(
-        no_courses, total_classes, slots, total_days, daily_reps,teachers)
+        no_courses, total_classes, slots, total_days, daily_reps, teachers)
     generate_table_skeleton()
     while all_slots > 0:
 

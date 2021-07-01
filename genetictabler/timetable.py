@@ -1,3 +1,4 @@
+import random
 from random import randint
 
 course_count = 0
@@ -10,18 +11,18 @@ course_bits = 0
 slot_bits = 0
 class_bits = 0
 tables = []
-daily_rep = 2
+daily_reps = []
 
 
 # The initialize_genotype() initializes and stores important data relevant to
 # the the user defined timetable(s)'s design in global variables so that they
 # can be easily used multiple times throughout the program as per requirement.
 def initialize_genotype(
-    no_courses,
-    classes=4,
-    slots=6,
-    days=5,
-    daily_repetition=2,
+        no_courses,
+        classes=4,
+        slots=6,
+        days=5,
+        daily_repetitions=2
 ):
     global course_count
     global daily_slots
@@ -32,17 +33,18 @@ def initialize_genotype(
     global total_slots
     global slot_bits
     global class_bits
+    global daily_reps
 
     course_count = no_courses
     daily_slots = slots
     working_days = days
     class_count = classes
-    daily_rep = daily_repetition
 
     total_slots = daily_slots * working_days
     course_bits = len(bin(course_count)) - 2
     slot_bits = len(bin(total_slots)) - 2
     class_bits = len(bin(course_count)) - 2
+
     """
     Course_bits, slot_bits and class bits are the lengths of binary string needed to
     represent them respectively. For example if course_count is 8, then the maximum course
@@ -50,6 +52,13 @@ def initialize_genotype(
     """
 
     calc_course_quota()
+
+    if type(daily_repetitions) == int:
+        daily_reps = [daily_repetitions] * course_count
+    elif type(daily_repetitions[0]) == int and len(daily_repetitions) == course_count:
+        daily_reps = daily_repetitions
+    else:
+        raise ValueError("Invalid data supplied for daily repetitions.")
 
     return [course_bits, slot_bits, daily_slots * working_days * class_count]
 

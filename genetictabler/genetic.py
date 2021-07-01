@@ -131,7 +131,7 @@ def generate_timetable(
             max_fitness,
             max_generations,
         )
-
+        #print(gene)
         if gene != 0:
             fit_slot(gene)
             all_slots -= 1

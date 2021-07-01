@@ -27,7 +27,6 @@ def initialize_genotype(no_courses,
     global daily_slots
     global working_days
     global class_count
-    global daily_rep
     global course_bits
     global total_slots
     global slot_bits
@@ -59,6 +58,8 @@ def initialize_genotype(no_courses,
         daily_reps = daily_repetitions
     else:
         raise ValueError("Invalid data supplied for daily repetitions.")
+
+    daily_reps = [daily_reps] * class_count
 
     if type(teachers) == int:
         teachers_list = [teachers] * course_count
@@ -138,7 +139,6 @@ def extract_slot_day(gene):
     if slot_no == 0:
         slot_no = daily_slots
         day_no -= 1
-    class_no = int(gene[course_bits + slot_bits:], 2)
 
     return slot_no, day_no
 
@@ -178,10 +178,13 @@ def calculate_fitness(gene):
         fitness_score *= 0.6
 
     if course_quota[class_no - 1][(course - 1) - 1] == 0:
-        fitness_score *= 0
+        fitness_score *= 0.1
 
-    if tables[class_no - 1][day_no - 1].count(course) >= daily_rep:
+    if tables[class_no - 1][day_no - 1].count(course) >= daily_reps[class_no - 1][course - 1]:
         fitness_score *= 0.6
+
+    if teachers_list[course - 1] == 0:
+        fitness_score *= 0.1
 
     return fitness_score
 
@@ -215,3 +218,5 @@ def fit_slot(gene):
     # slot_no which are natural numbers.
     tables[class_no - 1][day_no - 1][slot_no - 1] = course
     course_quota[class_no - 1][course - 1] -= 1
+    daily_reps[class_no - 1][course - 1] -= 1
+    teachers_list[course - 1] -= 1

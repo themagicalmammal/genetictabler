@@ -115,7 +115,6 @@ def generate_timetable(
     population_size=10,
     max_fitness=100,
     max_generations=25,
-
 ):
 
     course_bit_length, slot_bit_length, all_slots = initialize_genotype(

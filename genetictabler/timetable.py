@@ -52,16 +52,18 @@ def initialize_genotype(no_courses,
     calc_course_quota()
 
     if type(daily_repetitions) == int:
-        daily_reps = [daily_repetitions] * course_count
+        daily_reps = [daily_repetitions for _ in range(course_count)]
     elif type(daily_repetitions[0]) == int and len(
             daily_repetitions) == course_count:
         daily_reps = daily_repetitions
     else:
         raise ValueError("Invalid data supplied for daily repetitions.")
 
-    daily_reps = [[daily_reps] for _ in range(class_count)]
+    daily_reps = [daily_reps for _ in range(class_count)]
+    print(daily_reps)
+
     if type(teachers) == int:
-        teachers_list = [teachers] * course_count
+        teachers_list = [teachers for _ in range(course_count)]
     elif type(teachers[0]) == int and len(teachers) == course_count:
         teachers_list = teachers
     else:
@@ -222,3 +224,5 @@ def fit_slot(gene):
     course_quota[class_no - 1][course - 1] -= 1
     daily_reps[class_no - 1][course - 1] -= 1
     teachers_list[course - 1] -= 1
+    print(daily_reps)
+    print(teachers_list)

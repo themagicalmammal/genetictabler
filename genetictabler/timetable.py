@@ -115,14 +115,14 @@ def extract_slot_day(gene):
     # The class_slot is a cumulative class slot number, we calculate day number
     # and slot number for that day for a gene using this class_slot number.
 
-    class_slot = int(gene[course_bits : course_bits + slot_bits], 2)
+    class_slot = int(gene[course_bits:course_bits + slot_bits], 2)
     slot_no = class_slot % daily_slots
     day_no = class_slot // daily_slots
 
     if slot_no == 0:
         slot_no = daily_slots
         day_no -= 1
-    class_no = int(gene[course_bits + slot_bits :], 2)
+    class_no = int(gene[course_bits + slot_bits:], 2)
 
     return slot_no, day_no
 
@@ -144,7 +144,7 @@ def calculate_fitness(gene):
     course = int(gene[0:course_bits], 2)
 
     slot_no, day_no = extract_slot_day(gene)
-    class_no = int(gene[course_bits + slot_bits :], 2)
+    class_no = int(gene[course_bits + slot_bits:], 2)
 
     if tables[class_no - 1][day_no - 1][slot_no - 1] != 0:
         fitness_score *= 0.1
@@ -153,13 +153,12 @@ def calculate_fitness(gene):
         if tables[i][day_no - 1][slot_no - 1] == course:
             fitness_score *= 0.6
 
-    if slot_no != 1 and tables[class_no - 1][day_no - 1][(slot_no - 1) - 1] == course:
+    if slot_no != 1 and tables[class_no - 1][day_no - 1][(slot_no - 1) -
+                                                         1] == course:
         fitness_score *= 0.6
 
-    if (
-        slot_no != daily_slots
-        and tables[class_no - 1][day_no - 1][(slot_no - 1) + 1] == course
-    ):
+    if (slot_no != daily_slots
+            and tables[class_no - 1][day_no - 1][(slot_no - 1) + 1] == course):
         fitness_score *= 0.6
 
     if course_quota[class_no - 1][(course - 1) - 1] == 0:
@@ -194,7 +193,7 @@ def fit_slot(gene):
     course = int(gene[0:course_bits], 2)
 
     slot_no, day_no = extract_slot_day(gene)
-    class_no = int(gene[course_bits + slot_bits :], 2)
+    class_no = int(gene[course_bits + slot_bits:], 2)
 
     # Python list indexing starts from 0, hence we subtract 1 from class_no, day_no,
     # slot_no which are natural numbers.

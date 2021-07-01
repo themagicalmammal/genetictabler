@@ -60,7 +60,6 @@ def initialize_genotype(no_courses,
         raise ValueError("Invalid data supplied for daily repetitions.")
 
     daily_reps = [daily_reps] * class_count
-
     if type(teachers) == int:
         teachers_list = [teachers] * course_count
     elif type(teachers[0]) == int and len(teachers) == course_count:
@@ -209,6 +208,8 @@ def generate_table_skeleton():
 def fit_slot(gene):
     global tables
     global course_quota
+    global daily_reps
+    global teachers_list
 
     course = int(gene[0:course_bits], 2)
 

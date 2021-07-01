@@ -59,7 +59,7 @@ def initialize_genotype(no_courses,
     else:
         raise ValueError("Invalid data supplied for daily repetitions.")
 
-    daily_reps = [daily_reps] * class_count
+    daily_reps = [[daily_reps] for _ in range(class_count)]
     if type(teachers) == int:
         teachers_list = [teachers] * course_count
     elif type(teachers[0]) == int and len(teachers) == course_count:
@@ -179,8 +179,7 @@ def calculate_fitness(gene):
     if course_quota[class_no - 1][(course - 1) - 1] == 0:
         fitness_score *= 0.1
 
-    if (tables[class_no - 1][day_no - 1].count(course) >=
-            daily_reps[class_no - 1][course - 1]):
+    if tables[class_no - 1][day_no - 1].count(course) >= daily_reps[class_no - 1][course - 1]:
         fitness_score *= 0.6
 
     if teachers_list[course - 1] == 0:

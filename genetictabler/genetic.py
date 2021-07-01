@@ -39,7 +39,7 @@ def multi_point_crossover(gene_a, gene_b, points):
     for _ in range(points):
         gene_c, gene_d = single_point_crossover(gene_a, gene_b)
 
-    return gene_c, gene_d
+    return [gene_c, gene_d]
 
 
 def mutation(gene, course_bit_length, slot_bit_length):
@@ -111,15 +111,15 @@ def generate_timetable(
     no_courses,
     slots,
     total_days,
-    daily_reps=2,
-    teachers=[],
+    daily_rep,
+    teachers,
     population_size=10,
     max_fitness=100,
     max_generations=25,
 ):
 
     course_bit_length, slot_bit_length, all_slots = initialize_genotype(
-        no_courses, total_classes, slots, total_days, daily_reps, teachers)
+        no_courses, total_classes, slots, total_days, daily_rep, teachers)
     generate_table_skeleton()
     while all_slots > 0:
 

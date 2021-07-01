@@ -87,10 +87,10 @@ def calc_course_quota():
         for i in range(extra_slots):
             course_quota[n + i] -= 1
 
-    x = [course_quota for _ in range(class_count)]
+    x = [course_quota[:] for _ in range(class_count)]
     course_quota = x
-    print(course_quota)
-    print(type(course_quota))
+    #print(course_quota)
+    #print(type(course_quota))
 
 
 # The encode_class() function generates random binary strings whose
@@ -229,7 +229,7 @@ def fit_slot(gene):
     # slot_no which are natural numbers.
     tables[class_no - 1][day_no - 1][slot_no - 1] = course
 
-    print(gene)
-    print("fit slot ...........", class_no, course)
+    #print(gene)
+    #print("fit slot ...........", class_no, course)
     course_quota[class_no - 1][course - 1] = course_quota[class_no - 1][course - 1] - 1
-    print(course_quota)
+    #print(course_quota)

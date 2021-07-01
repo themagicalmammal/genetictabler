@@ -111,7 +111,8 @@ def generate_timetable(
     no_courses,
     slots,
     total_days,
-    daily_reps,
+    daily_reps=2,
+    teachers=[],
     population_size=10,
     max_fitness=100,
     max_generations=25,
@@ -119,7 +120,7 @@ def generate_timetable(
 ):
 
     course_bit_length, slot_bit_length, all_slots = initialize_genotype(
-        no_courses, total_classes, slots, total_days, daily_reps)
+        no_courses, total_classes, slots, total_days, daily_reps,teachers)
     generate_table_skeleton()
     while all_slots > 0:
 

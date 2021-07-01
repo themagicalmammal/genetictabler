@@ -1,4 +1,3 @@
-import random
 from random import randint
 
 course_count = 0
@@ -12,6 +11,7 @@ slot_bits = 0
 class_bits = 0
 tables = []
 daily_reps = []
+teachers_list = []
 
 
 # The initialize_genotype() initializes and stores important data relevant to
@@ -22,7 +22,8 @@ def initialize_genotype(
         classes=4,
         slots=6,
         days=5,
-        daily_repetitions=2
+        daily_repetitions=2,
+        teachers=1
 ):
     global course_count
     global daily_slots
@@ -34,6 +35,7 @@ def initialize_genotype(
     global slot_bits
     global class_bits
     global daily_reps
+    global teachers_list
 
     course_count = no_courses
     daily_slots = slots
@@ -59,6 +61,13 @@ def initialize_genotype(
         daily_reps = daily_repetitions
     else:
         raise ValueError("Invalid data supplied for daily repetitions.")
+
+    if type(teachers) == int:
+        teachers_list = [teachers] * course_count
+    elif type(teachers[0]) == int and len(teachers) == course_count:
+        teachers_list = teachers
+    else:
+        raise ValueError("Invalid data supplied for teachers.")
 
     return [course_bits, slot_bits, daily_slots * working_days * class_count]
 

@@ -87,7 +87,7 @@ def run_evolution(
         population = sorted(population, key=calculate_fitness, reverse=True)
 
         if calculate_fitness(population[0]) >= max_fitness:
-            #print(population[0], calculate_fitness(population[0]), max_fitness)
+            # print(population[0], calculate_fitness(population[0]), max_fitness)
             return population[0]
 
         next_generation = population[0:2]
@@ -135,5 +135,5 @@ def generate_timetable(
         if gene != 0:
             fit_slot(gene)
             all_slots -= 1
-        #print(tables)
+        # print(tables)
     return tables

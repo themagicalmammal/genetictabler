@@ -60,7 +60,6 @@ def initialize_genotype(no_courses,
         raise ValueError("Invalid data supplied for daily repetitions.")
 
     daily_reps = [daily_reps for _ in range(class_count)]
-    print(daily_reps)
 
     if type(teachers) == int:
         teachers_list = [teachers for _ in range(course_count)]
@@ -74,8 +73,6 @@ def initialize_genotype(no_courses,
 
 # Below function calculates an array course_quota which stores the maximum allowed
 # occurrence of a a course/subject/module in a week/scheduled number of days.
-
-
 def calc_course_quota():
     global course_quota
 
@@ -144,6 +141,7 @@ def extract_slot_day(gene):
     return slot_no, day_no
 
 
+
 """ 
 The calculate_fitness() function determines fitness_score of a gene(course schedule) 
 by checking few things:-
@@ -155,11 +153,10 @@ by checking few things:-
     that gene is reduced.
 """
 
-
 def calculate_fitness(gene):
     fitness_score = 100
-    course = int(gene[0:course_bits], 2)
 
+    course = int(gene[0:course_bits], 2)
     slot_no, day_no = extract_slot_day(gene)
     class_no = int(gene[course_bits + slot_bits:], 2)
 
@@ -178,8 +175,9 @@ def calculate_fitness(gene):
             and tables[class_no - 1][day_no - 1][(slot_no - 1) + 1] == course):
         fitness_score *= 0.6
 
-    if course_quota[class_no - 1][(course - 1) - 1] == 0:
+    if course_quota[class_no - 1][(course - 1) - 1] <= 0:
         fitness_score *= 0.1
+        #print(gene,"hi", fitness_score)
 
     if (tables[class_no - 1][day_no - 1].count(course) >=
             daily_reps[class_no - 1][course - 1]):
@@ -187,9 +185,9 @@ def calculate_fitness(gene):
 
     temp_counter = 0
     for i in range(class_count):
-        if tables[i][day_no-1][slot_no-1] == course:
+        if tables[i][day_no - 1][slot_no - 1] == course:
             temp_counter += 1
-    if temp_counter >= teachers_list[course -1]:
+    if temp_counter >= teachers_list[course - 1]:
         fitness_score *= 0.1
 
     return fitness_score
@@ -226,6 +224,4 @@ def fit_slot(gene):
     # slot_no which are natural numbers.
     tables[class_no - 1][day_no - 1][slot_no - 1] = course
     course_quota[class_no - 1][course - 1] -= 1
-
-    #print(daily_reps)
-    #print(teachers_list)
+    print(course_quota)

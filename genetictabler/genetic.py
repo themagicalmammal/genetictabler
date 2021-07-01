@@ -87,6 +87,7 @@ def run_evolution(
         population = sorted(population, key=calculate_fitness, reverse=True)
 
         if calculate_fitness(population[0]) >= max_fitness:
+            #print(population[0], calculate_fitness(population[0]), max_fitness)
             return population[0]
 
         next_generation = population[0:2]
@@ -113,9 +114,9 @@ def generate_timetable(
     total_days,
     daily_rep,
     teachers,
-    population_size=10,
+    population_size=20,
     max_fitness=100,
-    max_generations=25,
+    max_generations=50,
 ):
 
     course_bit_length, slot_bit_length, all_slots = initialize_genotype(
@@ -134,6 +135,5 @@ def generate_timetable(
         if gene != 0:
             fit_slot(gene)
             all_slots -= 1
-            
-
+        #print(tables)
     return tables

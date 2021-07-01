@@ -57,7 +57,8 @@ def mutation(gene, course_bit_length, slot_bit_length):
                         gene[course_bit_length + slot_bit_length:])
     else:
         random_class = encode_class()
-        mutated_gene = gene[:course_bit_length + slot_bit_length] + random_class
+        mutated_gene = gene[:course_bit_length +
+                            slot_bit_length] + random_class
 
     return mutated_gene
 

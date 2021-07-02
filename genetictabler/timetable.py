@@ -127,7 +127,7 @@ def extract_slot_day(gene):
     # The class_slot is a cumulative class slot number, we calculate day number
     # and slot number for that day for a gene using this class_slot number.
 
-    class_slot = int(gene[course_bits:course_bits + slot_bits], 2)
+    class_slot = int(gene[course_bits : course_bits + slot_bits], 2)
     slot_no = class_slot % slot_count
     day_no = class_slot // slot_count
 
@@ -155,7 +155,7 @@ def calculate_fitness(gene):
     course = int(gene[0:course_bits], 2)
 
     slot_no, day_no = extract_slot_day(gene)
-    class_no = int(gene[course_bits + slot_bits:], 2)
+    class_no = int(gene[course_bits + slot_bits :], 2)
 
     if tables[class_no - 1][day_no - 1][slot_no - 1] != 0:
         fitness_score *= 0.1
@@ -164,19 +164,19 @@ def calculate_fitness(gene):
         if tables[i][day_no - 1][slot_no - 1] == course:
             fitness_score *= 0.6
 
-    if slot_no != 1 and tables[class_no - 1][day_no - 1][slot_no -
-                                                         2] == course:
+    if slot_no != 1 and tables[class_no - 1][day_no - 1][slot_no - 2] == course:
         fitness_score *= 0.6
 
-    if slot_no != slot_count and tables[class_no - 1][day_no -
-                                                      1][slot_no] == course:
+    if slot_no != slot_count and tables[class_no - 1][day_no - 1][slot_no] == course:
         fitness_score *= 0.6
 
     if course_quota[class_no - 1][course - 1] < 1:
         fitness_score *= 0.1
 
-    if (tables[class_no - 1][day_no - 1].count(course) >=
-            repeat_quota[class_no - 1][course - 1]):
+    if (
+        tables[class_no - 1][day_no - 1].count(course)
+        >= repeat_quota[class_no - 1][course - 1]
+    ):
         fitness_score *= 0.1
     temp_counter = 0
     for i in range(class_count):
@@ -213,7 +213,7 @@ def fit_slot(gene):
     course = int(gene[0:course_bits], 2)
 
     slot_no, day_no = extract_slot_day(gene)
-    class_no = int(gene[course_bits + slot_bits:], 2)
+    class_no = int(gene[course_bits + slot_bits :], 2)
 
     # Python list indexing starts from 0, hence we subtract 1 from class_no, day_no,
     # slot_no which are natural numbers.

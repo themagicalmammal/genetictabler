@@ -75,7 +75,9 @@ def calc_course_quota():
     global course_quota
 
     q_max = total_slots // course_count
-    course_quota = [q_max + 1] * course_count
+    if int(q_max) == q_max:
+        q_max += 1
+    course_quota = [int(q_max) for _ in range(course_count)]
 
     course_quota = [course_quota[:] for _ in range(class_count)]
 

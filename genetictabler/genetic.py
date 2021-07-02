@@ -1,6 +1,8 @@
 from random import choice, choices
 
-from timetable import *
+from timetable import generate_gene, course_bits, slot_bits, encode_course, \
+    encode_slot, encode_class, calculate_fitness, initialize_genotype, generate_table_skeleton, \
+    fit_slot, tables
 
 
 def generate_population(size):

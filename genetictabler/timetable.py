@@ -62,8 +62,9 @@ def initialize_genotype(no_courses, classes, slots, days, daily_rep, teachers):
     else:
         raise ValueError("Invalid data supplied for teachers.")
 
-    teacher_quota = [[teacher_quota[:] for _ in range(slot_count)]
-                     for _ in range(day_count)]
+    teacher_quota = [
+        [teacher_quota[:] for _ in range(slot_count)] for _ in range(day_count)
+    ]
     return [course_bits, slot_bits, slot_count * day_count * class_count]
 
 
@@ -129,7 +130,7 @@ def extract_slot_day(gene):
     # The class_slot is a cumulative class slot number, we calculate day number
     # and slot number for that day for a gene using this class_slot number.
 
-    class_slot = int(gene[course_bits:course_bits + slot_bits], 2)
+    class_slot = int(gene[course_bits : course_bits + slot_bits], 2)
     slot_no = class_slot % slot_count
     day_no = class_slot // slot_count
 
@@ -157,7 +158,7 @@ def calculate_fitness(gene):
     course = int(gene[0:course_bits], 2)
 
     slot_no, day_no = extract_slot_day(gene)
-    class_no = int(gene[course_bits + slot_bits:], 2)
+    class_no = int(gene[course_bits + slot_bits :], 2)
 
     if tables[class_no - 1][day_no - 1][slot_no - 1] != 0:
         fitness_score *= 0.1
@@ -166,19 +167,19 @@ def calculate_fitness(gene):
         if tables[i][day_no - 1][slot_no - 1] == course:
             fitness_score *= 0.6
 
-    if slot_no != 1 and tables[class_no - 1][day_no - 1][slot_no -
-                                                         2] == course:
+    if slot_no != 1 and tables[class_no - 1][day_no - 1][slot_no - 2] == course:
         fitness_score *= 0.6
 
-    if slot_no != slot_count and tables[class_no - 1][day_no -
-                                                      1][slot_no] == course:
+    if slot_no != slot_count and tables[class_no - 1][day_no - 1][slot_no] == course:
         fitness_score *= 0.6
 
     if course_quota[class_no - 1][course - 1] < 1:
         fitness_score *= 0.1
 
-    if (tables[class_no - 1][day_no - 1].count(course) >=
-            repeat_quota[class_no - 1][course - 1]):
+    if (
+        tables[class_no - 1][day_no - 1].count(course)
+        >= repeat_quota[class_no - 1][course - 1]
+    ):
         fitness_score *= 0.1
 
     if teacher_quota[day_no - 1][slot_no - 1][course - 1] == 0:
@@ -211,7 +212,7 @@ def fit_slot(gene):
     course = int(gene[0:course_bits], 2)
 
     slot_no, day_no = extract_slot_day(gene)
-    class_no = int(gene[course_bits + slot_bits:], 2)
+    class_no = int(gene[course_bits + slot_bits :], 2)
 
     # Python list indexing starts from 0, hence we subtract 1 from class_no, day_no,
     # slot_no which are natural numbers.

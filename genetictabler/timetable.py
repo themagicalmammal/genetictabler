@@ -86,8 +86,7 @@ def calc_course_quota():
         for i in range(extra_slots):
             course_quota[n + i] -= 1
 
-    x = [course_quota[:] for _ in range(class_count)]
-    course_quota = x
+    course_quota = [course_quota[:] for _ in range(class_count)]
     print(course_quota)
 
 

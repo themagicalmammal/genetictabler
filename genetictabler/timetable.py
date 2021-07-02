@@ -18,11 +18,11 @@ tables = []
 # the the user defined timetable(s)'s design in global variables so that they
 # can be easily used multiple times throughout the program as per requirement.
 def initialize_genotype(no_courses,
-                        classes=4,
-                        slots=6,
-                        days=5,
-                        daily_rep=2,
-                        teachers=1):
+                        classes,
+                        slots,
+                        days,
+                        daily_rep,
+                        teachers):
     global course_count
     global slot_count
     global day_count
@@ -161,8 +161,7 @@ def calculate_fitness(gene):
         if tables[i][day_no - 1][slot_no - 1] == course:
             fitness_score *= 0.6
 
-    if slot_no != 1 and tables[class_no - 1][day_no - 1][slot_no -
-                                                         1] == course:
+    if slot_no != 1 and tables[class_no - 1][day_no - 1][slot_no - 1] == course:
         fitness_score *= 0.6
 
     if slot_no != slot_count and tables[class_no - 1][day_no - 1][slot_no - 1] == course:
@@ -173,7 +172,7 @@ def calculate_fitness(gene):
 
     if (tables[class_no - 1][day_no - 1].count(course) >=
             repeat_quota[class_no - 1][course - 1]):
-        fitness_score *= 0.6
+        fitness_score *= 1
 
     if teacher_quota[day_no - 1][slot_no - 1][course - 1] == 0:
         fitness_score *= 0.01

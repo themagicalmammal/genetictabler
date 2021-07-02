@@ -89,8 +89,8 @@ def calc_course_quota():
 
     x = [course_quota[:] for _ in range(class_count)]
     course_quota = x
-    #print(course_quota)
-    #print(type(course_quota))
+    # print(course_quota)
+    # print(type(course_quota))
 
 
 # The encode_class() function generates random binary strings whose
@@ -143,7 +143,6 @@ def extract_slot_day(gene):
     return slot_no, day_no
 
 
-
 """ 
 The calculate_fitness() function determines fitness_score of a gene(course schedule) 
 by checking few things:-
@@ -155,6 +154,7 @@ by checking few things:-
     that gene is reduced.
 """
 
+
 def calculate_fitness(gene):
     fitness_score = 100
 
@@ -164,7 +164,6 @@ def calculate_fitness(gene):
 
     if tables[class_no - 1][day_no - 1][slot_no - 1] != 0:
         fitness_score *= 0.1
-
     """
     for i in range(class_count):
         if tables[i][day_no - 1][slot_no - 1] == course:
@@ -181,8 +180,8 @@ def calculate_fitness(gene):
 
     if course_quota[class_no - 1][course - 1] <= 0:
         fitness_score *= 0.1
-        #print(gene,"hi", fitness_score)
-        #print(course_quota)
+        # print(gene,"hi", fitness_score)
+        # print(course_quota)
 
     if (tables[class_no - 1][day_no - 1].count(course) >=
             daily_reps[class_no - 1][course - 1]):
@@ -229,7 +228,8 @@ def fit_slot(gene):
     # slot_no which are natural numbers.
     tables[class_no - 1][day_no - 1][slot_no - 1] = course
 
-    #print(gene)
-    #print("fit slot ...........", class_no, course)
-    course_quota[class_no - 1][course - 1] = course_quota[class_no - 1][course - 1] - 1
-    #print(course_quota)
+    # print(gene)
+    # print("fit slot ...........", class_no, course)
+    course_quota[class_no - 1][course -
+                               1] = course_quota[class_no - 1][course - 1] - 1
+    # print(course_quota)

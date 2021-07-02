@@ -1,17 +1,17 @@
 from random import randint
 
 course_count = 0
-daily_slots = 0
-working_days = 0
-total_slots = 0
-course_quota = []
+slot_count = 0
+day_count = 0
 class_count = 0
 course_bits = 0
 slot_bits = 0
 class_bits = 0
+total_slots = 0
+course_quota = []
+teacher_quota = []
+repeat_quota = []
 tables = []
-daily_reps = []
-teachers_list = []
 
 
 # The initialize_genotype() initializes and stores important data relevant to
@@ -21,25 +21,25 @@ def initialize_genotype(no_courses,
                         classes=4,
                         slots=6,
                         days=5,
-                        daily_repetitions=2,
+                        daily_rep=2,
                         teachers=1):
     global course_count
-    global daily_slots
-    global working_days
+    global slot_count
+    global day_count
     global class_count
     global course_bits
     global total_slots
     global slot_bits
     global class_bits
-    global daily_reps
-    global teachers_list
+    global repeat_quota
+    global teacher_quota
 
     course_count = no_courses
-    daily_slots = slots
-    working_days = days
+    slot_count = slots
+    day_count = days
     class_count = classes
 
-    total_slots = daily_slots * working_days
+    total_slots = slot_count * day_count
     course_bits = len(bin(course_count)) - 2
     slot_bits = len(bin(total_slots)) - 2
     class_bits = len(bin(course_count)) - 2
@@ -51,26 +51,25 @@ def initialize_genotype(no_courses,
 
     calc_course_quota()
 
-    if type(daily_repetitions) is int:
-        daily_reps = [daily_repetitions for _ in range(course_count)]
-    elif type(daily_repetitions[0]) is int and len(
-            daily_repetitions) == course_count:
-        daily_reps = daily_repetitions
+    if type(daily_rep) is int:
+        repeat_quota = [daily_rep for _ in range(course_count)]
+    elif type(daily_rep[0]) is int and len(daily_rep) == course_count:
+        repeat_quota = daily_rep
     else:
         raise ValueError("Invalid data supplied for daily repetitions.")
 
-    daily_reps = [daily_reps[:] for _ in range(class_count)]
+    repeat_quota = [repeat_quota[:] for _ in range(class_count)]
 
     if type(teachers) is int:
-        teachers_list = [teachers] * course_count
+        teacher_quota = [teachers] * course_count
     elif type(teachers[0]) is int and len(teachers) == course_count:
-        teachers_list = teachers
+        teacher_quota = teachers
     else:
         raise ValueError("Invalid data supplied for teachers.")
 
-    teachers_list = [[teachers_list[:] for _ in range(daily_slots)]
-                     for _ in range(working_days)]
-    return [course_bits, slot_bits, daily_slots * working_days * class_count]
+    teacher_quota = [[teacher_quota[:] for _ in range(slot_count)]
+                     for _ in range(day_count)]
+    return [course_bits, slot_bits, slot_count * day_count * class_count]
 
 
 # Below function calculates an array course_quota which stores the maximum allowed
@@ -135,11 +134,11 @@ def extract_slot_day(gene):
     # and slot number for that day for a gene using this class_slot number.
 
     class_slot = int(gene[course_bits:course_bits + slot_bits], 2)
-    slot_no = class_slot % daily_slots
-    day_no = class_slot // daily_slots
+    slot_no = class_slot % slot_count
+    day_no = class_slot // slot_count
 
     if slot_no == 0:
-        slot_no = daily_slots
+        slot_no = slot_count
         day_no -= 1
 
     return slot_no, day_no
@@ -175,18 +174,18 @@ def calculate_fitness(gene):
                                                          1] == course:
         fitness_score *= 0.6
 
-    if (slot_no != daily_slots
+    if (slot_no != slot_count
             and tables[class_no - 1][day_no - 1][(slot_no - 1) + 1] == course):
         fitness_score *= 0.6
 
-    if course_quota[class_no - 1][(course - 1) - 1] <= 0:
-        fitness_score *= 0.1
+    #if course_quota[class_no - 1][(course - 1) - 1] <= 0:
+    #    fitness_score *= 0.1
 
-    if (tables[class_no - 1][day_no - 1].count(course) >=
-            daily_reps[class_no - 1][course - 1]):
-        fitness_score *= 0.6
+    #if (tables[class_no - 1][day_no - 1].count(course) >=
+    #        repeat_quota[class_no - 1][course - 1]):
+    #    fitness_score *= 0.6
 
-    if teachers_list[day_no - 1][slot_no - 1][course - 1] == 0:
+    if teacher_quota[day_no - 1][slot_no - 1][course - 1] == 0:
         fitness_score *= 0.1
     return fitness_score
 
@@ -198,8 +197,8 @@ def generate_table_skeleton():
 
     for _ in range(class_count):
         class_table = []
-        for _ in range(working_days):
-            day = [0 for _ in range(daily_slots)]
+        for _ in range(day_count):
+            day = [0 for _ in range(slot_count)]
             class_table.append(day)
         tables.append(class_table)
     return tables
@@ -210,8 +209,8 @@ def generate_table_skeleton():
 def fit_slot(gene):
     global tables
     global course_quota
-    global daily_reps
-    global teachers_list
+    global repeat_quota
+    global teacher_quota
 
     course = int(gene[0:course_bits], 2)
 
@@ -222,5 +221,5 @@ def fit_slot(gene):
     # slot_no which are natural numbers.
     tables[class_no - 1][day_no - 1][slot_no - 1] = course
     course_quota[class_no - 1][course - 1] -= 1
-    daily_reps[class_no - 1][course - 1] -= 1
-    teachers_list[day_no - 1][slot_no - 1][course - 1] -= 1
+    repeat_quota[class_no - 1][course - 1] -= 1
+    teacher_quota[day_no - 1][slot_no - 1][course - 1] -= 1

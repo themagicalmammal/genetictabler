@@ -58,28 +58,32 @@ def initialize_genotype(no_courses,
         daily_reps = daily_repetitions
     else:
         raise ValueError("Invalid data supplied for daily repetitions.")
-    daily_reps = [daily_reps for _ in range(class_count)]
+
+    daily_reps = [daily_reps[:] for _ in range(class_count)]
 
     if type(teachers) == int:
-        teachers_list = [teachers for _ in range(course_count)]
+        teachers_list = [teachers] * course_count
     elif type(teachers[0]) == int and len(teachers) == course_count:
         teachers_list = teachers
     else:
         raise ValueError("Invalid data supplied for teachers.")
 
+    teachers_list = [[teachers_list[:] for _ in range(daily_slots)] for _ in range(working_days)]
     return [course_bits, slot_bits, daily_slots * working_days * class_count]
 
 
 # Below function calculates an array course_quota which stores the maximum allowed
 # occurrence of a a course/subject/module in a week/scheduled number of days.
+
+
 def calc_course_quota():
     global course_quota
 
     q_max = total_slots // course_count
     if total_slots % course_count == 0:
-        course_quota = [q_max for _ in range(course_count)]
+        course_quota = [q_max] * course_count
     else:
-        course_quota = [(q_max + 1) for _ in range(course_count)]
+        course_quota = [q_max + 1] * course_count
 
         extra_slots = (q_max + 1) * course_count - total_slots
 
@@ -87,10 +91,7 @@ def calc_course_quota():
         for i in range(extra_slots):
             course_quota[n + i] -= 1
 
-    x = [course_quota[:] for _ in range(class_count)]
-    course_quota = x
-    # print(course_quota)
-    # print(type(course_quota))
+    course_quota = [course_quota[:] for _ in range(class_count)]
 
 
 # The encode_class() function generates random binary strings whose
@@ -157,43 +158,34 @@ by checking few things:-
 
 def calculate_fitness(gene):
     fitness_score = 100
-
     course = int(gene[0:course_bits], 2)
+
     slot_no, day_no = extract_slot_day(gene)
     class_no = int(gene[course_bits + slot_bits:], 2)
 
     if tables[class_no - 1][day_no - 1][slot_no - 1] != 0:
         fitness_score *= 0.1
-    """
+
     for i in range(class_count):
         if tables[i][day_no - 1][slot_no - 1] == course:
             fitness_score *= 0.6
-    """
 
-    if slot_no != 1 and tables[class_no - 1][day_no - 1][(slot_no - 1) -
-                                                         1] == course:
+    if slot_no != 1 and tables[class_no - 1][day_no - 1][slot_no - 1] == course:
         fitness_score *= 0.6
 
     if (slot_no != daily_slots
             and tables[class_no - 1][day_no - 1][(slot_no - 1) + 1] == course):
         fitness_score *= 0.6
 
-    if course_quota[class_no - 1][course - 1] <= 0:
+    if course_quota[class_no - 1][(course - 1) - 1] <= 0:
         fitness_score *= 0.1
-        # print(gene,"hi", fitness_score)
-        # print(course_quota)
 
     if (tables[class_no - 1][day_no - 1].count(course) >=
             daily_reps[class_no - 1][course - 1]):
         fitness_score *= 0.6
 
-    temp_counter = 0
-    for i in range(class_count):
-        if tables[i][day_no - 1][slot_no - 1] == course:
-            temp_counter += 1
-    if temp_counter == teachers_list[course - 1]:
+    if teachers_list[day_no - 1][slot_no - 1][course - 1] == 0:
         fitness_score *= 0.1
-    # print("inside function", fitness_score)
     return fitness_score
 
 
@@ -227,9 +219,6 @@ def fit_slot(gene):
     # Python list indexing starts from 0, hence we subtract 1 from class_no, day_no,
     # slot_no which are natural numbers.
     tables[class_no - 1][day_no - 1][slot_no - 1] = course
-
-    # print(gene)
-    # print("fit slot ...........", class_no, course)
-    course_quota[class_no - 1][course -
-                               1] = course_quota[class_no - 1][course - 1] - 1
-    # print(course_quota)
+    course_quota[class_no - 1][course - 1] -= 1
+    daily_reps[class_no - 1][course - 1] -= 1
+    teachers_list[day_no - 1][slot_no - 1][course - 1] -= 1

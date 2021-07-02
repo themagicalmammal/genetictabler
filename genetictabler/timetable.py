@@ -178,10 +178,10 @@ def calculate_fitness(gene):
             and tables[class_no - 1][day_no - 1][(slot_no - 1) + 1] == course):
         fitness_score *= 0.6
 
-    #if course_quota[class_no - 1][(course - 1) - 1] <= 0:
+    # if course_quota[class_no - 1][(course - 1) - 1] <= 0:
     #    fitness_score *= 0.1
 
-    #if (tables[class_no - 1][day_no - 1].count(course) >=
+    # if (tables[class_no - 1][day_no - 1].count(course) >=
     #        repeat_quota[class_no - 1][course - 1]):
     #    fitness_score *= 0.6
 

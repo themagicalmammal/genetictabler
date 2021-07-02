@@ -37,9 +37,9 @@ def single_point_crossover(gene_a, gene_b):
 def multi_point_crossover(gene_a, gene_b, points):
     # We use the single point crossover, multiple times
     for _ in range(points):
-        gene_c, gene_d = single_point_crossover(gene_a, gene_b)
+        gene_a, gene_b = single_point_crossover(gene_a, gene_b)
 
-    return [gene_c, gene_d]
+    return [gene_a, gene_b]
 
 
 def mutation(gene, course_bit_length, slot_bit_length):
@@ -87,7 +87,6 @@ def run_evolution(
         population = sorted(population, key=calculate_fitness, reverse=True)
 
         if calculate_fitness(population[0]) >= max_fitness:
-            # print(population[0], calculate_fitness(population[0]), max_fitness)
             return population[0]
 
         next_generation = population[0:2]
@@ -131,9 +130,7 @@ def generate_timetable(
             max_fitness,
             max_generations,
         )
-        # print(gene)
         if gene != 0:
             fit_slot(gene)
             all_slots -= 1
-        # print(tables)
     return tables

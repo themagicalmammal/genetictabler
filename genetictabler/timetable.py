@@ -156,16 +156,19 @@ def calculate_fitness(gene):
         if tables[i][day_no - 1][slot_no - 1] == course:
             fitness_score *= 0.6
 
-    if slot_no != 1 and tables[class_no - 1][day_no - 1][slot_no - 2] == course:
+    if slot_no != 1 and tables[class_no - 1][day_no - 1][slot_no -
+                                                         2] == course:
         fitness_score *= 0.6
 
-    if slot_no != slot_count and tables[class_no - 1][day_no - 1][slot_no] == course:
+    if slot_no != slot_count and tables[class_no - 1][day_no -
+                                                      1][slot_no] == course:
         fitness_score *= 0.6
 
     if course_quota[class_no - 1][course - 1] < 1:
         fitness_score *= 1
 
-    if tables[class_no - 1][day_no - 1].count(course) >= repeat_quota[class_no - 1][course - 1]:
+    if (tables[class_no - 1][day_no - 1].count(course) >=
+            repeat_quota[class_no - 1][course - 1]):
         fitness_score *= 0.1
 
     if teacher_quota[day_no - 1][slot_no - 1][course - 1] == 0:

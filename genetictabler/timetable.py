@@ -17,12 +17,7 @@ tables = []
 # The initialize_genotype() initializes and stores important data relevant to
 # the the user defined timetable(s)'s design in global variables so that they
 # can be easily used multiple times throughout the program as per requirement.
-def initialize_genotype(no_courses,
-                        classes,
-                        slots,
-                        days,
-                        daily_rep,
-                        teachers):
+def initialize_genotype(no_courses, classes, slots, days, daily_rep, teachers):
     global course_count
     global slot_count
     global day_count
@@ -161,10 +156,12 @@ def calculate_fitness(gene):
         if tables[i][day_no - 1][slot_no - 1] == course:
             fitness_score *= 0.6
 
-    if slot_no != 1 and tables[class_no - 1][day_no - 1][slot_no - 1] == course:
+    if slot_no != 1 and tables[class_no - 1][day_no - 1][slot_no -
+                                                         1] == course:
         fitness_score *= 0.6
 
-    if slot_no != slot_count and tables[class_no - 1][day_no - 1][slot_no - 1] == course:
+    if (slot_no != slot_count
+            and tables[class_no - 1][day_no - 1][slot_no - 1] == course):
         fitness_score *= 0.6
 
     if course_quota[class_no - 1][course - 1] < 1:

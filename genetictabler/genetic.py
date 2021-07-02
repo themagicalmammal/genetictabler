@@ -95,6 +95,7 @@ def run_evolution(
     max_generations,
 ):
     population = generate_population(population_size)
+    #print(population)
     for _ in range(max_generations):
         population = sorted(population, key=calculate_fitness, reverse=True)
 
@@ -105,13 +106,16 @@ def run_evolution(
 
         for _ in range(len(population) // 2 - 1):
             parents = selection_pair(population)
-            child_a = single_point_crossover(parents[0], parents[1])[0]
-            child_b = single_point_crossover(parents[0], parents[1])[1]
 
-            child_a_ = mutation(child_a, course_bit_length, slot_bit_length)
-            child_b_ = mutation(child_b, course_bit_length, slot_bit_length)
+            children = single_point_crossover(parents[0], parents[1])
 
-            next_generation += [child_a_, child_b_]
+            # print([int(parents[0], 2),int(parents[1], 2)], "crossbred to produce ------------------------",
+            #      [int(children[0], 2), int(children[1], 2)])
+
+            child_a = mutation(children[0], course_bit_length, slot_bit_length)
+            child_b = mutation(children[1], course_bit_length, slot_bit_length)
+            # print([int(children[0], 2), int(children[1], 2)], " Mutated to make ------------------", [int(child_a, 2), int(child_b, 2)])
+            next_generation += [child_a, child_b]
 
         population = next_generation
 

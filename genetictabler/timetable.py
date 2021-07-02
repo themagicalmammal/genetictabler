@@ -68,7 +68,8 @@ def initialize_genotype(no_courses,
     else:
         raise ValueError("Invalid data supplied for teachers.")
 
-    teachers_list = [[teachers_list[:] for _ in range(daily_slots)] for _ in range(working_days)]
+    teachers_list = [[teachers_list[:] for _ in range(daily_slots)]
+                     for _ in range(working_days)]
     return [course_bits, slot_bits, daily_slots * working_days * class_count]
 
 
@@ -170,7 +171,8 @@ def calculate_fitness(gene):
         if tables[i][day_no - 1][slot_no - 1] == course:
             fitness_score *= 0.6
 
-    if slot_no != 1 and tables[class_no - 1][day_no - 1][slot_no - 1] == course:
+    if slot_no != 1 and tables[class_no - 1][day_no - 1][slot_no -
+                                                         1] == course:
         fitness_score *= 0.6
 
     if (slot_no != daily_slots

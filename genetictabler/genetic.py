@@ -42,7 +42,7 @@ def single_point_crossover(gene_a, gene_b):
                                                            slot_bits:]
         gene_d = gene_b[:course_bits + slot_bits] + gene_a[course_bits +
                                                            slot_bits:]
-
+    print("-------------------------------------------------------------------------Crossbreeding point  == ",c)
     return [gene_c, gene_d]
 
 
@@ -109,16 +109,18 @@ def run_evolution(
 
             children = single_point_crossover(parents[0], parents[1])
 
-            # print([int(parents[0], 2),int(parents[1], 2)], "crossbred to produce ------------------------",
-            #      [int(children[0], 2), int(children[1], 2)])
+            print([int(parents[0], 2),int(parents[1], 2)], "crossbred to produce ------------------------",
+                  [int(children[0], 2), int(children[1], 2)])
 
             child_a = mutation(children[0], course_bit_length, slot_bit_length)
             child_b = mutation(children[1], course_bit_length, slot_bit_length)
-            # print([int(children[0], 2), int(children[1], 2)], " Mutated to make ------------------", [int(child_a, 2), int(child_b, 2)])
+            print([int(children[0], 2), int(children[1], 2)], " Mutated to make ------------------", [int(child_a, 2), int(child_b, 2)])
             next_generation += [child_a, child_b]
 
         population = next_generation
-
+    population = sorted(population, key=calculate_fitness, reverse=True)
+    if calculate_fitness(population[0]) >= 3.6:
+        return population[0]
     return 0
 
 
@@ -131,7 +133,7 @@ def generate_timetable(
     teachers=1,
     population_size=10,
     max_fitness=100,
-    max_generations=15,
+    max_generations=50,
 ):
 
     course_bit_length, slot_bit_length, all_slots = initialize_genotype(

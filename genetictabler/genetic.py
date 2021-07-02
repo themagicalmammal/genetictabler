@@ -108,12 +108,12 @@ def run_evolution(
 
 
 def generate_timetable(
-    classes,
-    courses,
-    slots,
-    days,
-    repeat,
-    teachers,
+    classes=6,
+    courses=4,
+    slots=6,
+    days=5,
+    repeat=2,
+    teachers=1,
     population_size=10,
     max_fitness=100,
     max_generations=15,

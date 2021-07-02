@@ -95,7 +95,7 @@ def run_evolution(
     max_generations,
 ):
     population = generate_population(population_size)
-    #print(population)
+    # print(population)
     for _ in range(max_generations):
         population = sorted(population, key=calculate_fitness, reverse=True)
 

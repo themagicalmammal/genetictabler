@@ -175,7 +175,7 @@ def calculate_fitness(gene):
     if course_quota[class_no - 1][course - 1] < 1:
         fitness_score *= 0.1
 
-    if tables[class_no - 1][day_no - 1].count(course) >=2 :
+    if tables[class_no - 1][day_no - 1].count(course) >= 2:
         fitness_score *= 0.1
 
     if (tables[class_no - 1][day_no - 1].count(course) >=
@@ -184,7 +184,7 @@ def calculate_fitness(gene):
     temp_counter = 0
     for i in range(class_count):
         if tables[i][day_no - 1][slot_no - 1] == course:
-            temp_counter += 1        
+            temp_counter += 1
     if temp_counter == teacher_quota[course - 1]:
         fitness_score *= 0.1
 
@@ -223,4 +223,4 @@ def fit_slot(gene):
     # slot_no which are natural numbers.
     tables[class_no - 1][day_no - 1][slot_no - 1] = course
     course_quota[class_no - 1][course - 1] -= 1
-    #print(course_quota)
+    # print(course_quota)

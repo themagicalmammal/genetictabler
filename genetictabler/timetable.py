@@ -75,11 +75,20 @@ def calc_course_quota():
     global course_quota
 
     q_max = total_slots // course_count
-    if int(q_max) == q_max:
-        q_max += 1
-    course_quota = [int(q_max) for _ in range(course_count)]
+    if total_slots % course_count == 0:
+        course_quota = [q_max for _ in range(course_count)]
+    else:
+        course_quota = [(q_max + 1) for _ in range(course_count)]
 
-    course_quota = [course_quota[:] for _ in range(class_count)]
+        extra_slots = (q_max + 1) * course_count - total_slots
+
+        n = randint(1, course_count - extra_slots)
+        for i in range(extra_slots):
+            course_quota[n + i] -= 1
+
+    x = [course_quota[:] for _ in range(class_count)]
+    course_quota = x
+    print(course_quota)
 
 
 # The encode_class() function generates random binary strings whose
@@ -167,7 +176,7 @@ def calculate_fitness(gene):
         fitness_score *= 0.6
 
     if course_quota[class_no - 1][course - 1] < 1:
-        fitness_score *= 1
+        fitness_score *= 0.1
 
     if (tables[class_no - 1][day_no - 1].count(course) >=
             repeat_quota[class_no - 1][course - 1]):
@@ -210,3 +219,4 @@ def fit_slot(gene):
     tables[class_no - 1][day_no - 1][slot_no - 1] = course
     course_quota[class_no - 1][course - 1] -= 1
     teacher_quota[day_no - 1][slot_no - 1][course - 1] -= 1
+    # print(course_quota)

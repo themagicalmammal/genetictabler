@@ -165,7 +165,8 @@ def calculate_fitness(gene):
                                                          1] == course:
         fitness_score *= 0.6
 
-    if slot_no != slot_count and tables[class_no - 1][day_no - 1][slot_no - 1] == course:
+    if (slot_no != slot_count
+            and tables[class_no - 1][day_no - 1][slot_no - 1] == course):
         fitness_score *= 0.6
 
     if course_quota[class_no - 1][course - 1] < 1:

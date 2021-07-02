@@ -51,9 +51,9 @@ def initialize_genotype(no_courses,
 
     calc_course_quota()
 
-    if type(daily_repetitions) == int:
+    if type(daily_repetitions) is int:
         daily_reps = [daily_repetitions for _ in range(course_count)]
-    elif type(daily_repetitions[0]) == int and len(
+    elif type(daily_repetitions[0]) is int and len(
             daily_repetitions) == course_count:
         daily_reps = daily_repetitions
     else:
@@ -61,9 +61,9 @@ def initialize_genotype(no_courses,
 
     daily_reps = [daily_reps[:] for _ in range(class_count)]
 
-    if type(teachers) == int:
+    if type(teachers) is int:
         teachers_list = [teachers] * course_count
-    elif type(teachers[0]) == int and len(teachers) == course_count:
+    elif type(teachers[0]) is int and len(teachers) == course_count:
         teachers_list = teachers
     else:
         raise ValueError("Invalid data supplied for teachers.")

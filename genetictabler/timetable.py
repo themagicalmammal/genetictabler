@@ -46,18 +46,18 @@ def initialize_genotype(no_courses, classes, slots, days, daily_rep, teachers):
 
     calc_course_quota()
 
-    if type(daily_rep) is int:
+    if isinstance(daily_rep, int):
         repeat_quota = [daily_rep for _ in range(course_count)]
-    elif type(daily_rep[0]) is int and len(daily_rep) == course_count:
+    elif isinstance(daily_rep[0], int) and len(daily_rep) == course_count:
         repeat_quota = daily_rep
     else:
         raise ValueError("Invalid data supplied for daily repetitions.")
 
     repeat_quota = [repeat_quota[:] for _ in range(class_count)]
 
-    if type(teachers) is int:
+    if isinstance(teachers, int):
         teacher_quota = [teachers] * course_count
-    elif type(teachers[0]) is int and len(teachers) == course_count:
+    elif isinstance(teachers[0], int) and len(teachers) == course_count:
         teacher_quota = teachers
     else:
         raise ValueError("Invalid data supplied for teachers.")
@@ -138,14 +138,14 @@ def extract_slot_day(gene):
     return slot_no, day_no
 
 
-""" 
-The calculate_fitness() function determines fitness_score of a gene(course schedule) 
+"""
+The calculate_fitness() function determines fitness_score of a gene(course schedule)
 by checking few things:-
 1)   If there already exists a course schedule for the same slot of the same or different class,
     fitness_score of the gene is decreased.
-2)   If the same course is scheduled for any of the adjacent slots in the same class, 
+2)   If the same course is scheduled for any of the adjacent slots in the same class,
     fitness_score of that gene is reduced.
-3)   If a course is occurring more han a fixed number of times, the fitness_score of 
+3)   If a course is occurring more han a fixed number of times, the fitness_score of
     that gene is reduced.
 """
 

@@ -97,7 +97,6 @@ def encode_class():
     integer values represent a course/module/subject
     """
     class_code = bin(randint(1, class_count))[2:]
-
     """
     Left padding of random binary strings with 0 is done to ensure each string
     is of same consistent length.

@@ -62,7 +62,7 @@ table = generate_timetable(
 
 # Loop to print all the timetables. 
 for i in table:
-    for j in class:
+    for j in i:
         print(j)
     print("-----------------------------------")
 ```

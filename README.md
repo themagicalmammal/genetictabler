@@ -14,57 +14,43 @@ slots = 6
 total_days = 7
 daily_repetition = 3
 
-
 """
 Variable Definitions:
 
--total_classes: It is the count of total number of
-                timetables you want. Suppose If you
-		4 batches/student groups for CS freshmen
-		all studying the same courses/modules/subjects
-		you can generate 4 different yet coherent
-		yet timetables without having any clashes.
+:param total_classes: It is the count of total number of timetables you want. 
+                      Suppose If you 4 batches/student groups for CS freshmen
+                      all studying the same courses/modules/subjects you can 
+                      generate 4 different yet coherent yet timetables without 
+                      having any clashes.
 
--no_courses: 	It is the count of total number of 
-		courses/modules/subjects that a class
-		or classes are going to be taught. 
-		For example if a class is going to be 
-		taught only maths, physics, chemistry and CS
-		then total count will be 4.
+:param no_courses: It is the count of total number of courses/modules/subjects 
+                   that a class or classes are going to be taught. For example 
+                   if a class is going to be taught only maths, physics, 
+                   chemistry and CS then total count will be 4.
 
--slots:		it is the count of total lectures that are 
-		to be scheduled each day. 
+:param slots: It is the count of total lectures that are to be scheduled each 
+              day. 
 
--total_days:	It is the count of total number of days for 
-		which you want to schedule the timetable. 
-		For example a weekly timetable will have total
-		5/6 days. A monthly schedule can be of 25 days.
+:param total_days: It is the count of total number of days for which you want 
+                   to schedule the timetable. For example a weekly timetable 
+                   will have total 5/6 days. A monthly schedule can be of 25 
+                   days.
 
--daily_repitition:
-		It is the maximum allowed number of times a 
-		course/subject/module can have lectures per day.
-		It is used when the slots count is more than 
-		no_courses 
+:param daily_repetition: It is the maximum allowed number of times a 
+                         course/subject/module can have lectures per day. It 
+                         is used when the slots count is more than no_courses.
+                         
+Note:- The table returned by the above function call is a 3-dimensional 
+list/array. Which is a list of timetables for each class which in itself are 
+2d arrays.
 """
 
-
-table = generate_timetable(
-    total_classes,
-    no_courses,
-    slots,
-    total_days,
-    daily_repetition,
-)
-
-# The table returned by the above function call is a 3-dimensional list/array
-# It is a list of timetables for each class which in itself are 2d arrays.
-
-
-# Loop to print all the timetables. 
-for i in table:
-    for j in i:
-        print(j)
+table = generate_timetable(total_classes, no_courses, slots, total_days, daily_repetition)
+for single_table in table:
+    for days in single_table:
+        print(days)
     print("-----------------------------------")
+
 ```
 
 ## Changelog

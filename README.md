@@ -6,7 +6,7 @@ Developed by [Dipan Nanda](https://github.com/themagicalmammal) and [Ashish Shah
 ## Example of Usage
 
 ```python
-from genetic import GenerateTimeTable
+from genetictabler import GenerateTimeTable
 
 total_classes = 6
 no_courses = 6

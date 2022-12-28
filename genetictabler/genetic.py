@@ -3,16 +3,18 @@ from random import choice, choices, randint
 
 class GenerateTimeTable(object):
 
-    def __init__(self,
-                 classes=6,
-                 courses=4,
-                 slots=6,
-                 days=5,
-                 repeat=2,
-                 teachers=1,
-                 population_size=40,
-                 max_fitness=100,
-                 max_generations=50):
+    def __init__(
+        self,
+        classes=6,
+        courses=4,
+        slots=6,
+        days=5,
+        repeat=2,
+        teachers=1,
+        population_size=40,
+        max_fitness=100,
+        max_generations=50,
+    ):
         self.classes = classes
         self.courses = courses
         self.slots = slots
@@ -79,8 +81,9 @@ class GenerateTimeTable(object):
             raise ValueError("Invalid data supplied for teachers.")
 
         return [
-            self.course_bits, self.slot_bits,
-            self.slot_count * self.day_count * self.class_count
+            self.course_bits,
+            self.slot_bits,
+            self.slot_count * self.day_count * self.class_count,
         ]
 
     def calc_course_quota(self):
@@ -180,12 +183,12 @@ class GenerateTimeTable(object):
             if self.tables[i][day_no - 1][slot_no - 1] == course:
                 fitness_score *= 0.6
 
-        if slot_no != 1 and \
-                self.tables[class_no - 1][day_no - 1][slot_no - 2] == course:
+        if (slot_no != 1 and self.tables[class_no - 1][day_no - 1][slot_no - 2]
+                == course):
             fitness_score *= 0.6
 
-        if slot_no != self.slot_count and \
-                self.tables[class_no - 1][day_no - 1][slot_no] == course:
+        if (slot_no != self.slot_count
+                and self.tables[class_no - 1][day_no - 1][slot_no] == course):
             fitness_score *= 0.6
 
         if self.course_quota[class_no - 1][course - 1] < 1:
@@ -341,19 +344,21 @@ class GenerateTimeTable(object):
             population = next_generation
         return population[0]
 
-    def run(self,
-            classes=6,
-            courses=4,
-            slots=6,
-            days=5,
-            repeat=2,
-            teachers=1,
-            population_size=40,
-            max_fitness=100,
-            max_generations=50):
+    def run(
+        self,
+        classes=6,
+        courses=4,
+        slots=6,
+        days=5,
+        repeat=2,
+        teachers=1,
+        population_size=40,
+        max_fitness=100,
+        max_generations=50,
+    ):
 
-        course_bit_length, slot_bit_length, all_slots = \
-            self.initialize_genotype(courses, classes, slots, days, repeat, teachers)
+        course_bit_length, slot_bit_length, all_slots = self.initialize_genotype(
+            courses, classes, slots, days, repeat, teachers)
         self.generate_table_skeleton()
         while all_slots > 0:
             gene = self.run_evolution(

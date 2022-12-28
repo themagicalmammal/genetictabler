@@ -2,17 +2,19 @@ from random import choice, choices, randint
 
 
 class GenerateTimeTable(object):
+
     def __init__(
-            self,
-            classes=6,
-            courses=4,
-            slots=6,
-            days=5,
-            repeat=2,
-            teachers=1,
-            population_size=40,
-            max_fitness=100,
-            max_generations=50):
+        self,
+        classes=6,
+        courses=4,
+        slots=6,
+        days=5,
+        repeat=2,
+        teachers=1,
+        population_size=40,
+        max_fitness=100,
+        max_generations=50,
+    ):
         self.classes = classes
         self.courses = courses
         self.slots = slots
@@ -35,14 +37,8 @@ class GenerateTimeTable(object):
         self.repeat_quota = []
         self.tables = []
 
-    def initialize_genotype(
-            self,
-            no_courses,
-            classes,
-            slots,
-            days,
-            daily_rep,
-            teachers):
+    def initialize_genotype(self, no_courses, classes, slots, days, daily_rep,
+                            teachers):
         """
         The initialize_genotype() initializes and stores important data relevant to
         the user defined timetable(s)'s design in global variables so that they
@@ -66,17 +62,20 @@ class GenerateTimeTable(object):
 
         if isinstance(daily_rep, int):
             self.repeat_quota = [daily_rep for _ in range(self.course_count)]
-        elif isinstance(daily_rep[0], int) and len(daily_rep) == self.course_count:
+        elif isinstance(daily_rep[0],
+                        int) and len(daily_rep) == self.course_count:
             self.repeat_quota = daily_rep
         else:
             raise ValueError("Invalid data supplied for daily repetitions.")
 
-        self.repeat_quota = [self.repeat_quota[:]
-                             for _ in range(self.class_count)]
+        self.repeat_quota = [
+            self.repeat_quota[:] for _ in range(self.class_count)
+        ]
 
         if isinstance(teachers, int):
             self.teacher_quota = [teachers] * self.course_count
-        elif isinstance(teachers[0], int) and len(teachers) == self.course_count:
+        elif isinstance(teachers[0],
+                        int) and len(teachers) == self.course_count:
             self.teacher_quota = teachers
         else:
             raise ValueError("Invalid data supplied for teachers.")
@@ -84,9 +83,8 @@ class GenerateTimeTable(object):
         return [
             self.course_bits,
             self.slot_bits,
-            self.slot_count *
-            self.day_count *
-            self.class_count]
+            self.slot_count * self.day_count * self.class_count,
+        ]
 
     def calc_course_quota(self):
         """
@@ -105,8 +103,9 @@ class GenerateTimeTable(object):
             for i in range(extra_slots):
                 self.course_quota[n + i] -= 1
 
-        self.course_quota = [self.course_quota[:]
-                             for _ in range(self.class_count)]
+        self.course_quota = [
+            self.course_quota[:] for _ in range(self.class_count)
+        ]
 
     def encode_class(self):
         """
@@ -114,7 +113,6 @@ class GenerateTimeTable(object):
         integer values represent a course/module/subject
         """
         class_code = bin(randint(1, self.class_count))[2:]
-
         """
         Left padding of random binary strings with 0 is done to ensure each string
         is of same consistent length.
@@ -185,12 +183,12 @@ class GenerateTimeTable(object):
             if self.tables[i][day_no - 1][slot_no - 1] == course:
                 fitness_score *= 0.6
 
-        if slot_no != 1 and \
-                self.tables[class_no - 1][day_no - 1][slot_no - 2] == course:
+        if (slot_no != 1 and self.tables[class_no - 1][day_no - 1][slot_no - 2]
+                == course):
             fitness_score *= 0.6
 
-        if slot_no != self.slot_count and \
-                self.tables[class_no - 1][day_no - 1][slot_no] == course:
+        if (slot_no != self.slot_count
+                and self.tables[class_no - 1][day_no - 1][slot_no] == course):
             fitness_score *= 0.6
 
         if self.course_quota[class_no - 1][course - 1] < 1:
@@ -258,16 +256,14 @@ class GenerateTimeTable(object):
             gene_d = gene_a[0:self.course_bits] + gene_b[self.course_bits:]
 
         elif c == 2:
-            gene_c = (gene_a[:self.course_bits] +
-                      gene_b[self.course_bits:self.course_bits +
-                             self.slot_bits] +
-                      gene_a[self.course_bits +
-                             self.slot_bits:])
-            gene_d = (gene_b[:self.course_bits] +
-                      gene_a[self.course_bits:self.course_bits +
-                             self.slot_bits] +
-                      gene_b[self.course_bits +
-                             self.slot_bits:])
+            gene_c = (
+                gene_a[:self.course_bits] +
+                gene_b[self.course_bits:self.course_bits + self.slot_bits] +
+                gene_a[self.course_bits + self.slot_bits:])
+            gene_d = (
+                gene_b[:self.course_bits] +
+                gene_a[self.course_bits:self.course_bits + self.slot_bits] +
+                gene_b[self.course_bits + self.slot_bits:])
 
         else:
             gene_c = (gene_a[:self.course_bits + self.slot_bits] +
@@ -317,19 +313,19 @@ class GenerateTimeTable(object):
     def sort_population(self, population):
         return sorted(population, key=self.calculate_fitness, reverse=True)
 
-    def run_evolution(self,
-                      course_bit_length,
-                      slot_bit_length,
-                      population_size,
-                      max_fitness,
-                      max_generations,
-                      ):
+    def run_evolution(
+        self,
+        course_bit_length,
+        slot_bit_length,
+        population_size,
+        max_fitness,
+        max_generations,
+    ):
         population = self.generate_population(population_size)
         for i in range(max_generations):
-            population = sorted(
-                population,
-                key=self.calculate_fitness,
-                reverse=True)
+            population = sorted(population,
+                                key=self.calculate_fitness,
+                                reverse=True)
 
             if self.calculate_fitness(population[0]) >= max_fitness:
                 return population[0]
@@ -339,17 +335,27 @@ class GenerateTimeTable(object):
             for _ in range(len(population) // 2 - 1):
                 parents = self.selection_pair(population)
                 children = self.single_point_crossover(parents[0], parents[1])
-                child_a = self.mutation(
-                    children[0], course_bit_length, slot_bit_length)
-                child_b = self.mutation(
-                    children[1], course_bit_length, slot_bit_length)
+                child_a = self.mutation(children[0], course_bit_length,
+                                        slot_bit_length)
+                child_b = self.mutation(children[1], course_bit_length,
+                                        slot_bit_length)
                 next_generation += [child_a, child_b]
 
             population = next_generation
         return population[0]
 
-    def run(self, classes=6, courses=4, slots=6, days=5, repeat=2, teachers=1,
-            population_size=40, max_fitness=100, max_generations=50):
+    def run(
+        self,
+        classes=6,
+        courses=4,
+        slots=6,
+        days=5,
+        repeat=2,
+        teachers=1,
+        population_size=40,
+        max_fitness=100,
+        max_generations=50,
+    ):
 
         course_bit_length, slot_bit_length, all_slots = self.initialize_genotype(
             courses, classes, slots, days, repeat, teachers)

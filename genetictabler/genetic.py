@@ -2,8 +2,17 @@ from random import choice, choices, randint
 
 
 class GenerateTimeTable(object):
-    def __init__(self, classes=6, courses=4, slots=6, days=5, repeat=2, teachers=1,
-                 population_size=40, max_fitness=100, max_generations=50):
+    def __init__(
+            self,
+            classes=6,
+            courses=4,
+            slots=6,
+            days=5,
+            repeat=2,
+            teachers=1,
+            population_size=40,
+            max_fitness=100,
+            max_generations=50):
         self.classes = classes
         self.courses = courses
         self.slots = slots
@@ -26,7 +35,14 @@ class GenerateTimeTable(object):
         self.repeat_quota = []
         self.tables = []
 
-    def initialize_genotype(self, no_courses, classes, slots, days, daily_rep, teachers):
+    def initialize_genotype(
+            self,
+            no_courses,
+            classes,
+            slots,
+            days,
+            daily_rep,
+            teachers):
         """
         The initialize_genotype() initializes and stores important data relevant to
         the user defined timetable(s)'s design in global variables so that they
@@ -55,7 +71,8 @@ class GenerateTimeTable(object):
         else:
             raise ValueError("Invalid data supplied for daily repetitions.")
 
-        self.repeat_quota = [self.repeat_quota[:] for _ in range(self.class_count)]
+        self.repeat_quota = [self.repeat_quota[:]
+                             for _ in range(self.class_count)]
 
         if isinstance(teachers, int):
             self.teacher_quota = [teachers] * self.course_count
@@ -64,7 +81,12 @@ class GenerateTimeTable(object):
         else:
             raise ValueError("Invalid data supplied for teachers.")
 
-        return [self.course_bits, self.slot_bits, self.slot_count * self.day_count * self.class_count]
+        return [
+            self.course_bits,
+            self.slot_bits,
+            self.slot_count *
+            self.day_count *
+            self.class_count]
 
     def calc_course_quota(self):
         """
@@ -83,7 +105,8 @@ class GenerateTimeTable(object):
             for i in range(extra_slots):
                 self.course_quota[n + i] -= 1
 
-        self.course_quota = [self.course_quota[:] for _ in range(self.class_count)]
+        self.course_quota = [self.course_quota[:]
+                             for _ in range(self.class_count)]
 
     def encode_class(self):
         """
@@ -129,7 +152,8 @@ class GenerateTimeTable(object):
         The class_slot is a cumulative class slot number, we calculate day number
         and slot number for that day for a gene using this class_slot number.
         """
-        class_slot = int(gene[self.course_bits:self.course_bits + self.slot_bits], 2)
+        class_slot = int(
+            gene[self.course_bits:self.course_bits + self.slot_bits], 2)
         slot_no = class_slot % self.slot_count
         day_no = class_slot // self.slot_count
 
@@ -235,11 +259,15 @@ class GenerateTimeTable(object):
 
         elif c == 2:
             gene_c = (gene_a[:self.course_bits] +
-                      gene_b[self.course_bits:self.course_bits + self.slot_bits] +
-                      gene_a[self.course_bits + self.slot_bits:])
+                      gene_b[self.course_bits:self.course_bits +
+                             self.slot_bits] +
+                      gene_a[self.course_bits +
+                             self.slot_bits:])
             gene_d = (gene_b[:self.course_bits] +
-                      gene_a[self.course_bits:self.course_bits + self.slot_bits] +
-                      gene_b[self.course_bits + self.slot_bits:])
+                      gene_a[self.course_bits:self.course_bits +
+                             self.slot_bits] +
+                      gene_b[self.course_bits +
+                             self.slot_bits:])
 
         else:
             gene_c = (gene_a[:self.course_bits + self.slot_bits] +
@@ -274,7 +302,8 @@ class GenerateTimeTable(object):
                             gene[course_bit_length + slot_bit_length:])
         else:
             random_class = self.encode_class()
-            mutated_gene = gene[:course_bit_length + slot_bit_length] + random_class
+            mutated_gene = gene[:course_bit_length +
+                                slot_bit_length] + random_class
 
         return mutated_gene
 
@@ -297,7 +326,10 @@ class GenerateTimeTable(object):
                       ):
         population = self.generate_population(population_size)
         for i in range(max_generations):
-            population = sorted(population, key=self.calculate_fitness, reverse=True)
+            population = sorted(
+                population,
+                key=self.calculate_fitness,
+                reverse=True)
 
             if self.calculate_fitness(population[0]) >= max_fitness:
                 return population[0]
@@ -307,8 +339,10 @@ class GenerateTimeTable(object):
             for _ in range(len(population) // 2 - 1):
                 parents = self.selection_pair(population)
                 children = self.single_point_crossover(parents[0], parents[1])
-                child_a = self.mutation(children[0], course_bit_length, slot_bit_length)
-                child_b = self.mutation(children[1], course_bit_length, slot_bit_length)
+                child_a = self.mutation(
+                    children[0], course_bit_length, slot_bit_length)
+                child_b = self.mutation(
+                    children[1], course_bit_length, slot_bit_length)
                 next_generation += [child_a, child_b]
 
             population = next_generation
@@ -317,8 +351,8 @@ class GenerateTimeTable(object):
     def run(self, classes=6, courses=4, slots=6, days=5, repeat=2, teachers=1,
             population_size=40, max_fitness=100, max_generations=50):
 
-        course_bit_length, slot_bit_length, all_slots = \
-            self.initialize_genotype(courses, classes, slots, days, repeat, teachers)
+        course_bit_length, slot_bit_length, all_slots = self.initialize_genotype(
+            courses, classes, slots, days, repeat, teachers)
         self.generate_table_skeleton()
         while all_slots > 0:
             gene = self.run_evolution(

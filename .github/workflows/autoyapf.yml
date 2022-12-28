@@ -1,4 +1,4 @@
-name: Formatting python code
+name: Autoyapf
 on: push
 jobs:
   autoyapf:

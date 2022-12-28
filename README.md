@@ -6,10 +6,10 @@ Developed by [Dipan Nanda](https://github.com/themagicalmammal) and [Ashish Shah
 ## Example of Usage
 
 ```python
-from genetictabler import generate_timetable
+from genetic import GenerateTimeTable
 
-total_classes = 4
-no_courses = 8
+total_classes = 6
+no_courses = 6
 slots = 6
 total_days = 7
 daily_repetition = 3
@@ -45,11 +45,12 @@ list/array. Which is a list of timetables for each class which in itself are
 2d arrays.
 """
 
-table = generate_timetable(total_classes, no_courses, slots, total_days, daily_repetition)
-for single_table in table:
+table = GenerateTimeTable(total_classes, no_courses, slots, total_days, daily_repetition)
+for single_table in table.run():
     for days in single_table:
         print(days)
     print("-----------------------------------")
+
 
 ```
 

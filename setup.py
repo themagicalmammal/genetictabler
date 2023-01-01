@@ -6,11 +6,10 @@ from setuptools import find_packages, setup
 here = os.path.abspath(os.path.dirname(__file__))
 
 with codecs.open(os.path.join(here, "README.md"), encoding="utf-8") as fh:
-    long_description = "\n" + fh.read()
+    LONG_DESCRIPTION = "\n" + fh.read()
 
-VERSION = "1.0.3"
-DESCRIPTION = "Time Table scheduling using Genetic Algorithm."
-LONG_DESCRIPTION = "Time Table scheduling using Genetic Algorithm which is tailored to work such that resource utilization is reduced in accordance with the genes that are being generated."
+VERSION = "1.0.4"
+DESCRIPTION = "A time table scheduler using Genetic algorithm(s)."
 
 # Setting up
 setup(

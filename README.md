@@ -55,8 +55,8 @@ for single_table in table.run():
 ```
 
 ## Changelog
-Go [here](https://github.com/themagicalmammal/genetictabler/blob/default/CHANGELOG.md) to checkout the complete changelog.
+Go [here](CHANGELOG.md) to checkout the complete changelog.
 
 ## License
 #### This is under GNU GPL v3.0 License
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://github.com/themagicalmammal/genetictabler/blob/default/LICENSE)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)

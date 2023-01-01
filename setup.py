@@ -20,7 +20,7 @@ setup(
     author_email="d19cyber@gmail.com",
     description=DESCRIPTION,
     long_description_content_type="text/markdown",
-    long_description=long_description,
+    long_description=LONG_DESCRIPTION,
     packages=find_packages(),
     install_requires=[],
     keywords=[

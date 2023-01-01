@@ -1,7 +1,7 @@
 # GeneticTabler
 Time Table scheduling using genetic algorithm.
 
-Developed by [Dipan Nanda](https://github.com/themagicalmammal) and [Ashish Shah](https://github.com/ash-R2D2) (c) 2021
+Developed by [Dipan Nanda](https://github.com/themagicalmammal) and [Ashish Shah](https://github.com/capriciousBoson) (c) 2021
 
 ## Example of Usage
 

@@ -316,7 +316,7 @@ class GenerateTimeTable:
         max_generations,
     ):
         population = self.generate_population(population_size)
-        for i in range(max_generations):
+        for _ in range(max_generations):
             population = sorted(population,
                                 key=self.calculate_fitness,
                                 reverse=True)

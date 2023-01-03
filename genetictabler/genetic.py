@@ -237,9 +237,7 @@ class GenerateTimeTable:
         self.course_quota[class_no - 1][course - 1] -= 1
 
     def generate_population(self, size):
-        """
-        our population will be a list of genes
-        """
+        """our population will be a list of genes"""
         return [self.generate_gene() for _ in range(size)]
 
     def single_point_crossover(self, gene_a, gene_b):
@@ -271,9 +269,7 @@ class GenerateTimeTable:
         return [gene_c, gene_d]
 
     def multi_point_crossover(self, gene_a, gene_b, points):
-        """
-        We use the single point crossover, multiple times
-        """
+        """We use the single point crossover, multiple times"""
         for _ in range(points):
             gene_a, gene_b = self.single_point_crossover(gene_a, gene_b)
 

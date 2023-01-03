@@ -8,7 +8,7 @@ here = os.path.abspath(os.path.dirname(__file__))
 with codecs.open(os.path.join(here, "README.md"), encoding="utf-8") as fh:
     LONG_DESCRIPTION = "\n" + fh.read()
 
-VERSION = "1.0.6"
+VERSION = "1.0.7"
 DESCRIPTION = "A time table scheduler using Genetic algorithm(s)."
 
 # Setting up
@@ -42,15 +42,17 @@ setup(
         "timetable",
     ],
     classifiers=[
-        "LICENSE :: OSI APPROVED :: GNU GENERAL PUBLIC LICENSE V3 (GPLV3)",
-        "LICENSE :: OSI APPROVED :: GNU GENERAL PUBLIC LICENSE V3 OR LATER (GPLV3+)",
         "Development Status :: 5 - Production/Stable",
+        "Intended Audience :: System Administrators",
         "Intended Audience :: Developers",
+        "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+        "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
         "Operating System :: OS Independent"
         "Operating System :: Unix",
         "Operating System :: MacOS :: MacOS X",
         "Operating System :: Microsoft :: Windows",
+        "Topic :: Utilities"
     ],
 )

@@ -1,7 +1,7 @@
 from random import choice, choices, randint
 
 
-class GenerateTimeTable(object):
+class GenerateTimeTable:
 
     def __init__(
         self,

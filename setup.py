@@ -15,8 +15,8 @@ DESCRIPTION = "A time table scheduler using Genetic algorithm(s)."
 setup(
     name="genetictabler",
     version=VERSION,
-    author="Dipan Nanda and Ashish Shah",
-    author_email="d19cyber@gmail.com",
+    author="Dipan Nanda, Ashish Shah",
+    author_email="d19cyber@gmail.com, avinavashish008@gmail.com",
     description=DESCRIPTION,
     long_description_content_type="text/markdown",
     long_description=LONG_DESCRIPTION,

@@ -25,10 +25,14 @@ setup(
     include_package_data=True,
     license="GPLv3",
     install_requires=[],
-    project_urls={"Website": "https://github.com/themagicalmammal/genetictabler",
-            "Source code": "https://github.com/themagicalmammal/genetictabler",
-            "Documentation": "https://github.com/themagicalmammal/genetictabler/blob/main/README.md",
-            "Bug tracker":   "https://github.com/themagicalmammal/genetictabler/issues"},
+    project_urls={
+        "Website": "https://github.com/themagicalmammal/genetictabler",
+        "Source code": "https://github.com/themagicalmammal/genetictabler",
+        "Documentation":
+        "https://github.com/themagicalmammal/genetictabler/blob/main/README.md",
+        "Bug tracker":
+        "https://github.com/themagicalmammal/genetictabler/issues",
+    },
     keywords=[
         "python",
         "geneticalgorithm",
@@ -39,7 +43,7 @@ setup(
     ],
     classifiers=[
         "LICENSE :: OSI APPROVED :: GNU GENERAL PUBLIC LICENSE V3 (GPLV3)",
-        "LICENSE :: OSI APPROVED :: GNU GENERAL PUBLIC LICENSE V3 OR LATER (GPLV3+)",          
+        "LICENSE :: OSI APPROVED :: GNU GENERAL PUBLIC LICENSE V3 OR LATER (GPLV3+)",
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
         "Programming Language :: Python",

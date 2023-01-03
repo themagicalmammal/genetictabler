@@ -1,4 +1,6 @@
 # GeneticTabler
+[![DeepSource](https://deepsource.io/gh/themagicalmammal/genetictabler.svg/?label=active+issues&show_trend=true)](https://deepsource.io/gh/themagicalmammal/genetictabler/)
+
 Time Table scheduling using genetic algorithm.
 
 Developed by [Dipan Nanda](https://github.com/themagicalmammal) and [Ashish Shah](https://github.com/capriciousBoson) (c) 2021

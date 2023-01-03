@@ -125,7 +125,6 @@ class GenerateTimeTable:
         The encode_slot() function generates random binary strings whose integer
         values represent slot number for a day.
         """
-
         slot_code = bin(randint(1, self.total_slots))[2:]
         slot_code = "0" * (self.slot_bits - len(slot_code)) + slot_code
         return slot_code
@@ -227,7 +226,6 @@ class GenerateTimeTable:
         The fit_slot() function fills the tables array with fit course schedules that
         are returned by run_evolution().
         """
-
         course = int(gene[0:self.course_bits], 2)
 
         slot_no, day_no = self.extract_slot_day(gene)

@@ -15,8 +15,10 @@ DESCRIPTION = "A time table scheduler using Genetic algorithm(s)."
 setup(
     name="genetictabler",
     version=VERSION,
-    author="Dipan Nanda, Ashish Shah",
-    author_email="d19cyber@gmail.com, avinavashish008@gmail.com",
+    # Authors: Ashish Shah (avinavashish008@gmail.com)
+    # PyPI does not have an easy way to specify multiple authors.
+    author="Dipan Nanda",
+    author_email="d19cyber@gmail.com",
     description=DESCRIPTION,
     long_description_content_type="text/markdown",
     long_description=LONG_DESCRIPTION,

@@ -385,7 +385,6 @@ class GenerateTimeTable:
         max_fitness=100,
         max_generations=50,
     ):
-
         course_bit_length, slot_bit_length, all_slots = self.initialize_genotype(
             courses, classes, slots, days, repeat, teachers)
         self.generate_table_skeleton()

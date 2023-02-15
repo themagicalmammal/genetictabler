@@ -327,7 +327,8 @@ class GenerateTimeTable:
                       gene_a[self.course_bits + self.slot_bits:])
         return [gene_c, gene_d]
 
-    def multi_point_crossover(self, gene_a: str, gene_b: str, points: int) -> List[str]:
+    def multi_point_crossover(self, gene_a: str, gene_b: str,
+                              points: int) -> List[str]:
         """
         Performs multi-point crossover on two input genes.
 

@@ -3,9 +3,9 @@ from random import choice, choices, randint
 
 class GenerateTimeTable:
     """
-    This class generates a timetable using a genetic algorithm. It takes several 
+    This class generates a timetable using a genetic algorithm. It takes several
     parameters that are used to customize the generated timetable. The algorithm runs
-    for a maximum number of generations, and the best timetable (the one with the 
+    for a maximum number of generations, and the best timetable (the one with the
     highest fitness score) is returned at the end.
     """
 
@@ -25,16 +25,16 @@ class GenerateTimeTable:
         Initializes a new instance of the GenerateTimeTable class.
 
         Parameters:
-        classes (int): The number of classes that the timetable should be generated 
+        classes (int): The number of classes that the timetable should be generated
             for.
         courses (int): The number of courses that need to be scheduled.
         slots (int): The number of time slots available in a day.
         days (int): The number of days in a week.
-        repeat (int or list): The number of times a course should be taught in a day, 
+        repeat (int or list): The number of times a course should be taught in a day,
             or a list specifying how many times each course should be taught in a day.
         teachers (int or list): The number of teachers available for each course, or a
             list specifying how many teachers are available for each course.
-        population_size (int): The number of timetables that should be generated in 
+        population_size (int): The number of timetables that should be generated in
             each generation.
         max_fitness (int): The maximum fitness score that a timetable can have.
         max_generations (int): The maximum number of generations that the algorithm
@@ -70,7 +70,7 @@ class GenerateTimeTable:
         multiple times throughout the program as per requirement.
 
         Course_bits, slot_bits and class bits are the lengths of binary string needed
-        to represent them respectively. For example if course_count is 8, then the 
+        to represent them respectively. For example if course_count is 8, then the
         maximum course number will be 8 which requires 4 bits, hence course_bits will
         be equal to 4.
 
@@ -215,11 +215,11 @@ class GenerateTimeTable:
         """
         This function determines fitness_score of a gene(course schedule) by checking
             few things -
-        1)   If there already exists a course schedule for the same slot of the same 
+        1)   If there already exists a course schedule for the same slot of the same
             or different class, fitness_score of the gene is decreased.
         2)   If the same course is scheduled for any of the adjacent slots in the same
             class, fitness_score of that gene is reduced.
-        3)   If a course is occurring more han a fixed number of times, the 
+        3)   If a course is occurring more han a fixed number of times, the
             fitness_score of that gene is reduced.
         """
         fitness_score = 100

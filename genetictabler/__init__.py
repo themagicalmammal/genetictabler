@@ -66,6 +66,10 @@ class GenerateTimeTable:
         global variables so that they can be easily used multiple times throughout the program as per
         requirement.
 
+        Course_bits, slot_bits and class bits are the lengths of binary string needed to
+        represent them respectively. For example if course_count is 8, then the maximum course
+        number will be 8 which requires 4 bits, hence course_bits will be equal to 4.
+
         Parameters:
         no_courses (int): The number of courses that need to be scheduled.
         classes (int): The number of classes that the timetable should be generated for.
@@ -88,11 +92,7 @@ class GenerateTimeTable:
         self.course_bits = len(bin(self.course_count)) - 2
         self.slot_bits = len(bin(self.total_slots)) - 2
         self.class_bits = len(bin(self.course_count)) - 2
-        """
-        Course_bits, slot_bits and class bits are the lengths of binary string needed to
-        represent them respectively. For example if course_count is 8, then the maximum course
-        number will be 8 which requires 4 bits, hence course_bits will be equal to 4.
-        """
+
         self.calc_course_quota()
 
         if isinstance(daily_rep, int):
@@ -146,12 +146,11 @@ class GenerateTimeTable:
         """
         The encode_class() function generates random binary strings whose
         integer values represent a course/module/subject
-        """
-        class_code = bin(randint(1, self.class_count))[2:]
-        """
+
         Left padding of random binary strings with 0 is done to ensure each string
         is of same consistent length.
         """
+        class_code = bin(randint(1, self.class_count))[2:]
         class_code = "0" * (self.class_bits - len(class_code)) + class_code
         return class_code
 

@@ -173,7 +173,7 @@ class GenerateTimeTable:
         course_code = "0" * (self.course_bits - len(course_code)) + course_code
         return course_code
 
-    def generate_gene(self) -> str:
+    def generate_gene(self):
         """
         Generates a gene by encoding the course, class, and slot codes and concatenating them.
 
@@ -282,7 +282,7 @@ class GenerateTimeTable:
         self.tables[class_no - 1][day_no - 1][slot_no - 1] = course
         self.course_quota[class_no - 1][course - 1] -= 1
 
-    def generate_population(self, size: int) -> List[str]:
+    def generate_population(self, size):
         """
         Generates a population of genes by repeatedly calling the `generate_gene` method.
 
@@ -327,8 +327,7 @@ class GenerateTimeTable:
                       gene_a[self.course_bits + self.slot_bits:])
         return [gene_c, gene_d]
 
-    def multi_point_crossover(self, gene_a: str, gene_b: str,
-                              points: int) -> List[str]:
+    def multi_point_crossover(self, gene_a, gene_b, points):
         """
         Performs multi-point crossover on two input genes.
 

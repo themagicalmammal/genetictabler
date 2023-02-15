@@ -3,10 +3,10 @@ from random import choice, choices, randint
 
 class GenerateTimeTable:
     """
-    This class generates a timetable using a genetic algorithm. It takes several parameters
-    that are used to customize the generated timetable. The algorithm runs for a maximum number
-    of generations, and the best timetable (the one with the highest fitness score) is returned
-    at the end.
+    This class generates a timetable using a genetic algorithm. It takes several 
+    parameters that are used to customize the generated timetable. The algorithm runs
+    for a maximum number of generations, and the best timetable (the one with the 
+    highest fitness score) is returned at the end.
     """
 
     def __init__(
@@ -25,17 +25,20 @@ class GenerateTimeTable:
         Initializes a new instance of the GenerateTimeTable class.
 
         Parameters:
-        classes (int): The number of classes that the timetable should be generated for.
+        classes (int): The number of classes that the timetable should be generated 
+            for.
         courses (int): The number of courses that need to be scheduled.
         slots (int): The number of time slots available in a day.
         days (int): The number of days in a week.
-        repeat (int or list): The number of times a course should be taught in a day, or a list
-            specifying how many times each course should be taught in a day.
-        teachers (int or list): The number of teachers available for each course, or a list
-            specifying how many teachers are available for each course.
-        population_size (int): The number of timetables that should be generated in each generation.
+        repeat (int or list): The number of times a course should be taught in a day, 
+            or a list specifying how many times each course should be taught in a day.
+        teachers (int or list): The number of teachers available for each course, or a
+            list specifying how many teachers are available for each course.
+        population_size (int): The number of timetables that should be generated in 
+            each generation.
         max_fitness (int): The maximum fitness score that a timetable can have.
-        max_generations (int): The maximum number of generations that the algorithm should run for.
+        max_generations (int): The maximum number of generations that the algorithm
+            should run for.
         """
         self.classes = classes
         self.courses = courses
@@ -62,26 +65,30 @@ class GenerateTimeTable:
     def initialize_genotype(self, no_courses, classes, slots, days, daily_rep,
                             teachers):
         """
-        Initializes and stores important data relevant to the user-defined timetable(s)'s design in
-        global variables so that they can be easily used multiple times throughout the program as per
-        requirement.
+        Initializes and stores important data relevant to the user-defined
+        timetable(s)'s design in global variables so that they can be easily used
+        multiple times throughout the program as per requirement.
 
-        Course_bits, slot_bits and class bits are the lengths of binary string needed to
-        represent them respectively. For example if course_count is 8, then the maximum course
-        number will be 8 which requires 4 bits, hence course_bits will be equal to 4.
+        Course_bits, slot_bits and class bits are the lengths of binary string needed
+        to represent them respectively. For example if course_count is 8, then the 
+        maximum course number will be 8 which requires 4 bits, hence course_bits will
+        be equal to 4.
 
         Parameters:
         no_courses (int): The number of courses that need to be scheduled.
-        classes (int): The number of classes that the timetable should be generated for.
+        classes (int): The number of classes that the timetable should be generated
+            for.
         slots (int): The number of time slots available in a day.
         days (int): The number of days in a week.
-        daily_rep (int or list): The number of times a course should be taught in a day, or a list
-            specifying how many times each course should be taught in a day.
-        teachers (int or list): The number of teachers available for each course, or a list specifying
-            how many teachers are available for each course.
+        daily_rep (int or list): The number of times a course should be taught in a
+            day, or a list specifying how many times each course should be taught in
+            a day.
+        teachers (int or list): The number of teachers available for each course, or a
+            list specifying how many teachers are available for each course.
 
         Returns:
-        A list containing the number of bits required to encode a course, slot, and a complete gene.
+        A list containing the number of bits required to encode a course, slot, and a
+            complete gene.
         """
         self.course_count = no_courses
         self.slot_count = slots
@@ -124,7 +131,7 @@ class GenerateTimeTable:
     def calc_course_quota(self):
         """
         This function calculates an array course_quota which stores the maximum allowed
-        occurrence of a course/subject/module in a week/scheduled number of days.
+            occurrence of a course/subject/module in a week/scheduled number of days.
         """
         q_max = self.total_slots // self.course_count
         if self.total_slots % self.course_count == 0:
@@ -144,11 +151,11 @@ class GenerateTimeTable:
 
     def encode_class(self):
         """
-        The encode_class() function generates random binary strings whose
-        integer values represent a course/module/subject
+        The encode_class() function generates random binary strings whose integer
+            values represent a course/module/subject
 
-        Left padding of random binary strings with 0 is done to ensure each string
-        is of same consistent length.
+        Left padding of random binary strings with 0 is done to ensure each string is
+            of same consistent length.
         """
         class_code = bin(randint(1, self.class_count))[2:]
         class_code = "0" * (self.class_bits - len(class_code)) + class_code
@@ -157,7 +164,7 @@ class GenerateTimeTable:
     def encode_slot(self):
         """
         The encode_slot() function generates random binary strings whose integer
-        values represent slot number for a day.
+            values represent slot number for a day.
         """
         slot_code = bin(randint(1, self.total_slots))[2:]
         slot_code = "0" * (self.slot_bits - len(slot_code)) + slot_code
@@ -166,7 +173,7 @@ class GenerateTimeTable:
     def encode_course(self):
         """
         The encode_slot() function generates random binary strings whose integer
-        values represents a course/module/subject.
+            values represents a course/module/subject.
         """
         course_code = bin(randint(1, self.course_count))[2:]
         course_code = "0" * (self.course_bits - len(course_code)) + course_code
@@ -192,7 +199,7 @@ class GenerateTimeTable:
     def extract_slot_day(self, gene):
         """
         The class_slot is a cumulative class slot number, we calculate day number
-        and slot number for that day for a gene using this class_slot number.
+            and slot number for that day for a gene using this class_slot number.
         """
         class_slot = int(
             gene[self.course_bits:self.course_bits + self.slot_bits], 2)
@@ -206,13 +213,14 @@ class GenerateTimeTable:
 
     def calculate_fitness(self, gene):
         """
-        This function determines fitness_score of a gene(course schedule) by checking few things:-
-        1)   If there already exists a course schedule for the same slot of the same or different class,
-            fitness_score of the gene is decreased.
-        2)   If the same course is scheduled for any of the adjacent slots in the same class,
+        This function determines fitness_score of a gene(course schedule) by checking
+            few things -
+        1)   If there already exists a course schedule for the same slot of the same 
+            or different class, fitness_score of the gene is decreased.
+        2)   If the same course is scheduled for any of the adjacent slots in the same
+            class, fitness_score of that gene is reduced.
+        3)   If a course is occurring more han a fixed number of times, the 
             fitness_score of that gene is reduced.
-        3)   If a course is occurring more han a fixed number of times, the fitness_score of
-            that gene is reduced.
         """
         fitness_score = 100
         course = int(gene[0:self.course_bits], 2)
@@ -255,8 +263,8 @@ class GenerateTimeTable:
 
     def generate_table_skeleton(self):
         """
-        This function returns a 3d array with 0 value for all positions.
-        We use this array to store the schedules and the timetables.
+        This function returns a 3d array with 0 value for all positions. We use this
+            array to store the schedules and the timetables.
         """
         for _ in range(self.class_count):
             class_table = []
@@ -269,21 +277,23 @@ class GenerateTimeTable:
     def fit_slot(self, gene):
         """
         The fit_slot() function fills the tables array with fit course schedules that
-        are returned by run_evolution().
+            are returned by run_evolution().
+
+        Python list indexing starts from 0, hence we subtract 1 from class_no, day_no,
+        slot_no which are natural numbers.
         """
         course = int(gene[0:self.course_bits], 2)
 
         slot_no, day_no = self.extract_slot_day(gene)
         class_no = int(gene[self.course_bits + self.slot_bits:], 2)
 
-        # Python list indexing starts from 0, hence we subtract 1 from class_no, day_no,
-        # slot_no which are natural numbers.
         self.tables[class_no - 1][day_no - 1][slot_no - 1] = course
         self.course_quota[class_no - 1][course - 1] -= 1
 
     def generate_population(self, size):
         """
-        Generates a population of genes by repeatedly calling the `generate_gene` method.
+        Generates a population of genes by repeatedly calling the `generate_gene`
+           method.
 
         Args:
             size (int): The desired size of the population.
@@ -300,8 +310,8 @@ class GenerateTimeTable:
 
     def single_point_crossover(self, gene_a, gene_b):
         """
-        For crossover, we randomly choose one out of course_code, slot_code and class_code
-        to swap between the genes.
+        For crossover, we randomly choose one out of course_code, slot_code and
+            class_code to swap between the genes.
         """
         c = choice([1, 2, 3])
 
@@ -336,7 +346,8 @@ class GenerateTimeTable:
             points (int): The number of crossover points to use.
 
         Returns:
-            List[str]: A list containing the two offspring genes generated by multi-point crossover.
+            List[str]: A list containing the two offspring genes generated by
+            multi-point crossover.
 
         Example:
             >>> obj = ClassName()
@@ -352,7 +363,8 @@ class GenerateTimeTable:
 
     def mutation(self, gene, course_bit_length, slot_bit_length):
         """
-        Applies mutation to the gene by randomly replacing one of its codes with a new random code of the same type.
+        Applies mutation to the gene by randomly replacing one of its codes with a new
+            random code of the same type.
 
         Parameters:
         gene (str): The gene to be mutated.
@@ -381,7 +393,8 @@ class GenerateTimeTable:
 
     def selection_pair(self, population):
         """
-        Selects two individuals from the population, based on the fitness of each individual.
+        Selects two individuals from the population, based on the fitness of each
+            individual.
 
         Args:
             population (list): A list of individuals.

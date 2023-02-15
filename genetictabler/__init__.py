@@ -181,7 +181,8 @@ class GenerateTimeTable:
 
     def generate_gene(self):
         """
-        Generates a gene by encoding the course, class, and slot codes and concatenating them.
+        Generates a gene by encoding the course, class, and slot codes and
+            concatenating them.
 
         Returns:
             str: The generated gene.
@@ -410,7 +411,8 @@ class GenerateTimeTable:
 
     def sort_population(self, population):
         """
-        Sorts the population in descending order based on the fitness of each individual.
+        Sorts the population in descending order based on the fitness of each
+            individual.
 
         Args:
             population (list): A list of individuals.

@@ -22,13 +22,11 @@ setup(
     description=DESCRIPTION,
     long_description_content_type="text/markdown",
     long_description=LONG_DESCRIPTION,
-    # url="https://github.com/themagicalmammal/genetictabler",
     packages=find_packages(),
     include_package_data=True,
     license="GPLv3",
     install_requires=[],
     project_urls={
-        # "Website": "https://github.com/themagicalmammal/genetictabler",
         "Source code": "https://github.com/themagicalmammal/genetictabler",
         "Documentation":
         "https://github.com/themagicalmammal/genetictabler/blob/main/README.md",

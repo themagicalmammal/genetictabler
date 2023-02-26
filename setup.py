@@ -8,7 +8,7 @@ here = os.path.abspath(os.path.dirname(__file__))
 with codecs.open(os.path.join(here, "README.md"), encoding="utf-8") as fh:
     LONG_DESCRIPTION = "\n" + fh.read()
 
-VERSION = "2.0.2"
+VERSION = "2.0.3"
 DESCRIPTION = "A time table scheduler using Genetic algorithm(s)."
 
 # Setting up

@@ -466,45 +466,23 @@ class GenerateTimeTable:
             population = next_generation
         return population[0]
 
-    def run(
-        self,
-        classes=6,
-        courses=4,
-        slots=6,
-        days=5,
-        repeat=2,
-        teachers=1,
-        population_size=40,
-        max_fitness=100,
-        max_generations=50,
-    ):
+    def run(self):
         """
         Runs the scheduling algorithm.
-
-        Args:
-            classes (int): The number of classes.
-            courses (int): The number of courses.
-            slots (int): The number of slots.
-            days (int): The number of days.
-            repeat (int): The number of times the schedule is repeated.
-            teachers (int): The number of teachers.
-            population_size (int): The size of the population.
-            max_fitness (int): The maximum fitness value to be achieved.
-            max_generations (int): The maximum number of generations to be run.
 
         Returns:
             The generated schedule.
         """
         course_bit_length, slot_bit_length, all_slots = self.initialize_genotype(
-            courses, classes, slots, days, repeat, teachers)
+            self.courses, self.classes, self.slots, self.days, self.repeat, self.teachers)
         self.generate_table_skeleton()
         while all_slots > 0:
             gene = self.run_evolution(
                 course_bit_length,
                 slot_bit_length,
-                population_size,
-                max_fitness,
-                max_generations,
+                self.population_size,
+                self.max_fitness,
+                self.max_generations,
             )
             if gene != 0:
                 self.fit_slot(gene)

@@ -474,7 +474,13 @@ class GenerateTimeTable:
             The generated schedule.
         """
         course_bit_length, slot_bit_length, all_slots = self.initialize_genotype(
-            self.courses, self.classes, self.slots, self.days, self.repeat, self.teachers)
+            self.courses,
+            self.classes,
+            self.slots,
+            self.days,
+            self.repeat,
+            self.teachers,
+        )
         self.generate_table_skeleton()
         while all_slots > 0:
             gene = self.run_evolution(

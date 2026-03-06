@@ -14,24 +14,25 @@
 ╚══════════════════════════════════════════════════════════════════════════════╝
 """
 
-import os
-import sys
-import json
 import csv
+import json
+import os
 import random
+import sys
 import tempfile
 import unittest
 from typing import List
 
-# ── Import the module under test ──────────────────────────────────────────────
-sys.path.insert(0, os.path.dirname(__file__))
 from genetictabler import GenerateTimeTable, TimetableConfig
 
+# ── Import the module under test ──────────────────────────────────────────────
+sys.path.insert(0, os.path.dirname(__file__))
 
 # ══════════════════════════════════════════════════════════════════════════════
 #  SHARED FACTORY HELPERS
 #  These build tiny, fast schedulers so every test is cheap to run.
 # ══════════════════════════════════════════════════════════════════════════════
+
 
 def tiny(seed: int = 42, **overrides) -> GenerateTimeTable:
     """
@@ -43,18 +44,22 @@ def tiny(seed: int = 42, **overrides) -> GenerateTimeTable:
     without writing out all defaults again.
     """
     defaults = dict(
-        classes=2, courses=3, slots=3, days=3,
-        repeat=1, teachers=1,
-        population_size=20, max_generations=20,
+        classes=2,
+        courses=3,
+        slots=3,
+        days=3,
+        repeat=1,
+        teachers=1,
+        population_size=20,
+        max_generations=20,
         seed=seed,
     )
     defaults.update(overrides)
     s = GenerateTimeTable(**defaults)
     # Pre-initialise encoding constants (run() does this too, but tests
     # that only exercise encoding/fitness need it done upfront)
-    s.initialize_genotype(
-        s.courses, s.classes, s.slots, s.days, s.repeat, s.teachers
-    )
+    s.initialize_genotype(s.courses, s.classes, s.slots, s.days, s.repeat,
+                          s.teachers)
     s.generate_table_skeleton()
     return s
 
@@ -62,7 +67,7 @@ def tiny(seed: int = 42, **overrides) -> GenerateTimeTable:
 def full_run(seed: int = 42, **overrides) -> GenerateTimeTable:
     """Return a scheduler that has already completed run()."""
     s = tiny(seed=seed, **overrides)
-    s.reset()          # wipe any pre-init from tiny()
+    s.reset()  # wipe any pre-init from tiny()
     s.run()
     return s
 
@@ -70,6 +75,7 @@ def full_run(seed: int = 42, **overrides) -> GenerateTimeTable:
 # ══════════════════════════════════════════════════════════════════════════════
 #  1. INITIALISATION & CONFIGURATION
 # ══════════════════════════════════════════════════════════════════════════════
+
 
 class TestInitialisation(unittest.TestCase):
     """Tests for __init__, initialize_genotype, and from_config."""
@@ -79,28 +85,36 @@ class TestInitialisation(unittest.TestCase):
         s = GenerateTimeTable()
         self.assertEqual(s.classes, 6)
         self.assertEqual(s.courses, 4)
-        self.assertEqual(s.slots,   6)
-        self.assertEqual(s.days,    5)
+        self.assertEqual(s.slots, 6)
+        self.assertEqual(s.days, 5)
 
     def test_custom_construction(self):
         """All constructor parameters are stored correctly."""
         s = GenerateTimeTable(
-            classes=3, courses=5, slots=7, days=4,
-            repeat=2, teachers=3,
-            population_size=99, max_fitness=95.0,
-            max_generations=77, elite_ratio=0.2,
-            mutation_rate=0.4, adaptive=False, seed=1,
+            classes=3,
+            courses=5,
+            slots=7,
+            days=4,
+            repeat=2,
+            teachers=3,
+            population_size=99,
+            max_fitness=95.0,
+            max_generations=77,
+            elite_ratio=0.2,
+            mutation_rate=0.4,
+            adaptive=False,
+            seed=1,
         )
-        self.assertEqual(s.classes,         3)
-        self.assertEqual(s.courses,         5)
-        self.assertEqual(s.slots,           7)
-        self.assertEqual(s.days,            4)
-        self.assertEqual(s.repeat,          2)
-        self.assertEqual(s.teachers,        3)
+        self.assertEqual(s.classes, 3)
+        self.assertEqual(s.courses, 5)
+        self.assertEqual(s.slots, 7)
+        self.assertEqual(s.days, 4)
+        self.assertEqual(s.repeat, 2)
+        self.assertEqual(s.teachers, 3)
         self.assertEqual(s.population_size, 99)
-        self.assertAlmostEqual(s.max_fitness,   95.0)
+        self.assertAlmostEqual(s.max_fitness, 95.0)
         self.assertEqual(s.max_generations, 77)
-        self.assertAlmostEqual(s.elite_ratio,   0.2)
+        self.assertAlmostEqual(s.elite_ratio, 0.2)
         self.assertAlmostEqual(s.mutation_rate, 0.4)
         self.assertFalse(s.adaptive)
         self.assertEqual(s.seed, 1)
@@ -108,12 +122,12 @@ class TestInitialisation(unittest.TestCase):
     def test_from_config(self):
         """from_config() produces the same object as direct construction."""
         cfg = TimetableConfig(classes=3, courses=4, slots=5, days=5, seed=7)
-        s   = GenerateTimeTable.from_config(cfg)
+        s = GenerateTimeTable.from_config(cfg)
         self.assertEqual(s.classes, 3)
         self.assertEqual(s.courses, 4)
-        self.assertEqual(s.slots,   5)
-        self.assertEqual(s.days,    5)
-        self.assertEqual(s.seed,    7)
+        self.assertEqual(s.slots, 5)
+        self.assertEqual(s.days, 5)
+        self.assertEqual(s.seed, 7)
 
     def test_initialize_genotype_returns_correct_triple(self):
         """initialize_genotype returns [course_bits, slot_bits, total_genes]."""
@@ -122,17 +136,17 @@ class TestInitialisation(unittest.TestCase):
         # course_bits = bits for 4  = len(bin(4))-2 = 3
         # slot_bits   = bits for 15 = len(bin(15))-2 = 4
         # total_genes = 5*3*2 = 30
-        self.assertEqual(result[0], 3)   # course_bits
-        self.assertEqual(result[1], 4)   # slot_bits
+        self.assertEqual(result[0], 3)  # course_bits
+        self.assertEqual(result[1], 4)  # slot_bits
         self.assertEqual(result[2], 30)  # total genes
 
     def test_encoding_bit_widths(self):
         """course_bits and slot_bits are wide enough to represent max values."""
         s = tiny()
-        max_course = 2 ** s.course_bits
-        max_slot   = 2 ** s.slot_bits
+        max_course = 2**s.course_bits
+        max_slot = 2**s.slot_bits
         self.assertGreaterEqual(max_course, s.course_count)
-        self.assertGreaterEqual(max_slot,   s.total_slots)
+        self.assertGreaterEqual(max_slot, s.total_slots)
 
     def test_total_slots(self):
         """total_slots == slots × days."""
@@ -168,23 +182,25 @@ class TestInitialisation(unittest.TestCase):
     def test_default_labels_generated(self):
         """Auto-generated labels match expected patterns."""
         s = GenerateTimeTable(classes=2, courses=3)
-        self.assertEqual(s.class_names[0],  "Class-1")
+        self.assertEqual(s.class_names[0], "Class-1")
         self.assertEqual(s.course_names[2], "Course-3")
 
     def test_custom_labels_stored(self):
         """Custom course/class labels are stored as supplied."""
         s = GenerateTimeTable(
-            courses=2, classes=2,
+            courses=2,
+            classes=2,
             course_names=["Maths", "English"],
             class_names=["Year1", "Year2"],
         )
         self.assertEqual(s.course_names, ["Maths", "English"])
-        self.assertEqual(s.class_names,  ["Year1", "Year2"])
+        self.assertEqual(s.class_names, ["Year1", "Year2"])
 
 
 # ══════════════════════════════════════════════════════════════════════════════
 #  2. COURSE QUOTA CALCULATION
 # ══════════════════════════════════════════════════════════════════════════════
+
 
 class TestCourseQuota(unittest.TestCase):
     """Tests for _calc_course_quota and the resulting quota arrays."""
@@ -228,6 +244,7 @@ class TestCourseQuota(unittest.TestCase):
 #  3. BINARY ENCODING / DECODING
 # ══════════════════════════════════════════════════════════════════════════════
 
+
 class TestEncoding(unittest.TestCase):
     """Tests for _to_binary, encode_*, generate_gene, decode_gene."""
 
@@ -258,7 +275,7 @@ class TestEncoding(unittest.TestCase):
         """Decoded course number is in [1, course_count]."""
         for _ in range(50):
             code = self.s.encode_course()
-            val  = int(code, 2)
+            val = int(code, 2)
             self.assertGreaterEqual(val, 1)
             self.assertLessEqual(val, self.s.course_count)
 
@@ -272,7 +289,7 @@ class TestEncoding(unittest.TestCase):
         """Decoded slot number is in [1, total_slots]."""
         for _ in range(50):
             code = self.s.encode_slot()
-            val  = int(code, 2)
+            val = int(code, 2)
             self.assertGreaterEqual(val, 1)
             self.assertLessEqual(val, self.s.total_slots)
 
@@ -309,13 +326,13 @@ class TestEncoding(unittest.TestCase):
             course, slot, day, cls = self.s.decode_gene(gene)
             self.assertGreaterEqual(course, 1)
             self.assertLessEqual(course, self.s.course_count)
-            self.assertGreaterEqual(slot,  1)
-            self.assertLessEqual(slot,  self.s.slot_count)
+            self.assertGreaterEqual(slot, 1)
+            self.assertLessEqual(slot, self.s.slot_count)
             # day_no is 0-based in extract_slot_day for slots in day 1
-            self.assertGreaterEqual(day,   0)
-            self.assertLessEqual(day,   self.s.day_count)
-            self.assertGreaterEqual(cls,   1)
-            self.assertLessEqual(cls,   self.s.class_count)
+            self.assertGreaterEqual(day, 0)
+            self.assertLessEqual(day, self.s.day_count)
+            self.assertGreaterEqual(cls, 1)
+            self.assertLessEqual(cls, self.s.class_count)
 
     def test_extract_slot_day_edge_last_slot(self):
         """extract_slot_day: last cumulative slot → last period, last day.
@@ -330,7 +347,7 @@ class TestEncoding(unittest.TestCase):
         slot_no, day_no = s.extract_slot_day(gene)
         # After the adjustment: slot_no == slot_count, day_no == day_count - 1
         self.assertEqual(slot_no, s.slot_count)
-        self.assertEqual(day_no,  s.day_count - 1)
+        self.assertEqual(day_no, s.day_count - 1)
 
     def test_extract_slot_day_first_slot(self):
         """extract_slot_day: cumulative slot 1 → period 1, day 0 (internal).
@@ -343,12 +360,13 @@ class TestEncoding(unittest.TestCase):
         gene = s.encode_course() + first_slot_code + s.encode_class()
         slot_no, day_no = s.extract_slot_day(gene)
         self.assertEqual(slot_no, 1)
-        self.assertEqual(day_no,  0)   # 0-based internal representation
+        self.assertEqual(day_no, 0)  # 0-based internal representation
 
 
 # ══════════════════════════════════════════════════════════════════════════════
 #  4. FITNESS FUNCTION
 # ══════════════════════════════════════════════════════════════════════════════
+
 
 class TestFitness(unittest.TestCase):
     """Tests for calculate_fitness, cache behaviour, and penalty stacking."""
@@ -360,8 +378,8 @@ class TestFitness(unittest.TestCase):
         """Build a specific gene by encoding given values directly."""
         s = self.s
         c = s._to_binary(course, s.course_bits)
-        t = s._to_binary(slot,   s.slot_bits)
-        k = s._to_binary(cls,    s.class_bits)
+        t = s._to_binary(slot, s.slot_bits)
+        k = s._to_binary(cls, s.class_bits)
         return c + t + k
 
     def test_fitness_in_range(self):
@@ -369,7 +387,7 @@ class TestFitness(unittest.TestCase):
         for _ in range(100):
             gene = self.s.generate_gene()
             f = self.s.calculate_fitness(gene)
-            self.assertGreaterEqual(f,   0.0)
+            self.assertGreaterEqual(f, 0.0)
             self.assertLessEqual(f, 100.0)
 
     def test_empty_timetable_high_fitness(self):
@@ -396,19 +414,19 @@ class TestFitness(unittest.TestCase):
         s = self.s
         # Manually occupy slot 1, day 1 for class 1
         s.tables[0][0][0] = 1
-        gene = self._fresh_gene(2, 1, 1)   # same slot, different course
+        gene = self._fresh_gene(2, 1, 1)  # same slot, different course
         f = s.calculate_fitness(gene)
-        self.assertLess(f, 5.0)            # ×0.01 penalty → near zero
-        s.tables[0][0][0] = 0             # restore
+        self.assertLess(f, 5.0)  # ×0.01 penalty → near zero
+        s.tables[0][0][0] = 0  # restore
 
     def test_exhausted_quota_penalty(self):
         """Zero course quota gives near-zero fitness."""
         s = self.s
-        s.course_quota[0][0] = 0          # deplete quota for course 1, class 1
+        s.course_quota[0][0] = 0  # deplete quota for course 1, class 1
         gene = self._fresh_gene(1, 1, 1)
         f = s.calculate_fitness(gene)
         self.assertLess(f, 5.0)
-        s.course_quota[0][0] = 3          # restore
+        s.course_quota[0][0] = 3  # restore
 
     def test_out_of_range_gene_zero_fitness(self):
         """A gene encoding an out-of-range course returns 0 fitness."""
@@ -429,8 +447,8 @@ class TestFitness(unittest.TestCase):
         s._fitness_cache.clear()
         s._cache_hits = 0
 
-        s.calculate_fitness(gene)      # miss → stored
-        s.calculate_fitness(gene)      # hit
+        s.calculate_fitness(gene)  # miss → stored
+        s.calculate_fitness(gene)  # hit
         self.assertEqual(s._cache_hits, 1)
 
     def test_invalidate_cache_clears_all(self):
@@ -460,6 +478,7 @@ class TestFitness(unittest.TestCase):
 # ══════════════════════════════════════════════════════════════════════════════
 #  5. GENETIC OPERATORS
 # ══════════════════════════════════════════════════════════════════════════════
+
 
 class TestGeneticOperators(unittest.TestCase):
     """Tests for crossover, mutation, and selection operators."""
@@ -531,22 +550,22 @@ class TestGeneticOperators(unittest.TestCase):
         """Mutated gene has same length as original."""
         s = self.s
         for _ in range(30):
-            gene    = s.generate_gene()
-            mutant  = s.mutation(gene, s.course_bits, s.slot_bits)
+            gene = s.generate_gene()
+            mutant = s.mutation(gene, s.course_bits, s.slot_bits)
             self.assertEqual(len(mutant), self._gene_len())
 
     def test_mutation_is_binary(self):
         """Mutated gene contains only '0' / '1'."""
         s = self.s
         for _ in range(30):
-            gene   = s.generate_gene()
+            gene = s.generate_gene()
             mutant = s.mutation(gene, s.course_bits, s.slot_bits)
             self.assertTrue(all(c in "01" for c in mutant))
 
     def test_mutation_changes_gene(self):
         """mutation() changes the gene in at least some cases over many runs."""
         s = self.s
-        gene    = s.generate_gene()
+        gene = s.generate_gene()
         changed = False
         for _ in range(50):
             mutant = s.mutation(gene, s.course_bits, s.slot_bits)
@@ -560,10 +579,9 @@ class TestGeneticOperators(unittest.TestCase):
         (since it keeps the best candidate)."""
         s = self.s
         gene = s.generate_gene()
-        orig_fitness   = s.calculate_fitness(gene)
-        smart_fitness  = s.calculate_fitness(
-            s.smart_mutation(gene, s.course_bits, s.slot_bits, attempts=10)
-        )
+        orig_fitness = s.calculate_fitness(gene)
+        smart_fitness = s.calculate_fitness(
+            s.smart_mutation(gene, s.course_bits, s.slot_bits, attempts=10))
         self.assertGreaterEqual(smart_fitness, orig_fitness)
 
     def test_selection_pair_returns_two(self):
@@ -578,23 +596,23 @@ class TestGeneticOperators(unittest.TestCase):
     def test_tournament_selection_returns_one(self):
         """tournament_selection returns exactly one gene from the population."""
         s = self.s
-        pop    = s.generate_population(10)
+        pop = s.generate_population(10)
         winner = s.tournament_selection(pop, tournament_size=3)
         self.assertIn(winner, pop)
 
     def test_tournament_selection_tournament_size_1(self):
         """tournament_size=1 degenerates to random selection (still valid)."""
-        s   = self.s
+        s = self.s
         pop = s.generate_population(5)
-        w   = s.tournament_selection(pop, tournament_size=1)
+        w = s.tournament_selection(pop, tournament_size=1)
         self.assertIn(w, pop)
 
     def test_sort_population_descending(self):
         """sort_population returns genes in descending fitness order."""
-        s   = self.s
+        s = self.s
         pop = s.generate_population(15)
         sorted_pop = s.sort_population(pop)
-        fitnesses  = [s.calculate_fitness(g) for g in sorted_pop]
+        fitnesses = [s.calculate_fitness(g) for g in sorted_pop]
         self.assertEqual(fitnesses, sorted(fitnesses, reverse=True))
 
     def test_generate_population_size(self):
@@ -609,15 +627,16 @@ class TestGeneticOperators(unittest.TestCase):
 #  6. TABLE SKELETON & FIT SLOT
 # ══════════════════════════════════════════════════════════════════════════════
 
+
 class TestTableAndFitSlot(unittest.TestCase):
     """Tests for generate_table_skeleton and fit_slot."""
 
     def test_skeleton_shape(self):
         """Table skeleton has correct dimensions: [classes][days][slots]."""
         s = tiny()
-        self.assertEqual(len(s.tables),        s.class_count)
-        self.assertEqual(len(s.tables[0]),     s.day_count)
-        self.assertEqual(len(s.tables[0][0]),  s.slot_count)
+        self.assertEqual(len(s.tables), s.class_count)
+        self.assertEqual(len(s.tables[0]), s.day_count)
+        self.assertEqual(len(s.tables[0][0]), s.slot_count)
 
     def test_skeleton_all_zeros(self):
         """All cells are initialised to zero."""
@@ -629,37 +648,35 @@ class TestTableAndFitSlot(unittest.TestCase):
 
     def test_fit_slot_writes_correct_course(self):
         """fit_slot() writes the correct course number to the right cell."""
-        s    = tiny()
+        s = tiny()
         gene = s.generate_gene()
         course_no, slot_no, day_no, class_no = s.decode_gene(gene)
         s.fit_slot(gene)
-        self.assertEqual(
-            s.tables[class_no-1][day_no-1][slot_no-1], course_no
-        )
+        self.assertEqual(s.tables[class_no - 1][day_no - 1][slot_no - 1],
+                         course_no)
 
     def test_fit_slot_decrements_quota(self):
         """fit_slot() decrements course_quota for the right class+course."""
-        s    = tiny()
+        s = tiny()
         gene = s.generate_gene()
         course_no, _, _, class_no = s.decode_gene(gene)
-        quota_before = s.course_quota[class_no-1][course_no-1]
+        quota_before = s.course_quota[class_no - 1][course_no - 1]
         s.fit_slot(gene)
-        self.assertEqual(
-            s.course_quota[class_no-1][course_no-1], quota_before - 1
-        )
+        self.assertEqual(s.course_quota[class_no - 1][course_no - 1],
+                         quota_before - 1)
 
     def test_fit_slot_invalidates_cache(self):
         """fit_slot() clears the fitness cache."""
-        s    = tiny()
+        s = tiny()
         gene = s.generate_gene()
-        s.calculate_fitness(gene)         # populate cache
+        s.calculate_fitness(gene)  # populate cache
         self.assertGreater(len(s._fitness_cache), 0)
         s.fit_slot(gene)
         self.assertEqual(len(s._fitness_cache), 0)
 
     def test_fit_slot_increments_slots_filled(self):
         """fit_slot() increments _slots_filled counter."""
-        s    = tiny()
+        s = tiny()
         gene = s.generate_gene()
         before = s._slots_filled
         s.fit_slot(gene)
@@ -670,6 +687,7 @@ class TestTableAndFitSlot(unittest.TestCase):
 #  7. EVOLUTION LOOP
 # ══════════════════════════════════════════════════════════════════════════════
 
+
 class TestEvolutionLoop(unittest.TestCase):
     """Tests for run_evolution internals."""
 
@@ -678,30 +696,37 @@ class TestEvolutionLoop(unittest.TestCase):
 
     def test_run_evolution_returns_string(self):
         """run_evolution returns a gene string."""
-        s    = self.s
+        s = self.s
         gene = s.run_evolution(
-            s.course_bits, s.slot_bits,
-            s.population_size, s.max_fitness, s.max_generations
+            s.course_bits,
+            s.slot_bits,
+            s.population_size,
+            s.max_fitness,
+            s.max_generations,
         )
         self.assertIsInstance(gene, str)
 
     def test_run_evolution_correct_gene_length(self):
         """Gene returned by run_evolution has correct total bit length."""
-        s       = self.s
-        gene    = s.run_evolution(
-            s.course_bits, s.slot_bits,
-            s.population_size, s.max_fitness, s.max_generations
+        s = self.s
+        gene = s.run_evolution(
+            s.course_bits,
+            s.slot_bits,
+            s.population_size,
+            s.max_fitness,
+            s.max_generations,
         )
         expected = s.course_bits + s.slot_bits + s.class_bits
         self.assertEqual(len(gene), expected)
 
     def test_run_evolution_respects_max_fitness(self):
         """If max_fitness is 0, evolution returns on the very first generation."""
-        s    = tiny(seed=9)
+        s = tiny(seed=9)
         gene = s.run_evolution(
-            s.course_bits, s.slot_bits,
+            s.course_bits,
+            s.slot_bits,
             s.population_size,
-            max_fitness=0,      # every gene qualifies immediately
+            max_fitness=0,  # every gene qualifies immediately
             max_generations=s.max_generations,
         )
         # Just check we get a valid gene back without error
@@ -711,8 +736,11 @@ class TestEvolutionLoop(unittest.TestCase):
         """After run_evolution the generation log has at least one entry."""
         s = self.s
         s.run_evolution(
-            s.course_bits, s.slot_bits,
-            s.population_size, s.max_fitness, s.max_generations
+            s.course_bits,
+            s.slot_bits,
+            s.population_size,
+            s.max_fitness,
+            s.max_generations,
         )
         self.assertGreater(len(s._generation_log), 0)
 
@@ -720,12 +748,15 @@ class TestEvolutionLoop(unittest.TestCase):
         """Each GenerationStats entry has the expected fields."""
         s = self.s
         s.run_evolution(
-            s.course_bits, s.slot_bits,
-            s.population_size, s.max_fitness, s.max_generations
+            s.course_bits,
+            s.slot_bits,
+            s.population_size,
+            s.max_fitness,
+            s.max_generations,
         )
         stat = s._generation_log[0]
-        self.assertGreaterEqual(stat.best_fitness,  0.0)
-        self.assertGreaterEqual(stat.avg_fitness,   0.0)
+        self.assertGreaterEqual(stat.best_fitness, 0.0)
+        self.assertGreaterEqual(stat.avg_fitness, 0.0)
         self.assertGreaterEqual(stat.worst_fitness, 0.0)
         self.assertGreater(stat.elapsed_ms, 0)
 
@@ -733,6 +764,7 @@ class TestEvolutionLoop(unittest.TestCase):
 # ══════════════════════════════════════════════════════════════════════════════
 #  8. FULL RUN (INTEGRATION)
 # ══════════════════════════════════════════════════════════════════════════════
+
 
 class TestFullRun(unittest.TestCase):
     """Integration tests that call run() end-to-end."""
@@ -747,8 +779,8 @@ class TestFullRun(unittest.TestCase):
     def test_run_correct_dimensions(self):
         """tables dimensions match the requested classes/days/slots."""
         s = full_run()
-        self.assertEqual(len(s.tables),       s.class_count)
-        self.assertEqual(len(s.tables[0]),    s.day_count)
+        self.assertEqual(len(s.tables), s.class_count)
+        self.assertEqual(len(s.tables[0]), s.day_count)
         self.assertEqual(len(s.tables[0][0]), s.slot_count)
 
     def test_run_no_zeroes_after_completion(self):
@@ -759,15 +791,10 @@ class TestFullRun(unittest.TestCase):
         We allow up to 25 % empty cells for tiny configs; a real-world run
         with default parameters fills all cells reliably.
         """
-        s      = full_run()
-        zeroes = sum(
-            1
-            for cls in s.tables
-            for day in cls
-            for cell in day
-            if cell == 0
-        )
-        total  = s.class_count * s.day_count * s.slot_count
+        s = full_run()
+        zeroes = sum(1 for cls in s.tables for day in cls for cell in day
+                     if cell == 0)
+        total = s.class_count * s.day_count * s.slot_count
         self.assertLess(zeroes, total * 0.25)
 
     def test_run_all_values_in_valid_course_range(self):
@@ -782,16 +809,22 @@ class TestFullRun(unittest.TestCase):
 
     def test_run_slots_filled_counter(self):
         """_slots_filled equals classes × days × slots after run()."""
-        s     = full_run()
+        s = full_run()
         total = s.class_count * s.day_count * s.slot_count
         self.assertEqual(s._slots_filled, total)
 
     def test_run_with_per_course_params(self):
         """run() succeeds when repeat and teachers are per-course lists."""
         s = GenerateTimeTable(
-            classes=2, courses=3, slots=3, days=3,
-            repeat=[1, 2, 1], teachers=[1, 1, 2],
-            population_size=15, max_generations=15, seed=3,
+            classes=2,
+            courses=3,
+            slots=3,
+            days=3,
+            repeat=[1, 2, 1],
+            teachers=[1, 1, 2],
+            population_size=15,
+            max_generations=15,
+            seed=3,
         )
         result = s.run()
         self.assertEqual(len(result), 2)
@@ -799,9 +832,15 @@ class TestFullRun(unittest.TestCase):
     def test_run_single_class(self):
         """Scheduler works with a single class."""
         s = GenerateTimeTable(
-            classes=1, courses=2, slots=3, days=3,
-            repeat=1, teachers=1,
-            population_size=15, max_generations=15, seed=10,
+            classes=1,
+            courses=2,
+            slots=3,
+            days=3,
+            repeat=1,
+            teachers=1,
+            population_size=15,
+            max_generations=15,
+            seed=10,
         )
         result = s.run()
         self.assertEqual(len(result), 1)
@@ -809,9 +848,15 @@ class TestFullRun(unittest.TestCase):
     def test_run_single_course(self):
         """Scheduler works with a single course filling all slots."""
         s = GenerateTimeTable(
-            classes=1, courses=1, slots=2, days=2,
-            repeat=2, teachers=1,
-            population_size=15, max_generations=15, seed=11,
+            classes=1,
+            courses=1,
+            slots=2,
+            days=2,
+            repeat=2,
+            teachers=1,
+            population_size=15,
+            max_generations=15,
+            seed=11,
         )
         result = s.run()
         self.assertEqual(len(result), 1)
@@ -821,6 +866,7 @@ class TestFullRun(unittest.TestCase):
 #  9. VALIDATION
 # ══════════════════════════════════════════════════════════════════════════════
 
+
 class TestValidation(unittest.TestCase):
     """Tests for the validate() method."""
 
@@ -828,7 +874,12 @@ class TestValidation(unittest.TestCase):
         """validate() always returns a dict with the four standard keys."""
         s = full_run()
         v = s.validate()
-        for key in ("empty_cells", "teacher_clashes", "back_to_back", "total_violations"):
+        for key in (
+                "empty_cells",
+                "teacher_clashes",
+                "back_to_back",
+                "total_violations",
+        ):
             self.assertIn(key, v)
 
     def test_validate_total_is_sum_of_parts(self):
@@ -837,7 +888,7 @@ class TestValidation(unittest.TestCase):
         v = s.validate()
         self.assertEqual(
             v["total_violations"],
-            v["empty_cells"] + v["teacher_clashes"] + v["back_to_back"]
+            v["empty_cells"] + v["teacher_clashes"] + v["back_to_back"],
         )
 
     def test_validate_detects_back_to_back(self):
@@ -860,7 +911,7 @@ class TestValidation(unittest.TestCase):
 
     def test_validate_clean_timetable_zero_violations(self):
         """A hand-crafted clean (non-clashing) timetable reports 0 violations."""
-        s = tiny(teachers=2)   # 2 teachers → two classes can share a slot
+        s = tiny(teachers=2)  # 2 teachers → two classes can share a slot
         # Fill every cell uniquely — each class, each slot gets a different course
         for cls_idx in range(s.class_count):
             for day_idx in range(s.day_count):
@@ -870,13 +921,14 @@ class TestValidation(unittest.TestCase):
         v = s.validate()
         # We allow back_to_back violations from the cycling pattern, but
         # teacher_clashes and empty_cells must both be 0
-        self.assertEqual(v["empty_cells"],     0)
+        self.assertEqual(v["empty_cells"], 0)
         self.assertEqual(v["teacher_clashes"], 0)
 
 
 # ══════════════════════════════════════════════════════════════════════════════
 #  10. ANALYTICS
 # ══════════════════════════════════════════════════════════════════════════════
+
 
 class TestAnalytics(unittest.TestCase):
     """Tests for the analytics() method."""
@@ -888,9 +940,13 @@ class TestAnalytics(unittest.TestCase):
         """analytics() returns a dict containing all expected keys."""
         a = self.s.analytics()
         for key in (
-            "runtime_s", "genes_evaluated", "cache_hit_ratio",
-            "course_frequency", "validation", "slots_filled",
-            "generation_log_tail",
+                "runtime_s",
+                "genes_evaluated",
+                "cache_hit_ratio",
+                "course_frequency",
+                "validation",
+                "slots_filled",
+                "generation_log_tail",
         ):
             self.assertIn(key, a)
 
@@ -898,7 +954,7 @@ class TestAnalytics(unittest.TestCase):
         """cache_hit_ratio is in [0, 1]."""
         a = self.s.analytics()
         self.assertGreaterEqual(a["cache_hit_ratio"], 0.0)
-        self.assertLessEqual(a["cache_hit_ratio"],    1.0)
+        self.assertLessEqual(a["cache_hit_ratio"], 1.0)
 
     def test_course_frequency_covers_all_courses(self):
         """course_frequency lists every course name."""
@@ -908,10 +964,10 @@ class TestAnalytics(unittest.TestCase):
 
     def test_course_frequency_total_matches_slots(self):
         """Sum of course frequencies == classes × days × slots (minus empties)."""
-        a     = self.s.analytics()
+        a = self.s.analytics()
         total = sum(a["course_frequency"].values())
-        cells = (self.s.class_count * self.s.day_count * self.s.slot_count
-                 - a["validation"]["empty_cells"])
+        cells = (self.s.class_count * self.s.day_count * self.s.slot_count -
+                 a["validation"]["empty_cells"])
         self.assertEqual(total, cells)
 
     def test_slots_filled_in_analytics(self):
@@ -929,11 +985,12 @@ class TestAnalytics(unittest.TestCase):
 #  11. EXPORT FUNCTIONS
 # ══════════════════════════════════════════════════════════════════════════════
 
+
 class TestExport(unittest.TestCase):
     """Tests for export_json, export_csv, and export_html."""
 
     def setUp(self):
-        self.s    = full_run(seed=30)
+        self.s = full_run(seed=30)
         self.tmpdir = tempfile.mkdtemp()
 
     def _path(self, filename):
@@ -974,7 +1031,8 @@ class TestExport(unittest.TestCase):
             data = json.load(f)
         for cls_name in self.s.class_names:
             for day_name in self.s.day_names:
-                self.assertEqual(len(data[cls_name][day_name]), self.s.slot_count)
+                self.assertEqual(len(data[cls_name][day_name]),
+                                 self.s.slot_count)
 
     def test_export_json_values_are_course_names_or_free(self):
         """All slot values are course names or 'FREE'."""
@@ -1011,10 +1069,8 @@ class TestExport(unittest.TestCase):
         self.s.export_csv(path)
         with open(path) as f:
             rows = list(csv.reader(f))
-        expected_data_rows = (
-            self.s.class_count * self.s.day_count * self.s.slot_count
-        )
-        self.assertEqual(len(rows) - 1, expected_data_rows)   # -1 for header
+        expected_data_rows = self.s.class_count * self.s.day_count * self.s.slot_count
+        self.assertEqual(len(rows) - 1, expected_data_rows)  # -1 for header
 
     # ── HTML ──────────────────────────────────────────────────────────────────
 
@@ -1044,14 +1100,21 @@ class TestExport(unittest.TestCase):
 #  12. QUERY HELPERS
 # ══════════════════════════════════════════════════════════════════════════════
 
+
 class TestQueryHelpers(unittest.TestCase):
     """Tests for get_class_timetable, find_course_slots, get_teacher_schedule."""
 
     def setUp(self):
         self.s = GenerateTimeTable(
-            classes=2, courses=3, slots=3, days=3,
-            repeat=1, teachers=2, seed=50,
-            population_size=20, max_generations=20,
+            classes=2,
+            courses=3,
+            slots=3,
+            days=3,
+            repeat=1,
+            teachers=2,
+            seed=50,
+            population_size=20,
+            max_generations=20,
             course_names=["Maths", "English", "Science"],
             class_names=["Alpha", "Beta"],
         )
@@ -1061,7 +1124,7 @@ class TestQueryHelpers(unittest.TestCase):
         """get_class_timetable returns a 2-D list for a valid class name."""
         tt = self.s.get_class_timetable("Alpha")
         self.assertIsNotNone(tt)
-        self.assertEqual(len(tt),    self.s.day_count)
+        self.assertEqual(len(tt), self.s.day_count)
         self.assertEqual(len(tt[0]), self.s.slot_count)
 
     def test_get_class_timetable_unknown(self):
@@ -1113,6 +1176,7 @@ class TestQueryHelpers(unittest.TestCase):
 #  13. RESET
 # ══════════════════════════════════════════════════════════════════════════════
 
+
 class TestReset(unittest.TestCase):
     """Tests for the reset() method."""
 
@@ -1133,10 +1197,10 @@ class TestReset(unittest.TestCase):
         """After reset(), all telemetry counters are zero."""
         s = full_run(seed=62)
         s.reset()
-        self.assertEqual(s._cache_hits,       0)
-        self.assertEqual(s._cache_misses,     0)
+        self.assertEqual(s._cache_hits, 0)
+        self.assertEqual(s._cache_misses, 0)
         self.assertEqual(s._total_genes_eval, 0)
-        self.assertEqual(s._slots_filled,     0)
+        self.assertEqual(s._slots_filled, 0)
 
     def test_reset_clears_generation_log(self):
         """After reset(), generation log is empty."""
@@ -1156,14 +1220,21 @@ class TestReset(unittest.TestCase):
 #  14. REPRODUCIBILITY
 # ══════════════════════════════════════════════════════════════════════════════
 
+
 class TestReproducibility(unittest.TestCase):
     """Tests that the seed parameter produces deterministic output."""
 
     def _make(self, seed):
         return GenerateTimeTable(
-            classes=2, courses=3, slots=3, days=3,
-            repeat=1, teachers=1, seed=seed,
-            population_size=20, max_generations=20,
+            classes=2,
+            courses=3,
+            slots=3,
+            days=3,
+            repeat=1,
+            teachers=1,
+            seed=seed,
+            population_size=20,
+            max_generations=20,
         )
 
     def test_same_seed_same_timetable(self):
@@ -1176,14 +1247,12 @@ class TestReproducibility(unittest.TestCase):
         """Two runs with different seeds usually produce different timetables.
         We test 5 seed pairs — if all 5 match, something is wrong."""
         all_same = all(
-            self._make(i).run() == self._make(i + 100).run()
-            for i in range(5)
-        )
+            self._make(i).run() == self._make(i + 100).run() for i in range(5))
         self.assertFalse(all_same)
 
     def test_reset_with_seed_reproduces(self):
         """reset() + run() with a seeded scheduler reproduces the same table."""
-        s  = self._make(77)
+        s = self._make(77)
         t1 = s.run()
         s.reset()
         t2 = s.run()
@@ -1194,6 +1263,7 @@ class TestReproducibility(unittest.TestCase):
 #  15. PROPERTY / INVARIANT TESTS
 # ══════════════════════════════════════════════════════════════════════════════
 
+
 class TestInvariants(unittest.TestCase):
     """
     Check properties that must hold for ALL valid schedulers / genes,
@@ -1203,10 +1273,15 @@ class TestInvariants(unittest.TestCase):
     def test_gene_length_invariant(self):
         """Gene length == course_bits + slot_bits + class_bits for any config."""
         for classes, courses, slots, days in [
-            (1, 1, 1, 1), (2, 3, 4, 5), (5, 5, 5, 5), (3, 8, 7, 4),
+            (1, 1, 1, 1),
+            (2, 3, 4, 5),
+            (5, 5, 5, 5),
+            (3, 8, 7, 4),
         ]:
-            s = GenerateTimeTable(classes=classes, courses=courses,
-                                  slots=slots, days=days)
+            s = GenerateTimeTable(classes=classes,
+                                  courses=courses,
+                                  slots=slots,
+                                  days=days)
             s.initialize_genotype(courses, classes, slots, days, 1, 1)
             s.generate_table_skeleton()
             expected = s.course_bits + s.slot_bits + s.class_bits
@@ -1218,11 +1293,11 @@ class TestInvariants(unittest.TestCase):
         s = tiny(seed=7)
         snapshots = []
         for _ in range(4):
-            gene  = s.generate_gene()
+            gene = s.generate_gene()
             _, _, _, cls_no = s.decode_gene(gene)
-            q_before = s.course_quota[cls_no-1][:]
+            q_before = s.course_quota[cls_no - 1][:]
             s.fit_slot(gene)
-            q_after  = s.course_quota[cls_no-1][:]
+            q_after = s.course_quota[cls_no - 1][:]
             snapshots.append((q_before, q_after))
 
         for before, after in snapshots:
@@ -1236,9 +1311,9 @@ class TestInvariants(unittest.TestCase):
         for _ in range(20):
             a, b = s.generate_gene(), s.generate_gene()
             for fn in [
-                s.single_point_crossover,
-                lambda x, y: s.multi_point_crossover(x, y, 2),
-                s.uniform_crossover,
+                    s.single_point_crossover,
+                    lambda x, y: s.multi_point_crossover(x, y, 2),
+                    s.uniform_crossover,
             ]:
                 children = fn(a, b)
                 for child in children:
@@ -1246,16 +1321,16 @@ class TestInvariants(unittest.TestCase):
 
     def test_fitness_deterministic(self):
         """calculate_fitness returns the same value for the same gene+state."""
-        s    = tiny()
+        s = tiny()
         gene = s.generate_gene()
-        f1   = s.calculate_fitness(gene)
-        s._fitness_cache.clear()          # force re-evaluation
-        f2   = s.calculate_fitness(gene)
+        f1 = s.calculate_fitness(gene)
+        s._fitness_cache.clear()  # force re-evaluation
+        f2 = s.calculate_fitness(gene)
         self.assertAlmostEqual(f1, f2)
 
     def test_table_dimensions_stable_after_multiple_fit_slots(self):
         """Table shape does not change after many fit_slot() calls."""
-        s     = tiny()
+        s = tiny()
         shape = (len(s.tables), len(s.tables[0]), len(s.tables[0][0]))
         for _ in range(5):
             s.fit_slot(s.generate_gene())
@@ -1266,6 +1341,7 @@ class TestInvariants(unittest.TestCase):
 # ══════════════════════════════════════════════════════════════════════════════
 #  16. EDGE CASES
 # ══════════════════════════════════════════════════════════════════════════════
+
 
 class TestEdgeCases(unittest.TestCase):
     """Boundary conditions and unusual-but-valid configurations."""
@@ -1279,21 +1355,34 @@ class TestEdgeCases(unittest.TestCase):
         sidestepping the degenerate-population edge case.
         """
         s = GenerateTimeTable(
-            classes=1, courses=1, slots=1, days=1,
-            repeat=1, teachers=1,
-            population_size=2, max_generations=2, max_fitness=0, seed=1,
+            classes=1,
+            courses=1,
+            slots=1,
+            days=1,
+            repeat=1,
+            teachers=1,
+            population_size=2,
+            max_generations=2,
+            max_fitness=0,
+            seed=1,
         )
         result = s.run()
-        self.assertEqual(len(result),       1)
-        self.assertEqual(len(result[0]),    1)
+        self.assertEqual(len(result), 1)
+        self.assertEqual(len(result[0]), 1)
         self.assertEqual(len(result[0][0]), 1)
 
     def test_many_courses_few_slots(self):
         """More courses than total slots still runs (some courses may not appear)."""
         s = GenerateTimeTable(
-            classes=1, courses=6, slots=2, days=2,  # 4 total slots < 6 courses
-            repeat=1, teachers=1,
-            population_size=15, max_generations=20, seed=2,
+            classes=1,
+            courses=6,
+            slots=2,
+            days=2,  # 4 total slots < 6 courses
+            repeat=1,
+            teachers=1,
+            population_size=15,
+            max_generations=20,
+            seed=2,
         )
         # Should not crash — just note that not all courses will appear
         result = s.run()
@@ -1303,9 +1392,15 @@ class TestEdgeCases(unittest.TestCase):
         """teacher_quota > class_count should never trigger teacher clash."""
         classes = 3
         s = GenerateTimeTable(
-            classes=classes, courses=2, slots=3, days=3,
-            repeat=1, teachers=classes + 1,  # more teachers than classes
-            population_size=20, max_generations=20, seed=3,
+            classes=classes,
+            courses=2,
+            slots=3,
+            days=3,
+            repeat=1,
+            teachers=classes + 1,  # more teachers than classes
+            population_size=20,
+            max_generations=20,
+            seed=3,
         )
         s.run()
         v = s.validate()
@@ -1314,9 +1409,15 @@ class TestEdgeCases(unittest.TestCase):
     def test_zero_population_handled_gracefully(self):
         """population_size=1 (degenerate) does not crash."""
         s = GenerateTimeTable(
-            classes=1, courses=2, slots=2, days=2,
-            repeat=1, teachers=1, population_size=1,
-            max_generations=5, seed=4,
+            classes=1,
+            courses=2,
+            slots=2,
+            days=2,
+            repeat=1,
+            teachers=1,
+            population_size=1,
+            max_generations=5,
+            seed=4,
         )
         result = s.run()
         self.assertEqual(len(result), 1)
@@ -1325,15 +1426,18 @@ class TestEdgeCases(unittest.TestCase):
         """max_generations=1 returns a gene (no crash)."""
         s = tiny(max_generations=1)
         gene = s.run_evolution(
-            s.course_bits, s.slot_bits,
-            s.population_size, s.max_fitness, 1,
+            s.course_bits,
+            s.slot_bits,
+            s.population_size,
+            s.max_fitness,
+            1,
         )
         self.assertIsInstance(gene, str)
         self.assertGreater(len(gene), 0)
 
     def test_find_course_slots_on_empty_timetable(self):
         """find_course_slots on an uninitialised timetable returns empty list."""
-        s = tiny()   # table is all zeros
+        s = tiny()  # table is all zeros
         result = s.find_course_slots("Course-1")
         self.assertEqual(result, [])
 
@@ -1351,17 +1455,19 @@ class TestEdgeCases(unittest.TestCase):
 if __name__ == "__main__":
     # Run with verbosity=2 so every test name prints individually
     loader = unittest.TestLoader()
-    suite  = loader.loadTestsFromModule(__import__(__name__))
+    suite = loader.loadTestsFromModule(__import__(__name__))
     runner = unittest.TextTestRunner(verbosity=2)
     result = runner.run(suite)
 
     # Summary
-    total  = result.testsRun
+    total = result.testsRun
     passed = total - len(result.failures) - len(result.errors)
     print(f"\n{'='*60}")
     print(f"  🧪  {passed}/{total} tests passed", end="")
     if result.failures or result.errors:
-        print(f"  ❌  {len(result.failures)} failures, {len(result.errors)} errors")
+        print(
+            f"  ❌  {len(result.failures)} failures, {len(result.errors)} errors"
+        )
     else:
         print("  ✅")
     print(f"{'='*60}")

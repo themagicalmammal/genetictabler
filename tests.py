@@ -1,6 +1,6 @@
 """
 ╔══════════════════════════════════════════════════════════════════════════════╗
-║          🧪  TEST SUITE — GENETIC ALGORITHM TIMETABLE GENERATOR  🧪        ║
+║            TEST SUITE — GENETIC ALGORITHM TIMETABLE GENERATOR                ║
 ║                                                                              ║
 ║  Full coverage across:                                                       ║
 ║    • Unit tests  (encoding, decoding, fitness, operators)                    ║
@@ -9,8 +9,8 @@
 ║    • Property-based / invariant tests  (gene length, quota monotonicity)     ║
 ║    • Regression tests  (seed reproducibility, cache correctness)             ║
 ║                                                                              ║
-║  Run with:  python -m pytest test_timetable_generator.py -v                 ║
-║         or: python test_timetable_generator.py                              ║
+║  Run with:  python -m pytest test_timetable_generator.py -v                  ║
+║         or: python test_timetable_generator.py                               ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 """
 

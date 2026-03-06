@@ -189,11 +189,15 @@ class GenerateTimeTable:
         self.seed = seed
 
         # ── Human-readable labels (auto-generated if not supplied) ───────────
-        self.course_names = course_names or [f"Course-{i+1}" for i in range(courses)]
-        self.class_names = class_names or [f"Class-{i+1}" for i in range(classes)]
-        self.day_names = (
-            day_names or ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sat"][:days]
-        )
+        self.course_names = course_names or [
+            f"Course-{i+1}" for i in range(courses)
+        ]
+        self.class_names = class_names or [
+            f"Class-{i+1}" for i in range(classes)
+        ]
+        self.day_names = (day_names
+                          or ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sat"
+                              ][:days])
 
         # ── Derived encoding constants (populated by initialize_genotype) ────
         self.course_count = 0  # validated copy of `courses`
@@ -214,7 +218,8 @@ class GenerateTimeTable:
         self.tables: List[List[List[int]]] = []
 
         # ── Performance / telemetry ──────────────────────────────────────────
-        self._fitness_cache: Dict[str, float] = {}  # gene → fitness memoisation
+        self._fitness_cache: Dict[str,
+                                  float] = {}  # gene → fitness memoisation
         self._cache_hits = 0
         self._cache_misses = 0
         self._total_genes_eval = 0
@@ -225,7 +230,8 @@ class GenerateTimeTable:
     # ── Alternative constructor ───────────────────────────────────────────────
 
     @classmethod
-    def from_config(cls, config: TimetableConfig, **kwargs) -> "GenerateTimeTable":
+    def from_config(cls, config: TimetableConfig,
+                    **kwargs) -> "GenerateTimeTable":
         """
         Construct from a TimetableConfig dataclass instead of raw kwargs.
 
@@ -289,7 +295,8 @@ class GenerateTimeTable:
         # bin(n) returns '0bXXX', so len - 2 strips the '0b' prefix.
         self.course_bits = len(bin(self.course_count)) - 2
         self.slot_bits = len(bin(self.total_slots)) - 2
-        self.class_bits = len(bin(self.class_count)) - 2  # fixed: use class_count
+        self.class_bits = len(bin(
+            self.class_count)) - 2  # fixed: use class_count
 
         # Populate the weekly occurrence caps per course
         self._calc_course_quota()
@@ -298,13 +305,13 @@ class GenerateTimeTable:
         if isinstance(daily_rep, int):
             # Same cap for every course
             flat_rep = [daily_rep] * self.course_count
-        elif isinstance(daily_rep, list) and len(daily_rep) == self.course_count:
+        elif isinstance(daily_rep,
+                        list) and len(daily_rep) == self.course_count:
             flat_rep = daily_rep
         else:
             raise ValueError(
                 f"repeat must be an int OR a list of length {self.course_count}. "
-                f"Got: {daily_rep!r}"
-            )
+                f"Got: {daily_rep!r}")
         # Each class gets its own copy so deductions are class-local
         self.repeat_quota = [flat_rep[:] for _ in range(self.class_count)]
 
@@ -316,8 +323,7 @@ class GenerateTimeTable:
         else:
             raise ValueError(
                 f"teachers must be an int OR a list of length {self.course_count}. "
-                f"Got: {teachers!r}"
-            )
+                f"Got: {teachers!r}")
 
         total_genes = self.slot_count * self.day_count * self.class_count
         return [self.course_bits, self.slot_bits, total_genes]
@@ -380,7 +386,8 @@ class GenerateTimeTable:
         Example with 4 courses (needs 2 bits):
             encode_course() might return '10' (= course 2)
         """
-        return self._to_binary(random.randint(1, self.course_count), self.course_bits)
+        return self._to_binary(random.randint(1, self.course_count),
+                               self.course_bits)
 
     def encode_slot(self) -> str:
         """
@@ -394,7 +401,8 @@ class GenerateTimeTable:
         Example with 30 total slots (needs 5 bits):
             encode_slot() might return '01011' (= slot 11, i.e. Tue period 5)
         """
-        return self._to_binary(random.randint(1, self.total_slots), self.slot_bits)
+        return self._to_binary(random.randint(1, self.total_slots),
+                               self.slot_bits)
 
     def encode_class(self) -> str:
         """
@@ -403,7 +411,8 @@ class GenerateTimeTable:
         Example with 6 classes (needs 3 bits):
             encode_class() might return '100' (= class 4)
         """
-        return self._to_binary(random.randint(1, self.class_count), self.class_bits)
+        return self._to_binary(random.randint(1, self.class_count),
+                               self.class_bits)
 
     def generate_gene(self) -> str:
         """
@@ -432,9 +441,9 @@ class GenerateTimeTable:
             → (course=2, slot=5, day=2, class=4)
               i.e. Course-2 taught on Day-2 (Tue) period 5 for Class-4
         """
-        course_no = int(gene[: self.course_bits], 2)
+        course_no = int(gene[:self.course_bits], 2)
         slot_no, day_no = self.extract_slot_day(gene)
-        class_no = int(gene[self.course_bits + self.slot_bits :], 2)
+        class_no = int(gene[self.course_bits + self.slot_bits:], 2)
         return course_no, slot_no, day_no, class_no
 
     def extract_slot_day(self, gene: str) -> Tuple[int, int]:
@@ -453,7 +462,8 @@ class GenerateTimeTable:
         Returns:
             (slot_no, day_no) both 1-based
         """
-        raw_slot = int(gene[self.course_bits : self.course_bits + self.slot_bits], 2)
+        raw_slot = int(
+            gene[self.course_bits:self.course_bits + self.slot_bits], 2)
         slot_no = raw_slot % self.slot_count
         day_no = raw_slot // self.slot_count
 
@@ -500,21 +510,15 @@ class GenerateTimeTable:
         fitness = 100.0
 
         # Decode gene components
-        course = int(gene[: self.course_bits], 2)
+        course = int(gene[:self.course_bits], 2)
         slot_no, day_no = self.extract_slot_day(gene)
-        class_no = int(gene[self.course_bits + self.slot_bits :], 2)
+        class_no = int(gene[self.course_bits + self.slot_bits:], 2)
 
         # Guard: encoded indices must be within valid range
-        if (
-            course < 1
-            or course > self.course_count
-            or class_no < 1
-            or class_no > self.class_count
-            or day_no < 1
-            or day_no > self.day_count
-            or slot_no < 1
-            or slot_no > self.slot_count
-        ):
+        if (course < 1 or course > self.course_count or class_no < 1
+                or class_no > self.class_count or day_no < 1
+                or day_no > self.day_count or slot_no < 1
+                or slot_no > self.slot_count):
             self._fitness_cache[gene] = 0.0
             return 0.0
 
@@ -545,15 +549,14 @@ class GenerateTimeTable:
             fitness *= 0.01
 
         # ── 6. SOFT: exceeds per-course daily repeat allowance ───────────────
-        if today_row.count(course) >= self.repeat_quota[class_no - 1][course - 1]:
+        if today_row.count(course) >= self.repeat_quota[class_no - 1][course -
+                                                                      1]:
             fitness *= 0.50
 
         # ── 7. HARD: teacher at capacity this slot across all classes ─────────
-        simultaneous = sum(
-            1
-            for cls_idx in range(self.class_count)
-            if timetable[cls_idx][day_no - 1][slot_no - 1] == course
-        )
+        simultaneous = sum(1 for cls_idx in range(self.class_count)
+                           if timetable[cls_idx][day_no - 1][slot_no -
+                                                             1] == course)
         if simultaneous >= self.teacher_quota[course - 1]:
             fitness *= 0.01
 
@@ -603,18 +606,19 @@ class GenerateTimeTable:
             child_d = gene_a[:cb] + gene_b[cb:]
         elif c == 2:
             # Swap slot segment
-            child_c = gene_a[:cb] + gene_b[cb : cb + sb] + gene_a[cb + sb :]
-            child_d = gene_b[:cb] + gene_a[cb : cb + sb] + gene_b[cb + sb :]
+            child_c = gene_a[:cb] + gene_b[cb:cb + sb] + gene_a[cb + sb:]
+            child_d = gene_b[:cb] + gene_a[cb:cb + sb] + gene_b[cb + sb:]
         else:
             # Swap class segment
-            child_c = gene_a[: cb + sb] + gene_b[cb + sb :]
-            child_d = gene_b[: cb + sb] + gene_a[cb + sb :]
+            child_c = gene_a[:cb + sb] + gene_b[cb + sb:]
+            child_d = gene_b[:cb + sb] + gene_a[cb + sb:]
 
         return [child_c, child_d]
 
-    def multi_point_crossover(
-        self, gene_a: str, gene_b: str, points: int = 2
-    ) -> List[str]:
+    def multi_point_crossover(self,
+                              gene_a: str,
+                              gene_b: str,
+                              points: int = 2) -> List[str]:
         """
         Apply single_point_crossover `points` times in sequence.
 
@@ -648,16 +652,15 @@ class GenerateTimeTable:
             [offspring_a, offspring_b]
         """
         length = len(gene_a)
-        child_c = "".join(
-            gene_a[i] if random.random() < 0.5 else gene_b[i] for i in range(length)
-        )
+        child_c = "".join(gene_a[i] if random.random() < 0.5 else gene_b[i]
+                          for i in range(length))
         # child_d is the bitwise complement selection of child_c
-        child_d = "".join(
-            gene_b[i] if child_c[i] == gene_a[i] else gene_a[i] for i in range(length)
-        )
+        child_d = "".join(gene_b[i] if child_c[i] == gene_a[i] else gene_a[i]
+                          for i in range(length))
         return [child_c, child_d]
 
-    def mutation(self, gene: str, course_bit_length: int, slot_bit_length: int) -> str:
+    def mutation(self, gene: str, course_bit_length: int,
+                 slot_bit_length: int) -> str:
         """
         Randomly replace one segment of the gene with a freshly encoded value.
 
@@ -684,9 +687,9 @@ class GenerateTimeTable:
         if c == 1:
             return self.encode_course() + gene[cb:]
         elif c == 2:
-            return gene[:cb] + self.encode_slot() + gene[cb + sb :]
+            return gene[:cb] + self.encode_slot() + gene[cb + sb:]
         else:
-            return gene[: cb + sb] + self.encode_class()
+            return gene[:cb + sb] + self.encode_class()
 
     def smart_mutation(
         self,
@@ -744,9 +747,9 @@ class GenerateTimeTable:
         weights = [self.calculate_fitness(g) for g in population]
         return random.choices(population=population, weights=weights, k=2)
 
-    def tournament_selection(
-        self, population: List[str], tournament_size: int = 3
-    ) -> str:
+    def tournament_selection(self,
+                             population: List[str],
+                             tournament_size: int = 3) -> str:
         """
         Tournament selection: pick `tournament_size` random genes, return
         the one with the highest fitness.
@@ -763,7 +766,8 @@ class GenerateTimeTable:
         Returns:
             single winning gene
         """
-        contestants = random.sample(population, min(tournament_size, len(population)))
+        contestants = random.sample(population,
+                                    min(tournament_size, len(population)))
         return max(contestants, key=self.calculate_fitness)
 
     def sort_population(self, population: List[str]) -> List[str]:
@@ -802,7 +806,8 @@ class GenerateTimeTable:
         """
         self.tables = []
         for _ in range(self.class_count):
-            class_table = [[0] * self.slot_count for _ in range(self.day_count)]
+            class_table = [[0] * self.slot_count
+                           for _ in range(self.day_count)]
             self.tables.append(class_table)
         return self.tables
 
@@ -817,9 +822,9 @@ class GenerateTimeTable:
         After committing, we MUST invalidate the fitness cache because all
         future fitness evaluations now see a different timetable state.
         """
-        course = int(gene[: self.course_bits], 2)
+        course = int(gene[:self.course_bits], 2)
         slot_no, day_no = self.extract_slot_day(gene)
-        class_no = int(gene[self.course_bits + self.slot_bits :], 2)
+        class_no = int(gene[self.course_bits + self.slot_bits:], 2)
 
         # Write to timetable (1-based indices → 0-based array indices)
         self.tables[class_no - 1][day_no - 1][slot_no - 1] = course
@@ -893,8 +898,7 @@ class GenerateTimeTable:
                     worst_fitness=worst_f,
                     mutation_rate=mut_rate,
                     elapsed_ms=(time.perf_counter() - t0) * 1000,
-                )
-            )
+                ))
 
             # ── Early-stop if a perfect gene is found ────────────────────────
             if best_f >= max_fitness:
@@ -939,12 +943,10 @@ class GenerateTimeTable:
                         # Smart mutation late in evolution; random early on
                         if gen_idx > max_generations // 2:
                             child = self.smart_mutation(
-                                child, course_bit_length, slot_bit_length
-                            )
+                                child, course_bit_length, slot_bit_length)
                         else:
-                            child = self.mutation(
-                                child, course_bit_length, slot_bit_length
-                            )
+                            child = self.mutation(child, course_bit_length,
+                                                  slot_bit_length)
                     next_gen.append(child)
 
             # Handle odd population sizes
@@ -993,10 +995,11 @@ class GenerateTimeTable:
 
         print(
             f"   Classes: {self.class_count}  |  Courses: {self.course_count}  "
-            f"|  Slots/day: {self.slot_count}  |  Days: {self.day_count}"
-        )
+            f"|  Slots/day: {self.slot_count}  |  Days: {self.day_count}")
         print(f"   Total cells to fill: {total_cells}")
-        print(f"   Gene encoding: {course_bits}+{slot_bits}+{self.class_bits} bits\n")
+        print(
+            f"   Gene encoding: {course_bits}+{slot_bits}+{self.class_bits} bits\n"
+        )
 
         # ── Step 3: fill every cell one by one ───────────────────────────────
         remaining = total_cells
@@ -1031,11 +1034,9 @@ class GenerateTimeTable:
                 )
 
         elapsed_total = time.perf_counter() - self._run_start_time
-        print(
-            f"\n\n✅  Scheduling complete in {elapsed_total:.2f}s  "
-            f"({self._total_genes_eval:,} genes evaluated, "
-            f"{self._cache_hits:,} cache hits)\n"
-        )
+        print(f"\n\n✅  Scheduling complete in {elapsed_total:.2f}s  "
+              f"({self._total_genes_eval:,} genes evaluated, "
+              f"{self._cache_hits:,} cache hits)\n")
 
         return self.tables
 
@@ -1070,9 +1071,8 @@ class GenerateTimeTable:
         for day in range(self.day_count):
             for slot in range(self.slot_count):
                 # Count how many classes have each course in this slot
-                slot_courses = Counter(
-                    self.tables[cls][day][slot] for cls in range(self.class_count)
-                )
+                slot_courses = Counter(self.tables[cls][day][slot]
+                                       for cls in range(self.class_count))
                 for course, count in slot_courses.items():
                     if course == 0:
                         empty += count
@@ -1112,7 +1112,8 @@ class GenerateTimeTable:
             Period 2 │Eng  │Math │PE   │Sci  │Math
             ...
         """
-        classes_to_print = range(self.class_count) if class_idx is None else [class_idx]
+        classes_to_print = range(
+            self.class_count) if class_idx is None else [class_idx]
 
         col_w = max(len(n) for n in self.course_names) + 2
 
@@ -1175,12 +1176,18 @@ class GenerateTimeTable:
         validation = self.validate()
 
         return {
-            "runtime_s": runtime,
-            "genes_evaluated": self._total_genes_eval,
-            "cache_hit_ratio": round(hit_ratio, 4),
-            "course_frequency": dict(freq),
-            "validation": validation,
-            "slots_filled": self._slots_filled,
+            "runtime_s":
+            runtime,
+            "genes_evaluated":
+            self._total_genes_eval,
+            "cache_hit_ratio":
+            round(hit_ratio, 4),
+            "course_frequency":
+            dict(freq),
+            "validation":
+            validation,
+            "slots_filled":
+            self._slots_filled,
             "generation_log_tail": [
                 vars(s) for s in self._generation_log[-5:]  # last 5 snapshots
             ],
@@ -1212,7 +1219,8 @@ class GenerateTimeTable:
                 slots_list = []
                 for s in range(self.slot_count):
                     cn = self.tables[cls_idx][day_idx][s]
-                    slots_list.append(self.course_names[cn - 1] if cn > 0 else "FREE")
+                    slots_list.append(self.course_names[cn - 1] if cn >
+                                      0 else "FREE")
                 output[cls_name][day_name] = slots_list
 
         with open(filepath, "w", encoding="utf-8") as f:
@@ -1236,8 +1244,10 @@ class GenerateTimeTable:
             for day_idx, day_name in enumerate(self.day_names):
                 for s in range(self.slot_count):
                     cn = self.tables[cls_idx][day_idx][s]
-                    course_label = self.course_names[cn - 1] if cn > 0 else "FREE"
-                    rows.append([cls_name, day_name, f"Slot {s+1}", course_label])
+                    course_label = self.course_names[cn -
+                                                     1] if cn > 0 else "FREE"
+                    rows.append(
+                        [cls_name, day_name, f"Slot {s+1}", course_label])
 
         with open(filepath, "w", newline="", encoding="utf-8") as f:
             writer = csv.writer(f)
@@ -1278,9 +1288,8 @@ class GenerateTimeTable:
             lines.append("<table>")
 
             # Header: days
-            header_cells = "<th>Slot</th>" + "".join(
-                f"<th>{d}</th>" for d in self.day_names
-            )
+            header_cells = "<th>Slot</th>" + "".join(f"<th>{d}</th>"
+                                                     for d in self.day_names)
             lines.append(f"<tr>{header_cells}</tr>")
 
             for s in range(self.slot_count):
@@ -1334,7 +1343,8 @@ class GenerateTimeTable:
     #  UTILITY / HELPERS
     # ══════════════════════════════════════════════════════════════════════════
 
-    def get_class_timetable(self, class_name: str) -> Optional[List[List[int]]]:
+    def get_class_timetable(self,
+                            class_name: str) -> Optional[List[List[int]]]:
         """
         Retrieve the timetable for a specific class by name.
 
@@ -1349,16 +1359,16 @@ class GenerateTimeTable:
             monday_slots = tt[0]   # list of course numbers for Monday
         """
         if class_name not in self.class_names:
-            print(
-                f"⚠️  Class '{class_name}' not found.  " f"Available: {self.class_names}"
-            )
+            print(f"⚠️  Class '{class_name}' not found.  "
+                  f"Available: {self.class_names}")
             return None
         idx = self.class_names.index(class_name)
         return self.tables[idx]
 
     def find_course_slots(
-        self, course_name: str, class_name: Optional[str] = None
-    ) -> List[Tuple[str, str, str]]:
+            self,
+            course_name: str,
+            class_name: Optional[str] = None) -> List[Tuple[str, str, str]]:
         """
         Find all scheduled occurrences of a course.
 
@@ -1381,23 +1391,18 @@ class GenerateTimeTable:
         course_no = self.course_names.index(course_name) + 1
         results = []
 
-        class_range = (
-            [self.class_names.index(class_name)]
-            if class_name
-            else range(self.class_count)
-        )
+        class_range = ([self.class_names.index(class_name)]
+                       if class_name else range(self.class_count))
 
         for cls_idx in class_range:
             for day_idx in range(self.day_count):
                 for s in range(self.slot_count):
                     if self.tables[cls_idx][day_idx][s] == course_no:
-                        results.append(
-                            (
-                                self.class_names[cls_idx],
-                                self.day_names[day_idx],
-                                f"Slot {s+1}",
-                            )
-                        )
+                        results.append((
+                            self.class_names[cls_idx],
+                            self.day_names[day_idx],
+                            f"Slot {s+1}",
+                        ))
         return results
 
     def get_teacher_schedule(self, course_name: str) -> Dict[str, List[str]]:
@@ -1509,10 +1514,8 @@ def benchmark(
         results.append(result)
 
         if verbose:
-            print(
-                f"Config {cfg_idx+1}: {avg_t:.2f}s avg, "
-                f"{avg_v:.1f} avg violations  {cfg}"
-            )
+            print(f"Config {cfg_idx+1}: {avg_t:.2f}s avg, "
+                  f"{avg_v:.1f} avg violations  {cfg}")
 
     return results
 
@@ -1745,13 +1748,11 @@ def example_analytics_deep_dive():
     # Print last-5-generation snapshot
     print("Last 5 generation snapshots:")
     for snap in stats["generation_log_tail"]:
-        print(
-            f"  Gen {snap['generation']:3d} | "
-            f"best={snap['best_fitness']:6.2f}  "
-            f"avg={snap['avg_fitness']:6.2f}  "
-            f"mut_rate={snap['mutation_rate']:.2f}  "
-            f"time={snap['elapsed_ms']:.1f}ms"
-        )
+        print(f"  Gen {snap['generation']:3d} | "
+              f"best={snap['best_fitness']:6.2f}  "
+              f"avg={snap['avg_fitness']:6.2f}  "
+              f"mut_rate={snap['mutation_rate']:.2f}  "
+              f"time={snap['elapsed_ms']:.1f}ms")
     print()
 
 

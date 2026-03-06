@@ -14,6 +14,10 @@
 ╚══════════════════════════════════════════════════════════════════════════════╝
 """
 
+# pylint: disable=protected-access
+# pylint: disable=redefined-outer-name
+# pylint: disable=unspecified-encoding
+
 import csv
 import json
 import os
@@ -56,8 +60,7 @@ def tiny(seed: int = 42, **overrides) -> GenerateTimeTable:
     s = GenerateTimeTable(**defaults)
     # Pre-initialise encoding constants (run() does this too, but tests
     # that only exercise encoding/fitness need it done upfront)
-    s.initialize_genotype(s.courses, s.classes, s.slots, s.days, s.repeat,
-                          s.teachers)
+    s.initialize_genotype(s.courses, s.classes, s.slots, s.days, s.repeat, s.teachers)
     s.generate_table_skeleton()
     return s
 
@@ -398,9 +401,11 @@ class TestFitness(unittest.TestCase):
         s = self.s
         # slot_count+1 → raw_slot % slot_count = 1, day_no = 1 ✓
         target_slot = s.slot_count + 1
-        gene = (s._to_binary(1, s.course_bits) +
-                s._to_binary(target_slot, s.slot_bits) +
-                s._to_binary(1, s.class_bits))
+        gene = (
+            s._to_binary(1, s.course_bits)
+            + s._to_binary(target_slot, s.slot_bits)
+            + s._to_binary(1, s.class_bits)
+        )
         # Confirm the cell is empty
         slot_no, day_no = s.extract_slot_day(gene)
         s.tables[0][day_no - 1][slot_no - 1] = 0
@@ -430,11 +435,11 @@ class TestFitness(unittest.TestCase):
         """A gene encoding an out-of-range course returns 0 fitness."""
         s = self.s
         # Encode course = course_count + 1 (out of range)
-        bad_course = s._to_binary(s.course_count + 1, s.course_bits + 1)
+        # bad_course = s._to_binary(s.course_count + 1, s.course_bits + 1)
         # Pad/truncate to expected gene length and test
         gene = s.generate_gene()
         # Manually overwrite course bits with zeros (course 0 = invalid)
-        gene = "0" * s.course_bits + gene[s.course_bits:]
+        gene = "0" * s.course_bits + gene[s.course_bits :]
         f = s.calculate_fitness(gene)
         self.assertEqual(f, 0.0)
 
@@ -579,7 +584,8 @@ class TestGeneticOperators(unittest.TestCase):
         gene = s.generate_gene()
         orig_fitness = s.calculate_fitness(gene)
         smart_fitness = s.calculate_fitness(
-            s.smart_mutation(gene, s.course_bits, s.slot_bits, attempts=10))
+            s.smart_mutation(gene, s.course_bits, s.slot_bits, attempts=10)
+        )
         self.assertGreaterEqual(smart_fitness, orig_fitness)
 
     def test_selection_pair_returns_two(self):
@@ -650,8 +656,7 @@ class TestTableAndFitSlot(unittest.TestCase):
         gene = s.generate_gene()
         course_no, slot_no, day_no, class_no = s.decode_gene(gene)
         s.fit_slot(gene)
-        self.assertEqual(s.tables[class_no - 1][day_no - 1][slot_no - 1],
-                         course_no)
+        self.assertEqual(s.tables[class_no - 1][day_no - 1][slot_no - 1], course_no)
 
     def test_fit_slot_decrements_quota(self):
         """fit_slot() decrements course_quota for the right class+course."""
@@ -660,8 +665,7 @@ class TestTableAndFitSlot(unittest.TestCase):
         course_no, _, _, class_no = s.decode_gene(gene)
         quota_before = s.course_quota[class_no - 1][course_no - 1]
         s.fit_slot(gene)
-        self.assertEqual(s.course_quota[class_no - 1][course_no - 1],
-                         quota_before - 1)
+        self.assertEqual(s.course_quota[class_no - 1][course_no - 1], quota_before - 1)
 
     def test_fit_slot_invalidates_cache(self):
         """fit_slot() clears the fitness cache."""
@@ -790,8 +794,7 @@ class TestFullRun(unittest.TestCase):
         with default parameters fills all cells reliably.
         """
         s = full_run()
-        zeroes = sum(1 for cls in s.tables for day in cls for cell in day
-                     if cell == 0)
+        zeroes = sum(1 for cls in s.tables for day in cls for cell in day if cell == 0)
         total = s.class_count * s.day_count * s.slot_count
         self.assertLess(zeroes, total * 0.25)
 
@@ -873,10 +876,10 @@ class TestValidation(unittest.TestCase):
         s = full_run()
         v = s.validate()
         for key in (
-                "empty_cells",
-                "teacher_clashes",
-                "back_to_back",
-                "total_violations",
+            "empty_cells",
+            "teacher_clashes",
+            "back_to_back",
+            "total_violations",
         ):
             self.assertIn(key, v)
 
@@ -938,13 +941,13 @@ class TestAnalytics(unittest.TestCase):
         """analytics() returns a dict containing all expected keys."""
         a = self.s.analytics()
         for key in (
-                "runtime_s",
-                "genes_evaluated",
-                "cache_hit_ratio",
-                "course_frequency",
-                "validation",
-                "slots_filled",
-                "generation_log_tail",
+            "runtime_s",
+            "genes_evaluated",
+            "cache_hit_ratio",
+            "course_frequency",
+            "validation",
+            "slots_filled",
+            "generation_log_tail",
         ):
             self.assertIn(key, a)
 
@@ -964,8 +967,10 @@ class TestAnalytics(unittest.TestCase):
         """Sum of course frequencies == classes × days × slots (minus empties)."""
         a = self.s.analytics()
         total = sum(a["course_frequency"].values())
-        cells = (self.s.class_count * self.s.day_count * self.s.slot_count -
-                 a["validation"]["empty_cells"])
+        cells = (
+            self.s.class_count * self.s.day_count * self.s.slot_count
+            - a["validation"]["empty_cells"]
+        )
         self.assertEqual(total, cells)
 
     def test_slots_filled_in_analytics(self):
@@ -1029,8 +1034,7 @@ class TestExport(unittest.TestCase):
             data = json.load(f)
         for cls_name in self.s.class_names:
             for day_name in self.s.day_names:
-                self.assertEqual(len(data[cls_name][day_name]),
-                                 self.s.slot_count)
+                self.assertEqual(len(data[cls_name][day_name]), self.s.slot_count)
 
     def test_export_json_values_are_course_names_or_free(self):
         """All slot values are course names or 'FREE'."""
@@ -1245,7 +1249,8 @@ class TestReproducibility(unittest.TestCase):
         """Two runs with different seeds usually produce different timetables.
         We test 5 seed pairs — if all 5 match, something is wrong."""
         all_same = all(
-            self._make(i).run() == self._make(i + 100).run() for i in range(5))
+            self._make(i).run() == self._make(i + 100).run() for i in range(5)
+        )
         self.assertFalse(all_same)
 
     def test_reset_with_seed_reproduces(self):
@@ -1276,10 +1281,9 @@ class TestInvariants(unittest.TestCase):
             (5, 5, 5, 5),
             (3, 8, 7, 4),
         ]:
-            s = GenerateTimeTable(classes=classes,
-                                  courses=courses,
-                                  slots=slots,
-                                  days=days)
+            s = GenerateTimeTable(
+                classes=classes, courses=courses, slots=slots, days=days
+            )
             s.initialize_genotype(courses, classes, slots, days, 1, 1)
             s.generate_table_skeleton()
             expected = s.course_bits + s.slot_bits + s.class_bits
@@ -1309,9 +1313,9 @@ class TestInvariants(unittest.TestCase):
         for _ in range(20):
             a, b = s.generate_gene(), s.generate_gene()
             for fn in [
-                    s.single_point_crossover,
-                    lambda x, y: s.multi_point_crossover(x, y, 2),
-                    s.uniform_crossover,
+                s.single_point_crossover,
+                lambda x, y: s.multi_point_crossover(x, y, 2),
+                s.uniform_crossover,
             ]:
                 children = fn(a, b)
                 for child in children:
@@ -1463,9 +1467,7 @@ if __name__ == "__main__":
     print(f"\n{'='*60}")
     print(f"  🧪  {passed}/{total} tests passed", end="")
     if result.failures or result.errors:
-        print(
-            f"  ❌  {len(result.failures)} failures, {len(result.errors)} errors"
-        )
+        print(f"  ❌  {len(result.failures)} failures, {len(result.errors)} errors")
     else:
         print("  ✅")
     print(f"{'='*60}")

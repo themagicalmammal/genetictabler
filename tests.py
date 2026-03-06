@@ -17,11 +17,9 @@
 import csv
 import json
 import os
-import random
 import sys
 import tempfile
 import unittest
-from typing import List
 
 from genetictabler import GenerateTimeTable, TimetableConfig
 

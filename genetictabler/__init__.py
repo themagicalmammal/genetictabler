@@ -24,33 +24,15 @@ ENCODING:
 
 """
 
-import copy
 import csv
 import json
-import math
-import os
 import random
 
 # ─── Standard Library ────────────────────────────────────────────────────────
 import time
 from collections import Counter, defaultdict
-from dataclasses import dataclass, field
-from functools import lru_cache
+from dataclasses import dataclass
 from typing import Dict, List, Optional, Tuple, Union
-
-# ─── Optional Rich terminal output (falls back to plain print gracefully) ────
-try:
-    from rich.console import Console
-    from rich.panel import Panel
-    from rich.progress import BarColumn, Progress, SpinnerColumn, TextColumn
-    from rich.table import Table
-    from rich.text import Text
-
-    _RICH = True
-    console = Console()
-except ImportError:
-    _RICH = False
-    console = None  # plain print fallback
 
 # ══════════════════════════════════════════════════════════════════════════════
 #  DATA CLASSES — typed containers used throughout the engine
@@ -1495,7 +1477,7 @@ def benchmark(
         times = []
         violations = []
 
-        for run in range(runs_per_config):
+        for _ in range(runs_per_config):
             scheduler = GenerateTimeTable(**cfg)
             t0 = time.perf_counter()
             scheduler.run()
@@ -1539,7 +1521,7 @@ def example_minimal():
     print("=" * 60)
 
     scheduler = GenerateTimeTable()
-    timetable = scheduler.run()
+    scheduler.run()
 
     # Print just the first class
     scheduler.pretty_print(class_idx=0)
@@ -1669,7 +1651,7 @@ def example_config_dataclass():
         class_names=["Alpha", "Beta", "Gamma", "Delta"],
     )
 
-    timetable = scheduler.run()
+    scheduler.run()
     scheduler.pretty_print()
     v = scheduler.validate()
     print(f"Total violations: {v['total_violations']}\n")
@@ -1761,10 +1743,9 @@ def example_analytics_deep_dive():
 # ══════════════════════════════════════════════════════════════════════════════
 
 if __name__ == "__main__":
-    """
-    Run all six examples in sequence.
+    """Run all six examples in sequence.
 
-    Each example is isolated and self-contained.  Adjust the list below
+    Each example is isolated and self-contained. Adjust the list below
     to run only the ones you care about.
     """
     examples = [

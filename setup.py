@@ -30,8 +30,10 @@ setup(
     install_requires=[],
     project_urls={
         "Source code": "https://github.com/themagicalmammal/genetictabler",
-        "Documentation": "https://github.com/themagicalmammal/genetictabler/blob/main/README.md",
-        "Bug tracker": "https://github.com/themagicalmammal/genetictabler/issues",
+        "Documentation":
+        "https://github.com/themagicalmammal/genetictabler/blob/main/README.md",
+        "Bug tracker":
+        "https://github.com/themagicalmammal/genetictabler/issues",
     },
     keywords=[
         "python",

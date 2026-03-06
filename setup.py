@@ -1,3 +1,5 @@
+"""A setup script for the genetictabler package."""
+
 import codecs
 import os
 
@@ -8,7 +10,7 @@ here = os.path.abspath(os.path.dirname(__file__))
 with codecs.open(os.path.join(here, "README.md"), encoding="utf-8") as fh:
     LONG_DESCRIPTION = "\n" + fh.read()
 
-VERSION = "2.0.3"
+VERSION = "3.0.0"
 DESCRIPTION = "A time table scheduler using Genetic algorithm(s)."
 
 # Setting up
@@ -28,10 +30,8 @@ setup(
     install_requires=[],
     project_urls={
         "Source code": "https://github.com/themagicalmammal/genetictabler",
-        "Documentation":
-        "https://github.com/themagicalmammal/genetictabler/blob/main/README.md",
-        "Bug tracker":
-        "https://github.com/themagicalmammal/genetictabler/issues",
+        "Documentation": "https://github.com/themagicalmammal/genetictabler/blob/main/README.md",
+        "Bug tracker": "https://github.com/themagicalmammal/genetictabler/issues",
     },
     keywords=[
         "python",

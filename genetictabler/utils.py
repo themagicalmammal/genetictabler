@@ -3,6 +3,10 @@
 from __future__ import annotations
 
 import random
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from genetictabler.config import TeacherConfig
 
 
 def calc_course_quota(total_slots: int, course_count: int) -> list[int]:
@@ -72,3 +76,26 @@ def build_teacher_quota(
             f"teachers must be an int OR a list of length {course_count}. "
             f"Got: {teachers!r}"
         )
+
+
+def build_teacher_assignments(
+    teachers_config: list[TeacherConfig], course_count: int
+) -> dict[int, int]:
+    """Map each course to its first available teacher.
+
+    Each course is assigned to the first ``TeacherConfig`` whose ``courses``
+    list contains that course (1-based index).  Later teachers sharing the
+    same course are ignored — greedy first-wins assignment.
+
+    Returns:
+        ``{course_id: teacher_id, ...}`` mapping 1-based course indices to
+        1-based teacher IDs (``teacher_id = index + 1``).
+    """
+    assignment: dict[int, int] = {}
+    for t_idx, tc in enumerate(teachers_config):
+        for c in tc.courses:
+            if c < 1 or c > course_count:
+                continue
+            if c not in assignment:
+                assignment[c] = t_idx + 1  # 1-based teacher ID
+    return assignment

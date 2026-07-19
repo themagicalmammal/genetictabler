@@ -6,7 +6,7 @@
 | | |
 |---|---|
 | **Package** | [![PyPI version](https://img.shields.io/pypi/v/genetictabler.svg)](https://pypi.org/project/genetictabler/) `@genetictabler/core` [![npm version](https://img.shields.io/npm/v/@genetictabler/core.svg)](https://www.npmjs.com/package/@genetictabler/core) |
-| **Quality** | [![Tests](https://img.shields.io/badge/tests-123-pass-green.svg)](#testing) [![Type safety](https://img.shields.io/badge/types-mypy%20strict-blue.svg)](https://mypy.readthedocs.io/) [![Lint](https://img.shields.io/badge/lint-ruff-lightgray.svg)](https://docs.astral.sh/ruff/) |
+| **Quality** | [![Tests & Lint](https://github.com/themagicalmammal/genetictabler/actions/workflows/tests.yml/badge.svg)](https://github.com/themagicalmammal/genetictabler/actions/workflows/tests.yml) [![Type safety](https://img.shields.io/badge/types-mypy%20strict-blue.svg)](https://mypy.readthedocs.io/) [![Lint](https://img.shields.io/badge/lint-ruff-lightgray.svg)](https://docs.astral.sh/ruff/) |
 | **Compatibility** | Python ≥ 3.12 · TypeScript 5+ · React ≥ 18 |
 | **License** | [![BSD-3-Clause](https://img.shields.io/badge/license-BSD--3--Clause-blue.svg)](LICENSE) |
 
@@ -14,30 +14,39 @@
 
 ## Table of Contents
 
-- [Quick start](#quick-start)
-  - [Python](#python)
-  - [TypeScript](#typescript)
-  - [Streamlit GUI](#streamlit-gui)
-- [Algorithm overview](#algorithm-overview)
-- [Configuration reference](#configuration-reference)
-- [Constraint system](#constraint-system)
-- [Python API reference](#python-api-reference)
-  - [GenerateTimeTable](#generatetimetable)
-    - [Core methods](#core-methods)
-    - [Query helpers](#query-helpers)
-    - [Export methods](#export-methods)
-    - [Alternative constructor](#alternative-constructor)
-  - [TimetableConfig](#timetableconfig)
-- [TypeScript API reference](#typescript-api-reference)
-  - [TimetableEngine](#timetableengine)
-  - [GeneEncoder](#geneencoder)
-  - [FitnessEvaluator](#fitnessevaluator)
-  - [GeneticOperators](#geneticoperators)
-  - [React component](#react-component)
-- [Project structure](#project-structure)
-- [Testing](#testing)
-- [Contributing](#contributing)
-- [License](#license)
+- [🧬 genetictabler](#-genetictabler)
+  - [Table of Contents](#table-of-contents)
+  - [Quick start](#quick-start)
+    - [Python](#python)
+    - [TypeScript](#typescript)
+    - [Streamlit GUI](#streamlit-gui)
+  - [Algorithm overview](#algorithm-overview)
+  - [Configuration reference](#configuration-reference)
+    - [Teacher system](#teacher-system)
+      - [Simple mode (deprecated)](#simple-mode-deprecated)
+      - [Explicit mode (recommended)](#explicit-mode-recommended)
+      - [Real-world example](#real-world-example)
+  - [Constraint system](#constraint-system)
+  - [Python API reference](#python-api-reference)
+    - [GenerateTimeTable](#generatetimetable)
+      - [Core methods](#core-methods)
+      - [Query helpers](#query-helpers)
+      - [Export methods](#export-methods)
+      - [Alternative constructor](#alternative-constructor)
+    - [TeacherConfig](#teacherconfig)
+    - [TimetableConfig](#timetableconfig)
+  - [TypeScript API reference](#typescript-api-reference)
+    - [TimetableEngine](#timetableengine)
+    - [GeneEncoder](#geneencoder)
+    - [FitnessEvaluator](#fitnessevaluator)
+    - [GeneticOperators](#geneticoperators)
+    - [React component](#react-component)
+  - [Project structure](#project-structure)
+  - [Testing](#testing)
+    - [Python](#python-1)
+  - [Contributing](#contributing)
+  - [Contributors](#contributors)
+  - [License](#license)
 
 ---
 
@@ -132,7 +141,8 @@ All parameters below are accepted by both Python's `GenerateTimeTable` construct
 | `slots` | `int` | `6` | Time-slots (periods) per day |
 | `days` | `int` | `5` | School days per week |
 | `repeat` | `int \| List[int]` | `2` | Max times a course per day. Scalar or per-course list. |
-| `teachers` | `int \| List[int]` | `1` | Teachers covering a course simultaneously (caps cross-class sharing) |
+| `teachers` | `int \| List[int]` | `1` | **Deprecated** — use `teachers_config` instead. |
+| `teachers_config` | `List[TeacherConfig]` | `[]` | Per-teacher definitions with course assignments and quotas. |
 | `population_size` | `int` | `60` | GA population size per generation |
 | `max_fitness` | `float` | `100.0` | Early-stop threshold — a gene reaching this is committed immediately |
 | `max_generations` | `int` | `80` | Hard cap on GA iterations per cell |
@@ -143,6 +153,111 @@ All parameters below are accepted by both Python's `GenerateTimeTable` construct
 | `course_names` | `List[str]` | auto | Human-readable course labels |
 | `class_names` | `List[str]` | auto | Human-readable class labels |
 | `day_names` | `List[str]` | auto | Human-readable day labels |
+
+---
+
+### Teacher system
+
+The teacher system lets you model **individual teachers** who are assigned to specific courses,
+with per-course and total weekly quotas. This prevents:
+
+1. **Teacher double-booking** — the same teacher teaching two different courses at the same time
+2. **Quota exhaustion** — a teacher being assigned more classes than they can handle
+
+Use the simple `teachers` parameter for quick prototypes, or `teachers_config` for realistic
+scheduling where specific teachers are attached to specific courses.
+
+#### Simple mode (deprecated)
+
+```python
+scheduler = GenerateTimeTable(
+    classes=4,
+    courses=4,
+    slots=6,
+    days=5,
+    teachers=2,  # 2 teachers can teach course 1 at the same time
+)
+```
+
+This only controls how many classes can share a course in the same slot.
+It does **not** track which teacher teaches what.
+
+#### Explicit mode (recommended)
+
+Define each teacher with the courses they teach and their weekly quotas:
+
+```python
+from genetictabler import GenerateTimeTable, TeacherConfig
+
+teachers = [
+    TeacherConfig(
+        name="Ms. Smith",
+        courses=[1, 4],           # Teaches Maths (1) and Art (4)
+        course_quota={4: 2},      # Max 2 classes/week of Art
+        total_quota=12,           # Max 12 classes/week total
+    ),
+    TeacherConfig(
+        name="Mr. Jones",
+        courses=[4],              # Teaches Art (4)
+        course_quota={4: 3},      # Max 3 classes/week of Art
+        total_quota=0,            # No total cap
+    ),
+]
+
+scheduler = GenerateTimeTable(
+    classes=4,
+    courses=6,
+    slots=6,
+    days=5,
+    teachers_config=teachers,
+)
+```
+
+How it works:
+
+1. **Course → teacher mapping**: Each course is assigned to the **first** teacher in the list who teaches it. If two teachers both list course 4, the first one gets it.
+
+2. **Double-booking check**: If the teacher for course 4 is already teaching another course in the same (day, slot), genes proposing that assignment are scored ×0.01.
+
+3. **Per-course quota**: If "Ms. Smith" already teaches 2 classes of Art this week, her quota for Art is full — genes assigning her more Art are penalised.
+
+4. **Total weekly cap**: If "Ms. Smith" reaches 12 total classes across all her subjects, any additional assignment is blocked.
+
+#### Real-world example
+
+A school with 4 Art classes (Years 6–9), 2 Art teachers, and a rule that no Art class repeats in a day:
+
+```python
+from genetictabler import GenerateTimeTable, TeacherConfig, TimetableConfig
+
+art_teachers = [
+    TeacherConfig(
+        name="Ms. Smith",
+        courses=[4],            # Art is course 4
+        course_quota={4: 2},    # Each teacher handles max 2 Art classes
+        total_quota=10,         # Reasonable teaching load
+    ),
+    TeacherConfig(
+        name="Mr. Jones",
+        courses=[4],            # Art is course 4
+        course_quota={4: 2},
+        total_quota=10,
+    ),
+]
+
+cfg = TimetableConfig(
+    classes=4,           # Year 6A, 6B, 7A, 7B
+    courses=6,           # Maths, English, Science, History, PE, Art
+    slots=6,
+    days=5,
+    repeat=[2, 2, 2, 2, 2, 1],  # Art only once per day
+    teachers_config=art_teachers,
+    seed=42,
+)
+
+scheduler = GenerateTimeTable.from_config(cfg)
+scheduler.run()
+```
 
 ---
 
@@ -159,6 +274,8 @@ The fitness function starts at **100** and applies multiplicative penalties for 
 | Same course in the same slot across another class (teacher clash) | ×0.60 | Soft |
 | Course is adjacent to itself in the same class/day | ×0.60 | Soft |
 | Daily repeat cap exceeded | ×0.50 | Soft |
+| Teacher double-booking (different course same slot) | ×0.01 | Hard |
+| Teacher weekly quota exceeded | ×0.01 | Hard |
 
 **Hard penalties** effectively zero out a gene's score (×0.01 = 1 %), making it extremely unlikely to be selected. **Soft penalties** stack gracefully — a gene with two soft violations scores 36 (0.6² × 100).
 
@@ -270,6 +387,28 @@ scheduler = GenerateTimeTable.from_config(
     course_names=["Maths", "English", "Science", "History", "PE"],
 )
 ```
+
+### TeacherConfig
+
+Defines a teacher with their course assignments and weekly quotas:
+
+```python
+from genetictabler import TeacherConfig
+
+tc = TeacherConfig(
+    name="Ms. Smith",
+    courses=[1, 4],           # Teaches Maths (1) and Art (4)
+    course_quota={4: 2},      # Max 2 Art classes per week
+    total_quota=12,           # Max 12 classes total per week (0 = unlimited)
+)
+```
+
+| Attribute | Type | Default | Description |
+|---|---|---|---|
+| `name` | `str` | required | Human-readable name (e.g. "Ms. Smith") |
+| `courses` | `List[int]` | required | 1-based course indices they teach |
+| `course_quota` | `Dict[int, int]` | `{}` | Per-course weekly limit: `{course_id: max_classes}` |
+| `total_quota` | `int` | `0` | Total classes per week across all subjects (`0` = unlimited) |
 
 ### TimetableConfig
 
@@ -395,8 +534,8 @@ Props:
 
 ```
 genetictabler/                     # Python package
-├── __init__.py                    # Re-exports: GenerateTimeTable, TimetableConfig, GenerationStats
-├── config.py                      # TimetableConfig dataclass
+├── __init__.py                    # Re-exports: GenerateTimeTable, TimetableConfig, TeacherConfig, GenerationStats
+├── config.py                      # TimetableConfig and TeacherConfig dataclasses
 ├── types.py                       # Type aliases, GenerationStats, ValidationResult, etc.
 ├── encoding.py                    # GeneEncoder — binary encode/decode
 ├── fitness.py                     # FitnessEvaluator — constraint scoring
@@ -469,6 +608,13 @@ Contributions are welcome! Please ensure:
 4. **Follow the existing code style** — Google docstrings, 100-char line length.
 
 TypeScript/React changes should be made in the sibling [`genetictabler-js`](https://github.com/themagicalmammal/genetictabler-js) repository.
+
+---
+
+## Contributors
+
+- **[Dipan Nanda](https://github.com/themagicalmammal)** — author, maintainer
+- **[Ashish Shah](https://github.com/capriciousBoson)** — major contributor
 
 ---
 

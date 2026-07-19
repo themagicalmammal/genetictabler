@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING
 from genetictabler.types import FitnessCache, Gene
 
 if TYPE_CHECKING:
+    from genetictabler.config import TeacherConfig
     from genetictabler.engine import EngineState
 
 
@@ -23,6 +24,12 @@ class FitnessEvaluator:
         self._cache = cache
         self.cache_hits = 0
         self.cache_misses = 0
+
+        # Teacher tracking (populated when teachers_config is provided)
+        self._course_teacher: dict[int, int] = state.course_teacher
+        self._teacher_weekly: dict[tuple[int, int], int] = state.teacher_weekly
+        self._teacher_total_weekly: dict[tuple[int], int] = state.teacher_total_weekly
+        self._teachers_config: list[TeacherConfig] = state.teachers_config
 
     def calculate(self, gene: Gene) -> float:
         """Score a gene from 0.0 (awful) to 100.0 (perfect).
@@ -36,6 +43,8 @@ class FitnessEvaluator:
         │ × 0.01  HARD — course ≥ 2 times today
         │ × 0.50  SOFT — daily repeat cap exceeded
         │ × 0.01  HARD — teacher capacity saturated
+        │ × 0.01  HARD — teacher double-booking (different course same slot)
+        │ × 0.01  HARD — teacher weekly quota exceeded
         """
         # ── Cache lookup ─────────────────────────────────────────────────────
         if gene in self._cache:
@@ -103,6 +112,42 @@ class FitnessEvaluator:
         )
         if simultaneous >= self._state.teacher_quota[course - 1]:
             fitness *= 0.01
+
+        # ── 8. HARD: teacher double-booking (teacher teaches different course) ─
+        if self._course_teacher:
+            teacher_id = self._course_teacher.get(course, 0)
+            if teacher_id > 0:
+                # Check if this teacher is already assigned to a DIFFERENT course
+                # in the same (day, slot) across all classes
+                for cls_idx in range(self._state.encoder.class_count):
+                    assigned = timetable[cls_idx][day_no - 1][slot_no - 1]
+                    if assigned > 0 and assigned != course:
+                        # Teacher teaches a different course here → clash
+                        # Verify the assigned course belongs to the same teacher
+                        other_teacher = self._course_teacher.get(assigned, 0)
+                        if other_teacher == teacher_id:
+                            fitness *= 0.01
+                            break
+
+        # ── 9. HARD: teacher weekly / total quota exceeded ──────────────────
+        if self._course_teacher:
+            teacher_id = self._course_teacher.get(course, 0)
+            if teacher_id > 0:
+                # Check per-course weekly quota
+                for tc in self._teachers_config:
+                    if course in tc.courses:
+                        quota = tc.course_quota.get(course, 0)
+                        if quota > 0:
+                            weekly_key = (teacher_id, course)
+                            if self._teacher_weekly.get(weekly_key, 0) >= quota:
+                                fitness *= 0.01
+                        # Check total weekly quota
+                        total_q = tc.total_quota
+                        if total_q > 0:
+                            total_key = (teacher_id,)
+                            if self._teacher_total_weekly.get(total_key, 0) >= total_q:
+                                fitness *= 0.01
+                        break
 
         self._cache[gene] = fitness
         return fitness

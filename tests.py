@@ -1295,7 +1295,7 @@ class TestInvariants(unittest.TestCase):
             snapshots.append((q_before, q_after))
 
         for before, after in snapshots:
-            for b, a in zip(before, after):
+            for b, a in zip(before, after, strict=True):
                 # Each quota can only decrease or stay the same
                 self.assertLessEqual(a, b)
 
@@ -1440,6 +1440,248 @@ class TestEdgeCases(unittest.TestCase):
         s = tiny()
         a = s.analytics()
         self.assertIn("genes_evaluated", a)
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+#  17. TEACHER CONFIG CONSTRAINTS
+# ══════════════════════════════════════════════════════════════════════════════
+
+
+class TestTeacherConfig(unittest.TestCase):
+    """Tests for the TeacherConfig dataclass and TimetableConfig.teachers_config."""
+
+    def test_teacher_config_creation(self):
+        """TeacherConfig can be created with name, courses, quotas."""
+        from genetictabler import TeacherConfig
+
+        tc = TeacherConfig(
+            name="Ms. Smith",
+            courses=[1, 4],
+            course_quota={1: 4, 4: 2},
+            total_quota=12,
+        )
+        self.assertEqual(tc.name, "Ms. Smith")
+        self.assertEqual(tc.courses, [1, 4])
+        self.assertEqual(tc.course_quota, {1: 4, 4: 2})
+        self.assertEqual(tc.total_quota, 12)
+
+    def test_teacher_config_defaults(self):
+        """TeacherConfig has sensible defaults."""
+        from genetictabler import TeacherConfig
+
+        tc = TeacherConfig(name="Mr. Jones", courses=[2])
+        self.assertEqual(tc.course_quota, {})
+        self.assertEqual(tc.total_quota, 0)
+
+    def test_timetable_config_accepts_teachers_config(self):
+        """TimetableConfig.teachers_config accepts a list of TeacherConfig."""
+        from genetictabler import TeacherConfig
+
+        tc = TeacherConfig(name="Ms. A", courses=[1, 3])
+        cfg = TimetableConfig(
+            classes=3,
+            courses=5,
+            slots=6,
+            days=5,
+            teachers_config=[tc],
+        )
+        self.assertEqual(len(cfg.teachers_config), 1)
+        self.assertEqual(cfg.teachers_config[0].name, "Ms. A")
+
+    def test_teachers_config_empty_by_default(self):
+        """TimetableConfig.teachers_config defaults to empty list."""
+        cfg = TimetableConfig(classes=2, courses=3, slots=4, days=5)
+        self.assertEqual(cfg.teachers_config, [])
+
+
+class TestTeacherAssignments(unittest.TestCase):
+    """Tests for build_teacher_assignments utility."""
+
+    def test_build_teacher_assignments_basic(self):
+        """First teacher gets each course they teach."""
+        from genetictabler import TeacherConfig
+        from genetictabler.utils import build_teacher_assignments
+
+        t1 = TeacherConfig(name="Ms. A", courses=[1, 2])
+        t2 = TeacherConfig(name="Mr. B", courses=[2, 3])
+        result = build_teacher_assignments([t1, t2], course_count=3)
+        self.assertEqual(result[1], 1)  # Ms. A gets course 1
+        self.assertEqual(result[2], 1)  # Ms. A gets course 2 (first)
+        self.assertEqual(result[3], 2)  # Mr. B gets course 3
+
+    def test_build_teacher_assignments_no_overlap(self):
+        """When no teacher teaches a course, it's not in the mapping."""
+        from genetictabler import TeacherConfig
+        from genetictabler.utils import build_teacher_assignments
+
+        t1 = TeacherConfig(name="Ms. A", courses=[1])
+        result = build_teacher_assignments([t1], course_count=3)
+        self.assertNotIn(2, result)
+        self.assertNotIn(3, result)
+
+    def test_build_teacher_assignments_out_of_range(self):
+        """Courses outside [1, course_count] are skipped."""
+        from genetictabler import TeacherConfig
+        from genetictabler.utils import build_teacher_assignments
+
+        t1 = TeacherConfig(name="Ms. A", courses=[0, 1, 5])
+        result = build_teacher_assignments([t1], course_count=3)
+        self.assertEqual(result[1], 1)
+        self.assertNotIn(0, result)
+        self.assertNotIn(5, result)
+
+
+class TestTeacherFitness(unittest.TestCase):
+    """Tests for teacher-related fitness checks."""
+
+    def test_fitness_without_teachers_unchanged(self):
+        """Fitness without teachers_config matches baseline."""
+        s = tiny()
+        gene = s.generate_gene()
+        # Without teachers_config, teacher tracking dicts are empty
+        self.assertEqual(s._state.course_teacher, {})
+        f = s.calculate_fitness(gene)
+        self.assertGreaterEqual(f, 0.0)
+        self.assertLessEqual(f, 100.0)
+
+    def test_teachers_config_populates_tracking(self):
+        """When teachers_config is set, course_teacher mapping is populated."""
+        from genetictabler import TeacherConfig
+
+        s = GenerateTimeTable(
+            classes=2,
+            courses=3,
+            slots=3,
+            days=3,
+            repeat=1,
+            teachers=1,
+            teachers_config=[
+                TeacherConfig(name="Ms. A", courses=[1, 2]),
+            ],
+            population_size=10,
+            max_generations=10,
+            seed=5,
+        )
+        s.initialize_genotype(s.courses, s.classes, s.slots, s.days, s.repeat,
+                              s.teachers)
+        s.generate_table_skeleton()
+        self.assertEqual(s._state.course_teacher[1], 1)
+        self.assertEqual(s._state.course_teacher[2], 1)
+
+    def test_teachers_config_multi_teacher(self):
+        """Multiple teachers: overlapping courses go to first teacher."""
+        from genetictabler import TeacherConfig
+
+        s = GenerateTimeTable(
+            classes=2,
+            courses=3,
+            slots=3,
+            days=3,
+            repeat=1,
+            teachers=1,
+            teachers_config=[
+                TeacherConfig(name="Ms. A", courses=[1, 2]),
+                TeacherConfig(name="Mr. B", courses=[2, 3]),
+            ],
+            population_size=10,
+            max_generations=10,
+            seed=5,
+        )
+        s.initialize_genotype(s.courses, s.classes, s.slots, s.days, s.repeat,
+                              s.teachers)
+        s.generate_table_skeleton()
+        self.assertEqual(s._state.course_teacher[1], 1)
+        self.assertEqual(s._state.course_teacher[2], 1)  # Ms. A (first)
+        self.assertEqual(s._state.course_teacher[3], 2)  # Mr. B
+
+
+class TestFullRunWithTeachers(unittest.TestCase):
+    """Integration tests for full run with teachers_config."""
+
+    def test_full_run_with_teachers_config(self):
+        """run() works when teachers_config is provided."""
+        from genetictabler import TeacherConfig
+
+        t1 = TeacherConfig(name="Ms. Smith", courses=[1, 4])
+        t2 = TeacherConfig(name="Mr. Jones", courses=[4, 5])
+        s = GenerateTimeTable(
+            classes=3,
+            courses=5,
+            slots=4,
+            days=3,
+            repeat=2,
+            teachers=1,
+            teachers_config=[t1, t2],
+            population_size=15,
+            max_generations=20,
+            seed=10,
+        )
+        result = s.run()
+        self.assertEqual(len(result), 3)
+        for cls in result:
+            for day in cls:
+                for cell in day:
+                    self.assertTrue(cell == 0 or (1 <= cell <= 5))
+
+    def test_run_with_teachers_and_quotas(self):
+        """run() with per-course and total quotas."""
+        from genetictabler import TeacherConfig
+
+        t1 = TeacherConfig(
+            name="Art Teacher",
+            courses=[1],
+            course_quota={1: 2},  # max 2 classes/week of Art
+            total_quota=4,
+        )
+        s = GenerateTimeTable(
+            classes=4,
+            courses=3,
+            slots=4,
+            days=3,
+            repeat=1,
+            teachers=1,
+            teachers_config=[t1],
+            population_size=20,
+            max_generations=25,
+            seed=15,
+            course_names=["Art", "Maths", "English"],
+        )
+        result = s.run()
+        self.assertEqual(len(result), 4)
+
+    def test_teachers_config_from_config_constructor(self):
+        """from_config() preserves teachers_config."""
+        from genetictabler import TeacherConfig
+
+        tc = TeacherConfig(name="Ms. A", courses=[1, 2])
+        cfg = TimetableConfig(
+            classes=2,
+            courses=3,
+            slots=3,
+            days=3,
+            teachers_config=[tc],
+        )
+        s = GenerateTimeTable.from_config(cfg)
+        self.assertEqual(len(s.teachers_config), 1)
+        self.assertEqual(s.teachers_config[0].name, "Ms. A")
+
+    def test_backward_compat_teachers_param(self):
+        """Old teachers=N parameter still works without teachers_config."""
+        s = GenerateTimeTable(
+            classes=2,
+            courses=3,
+            slots=3,
+            days=3,
+            repeat=1,
+            teachers=2,
+            population_size=15,
+            max_generations=20,
+            seed=20,
+        )
+        result = s.run()
+        self.assertEqual(len(result), 2)
+        self.assertEqual(s.teachers_config, [])
+
 
 
 # ══════════════════════════════════════════════════════════════════════════════

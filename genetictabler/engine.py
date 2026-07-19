@@ -16,7 +16,7 @@ import random
 import time
 from typing import TYPE_CHECKING
 
-from genetictabler.config import TimetableConfig
+from genetictabler.config import TeacherConfig, TimetableConfig
 from genetictabler.encoding import GeneEncoder
 from genetictabler.fitness import FitnessEvaluator
 from genetictabler.genetic import GeneticOperators
@@ -29,6 +29,7 @@ from genetictabler.types import (
 )
 from genetictabler.utils import (
     build_repeat_quota,
+    build_teacher_assignments,
     build_teacher_quota,
     calc_course_quota,
     make_table_skeleton,
@@ -48,6 +49,13 @@ class EngineState:
         self.teacher_quota: list[int] = []
         self.repeat_quota: list[list[int]] = []
         self.total_genes_eval: int = 0
+
+        # Teacher tracking (populated when teachers_config is provided)
+        self.course_teacher: dict[int, int] = {}
+        self.teacher_weekly: dict[tuple[int, int], int] = {}
+        self.teacher_slot_busy: dict[tuple[int, int, int], int] = {}
+        self.teacher_total_weekly: dict[tuple[int], int] = {}
+        self.teachers_config: list[TeacherConfig] = []
 
 
 class GenerateTimeTable:
@@ -70,6 +78,7 @@ class GenerateTimeTable:
         days: int = 5,
         repeat: int | list[int] = 2,
         teachers: int | list[int] = 1,
+        teachers_config: list[TeacherConfig] | None = None,
         population_size: int = 60,
         max_fitness: float = 100.0,
         max_generations: int = 80,
@@ -92,6 +101,7 @@ class GenerateTimeTable:
         self.days = days
         self.repeat = repeat
         self.teachers = teachers
+        self.teachers_config: list[TeacherConfig] = teachers_config or []
         self.population_size = population_size
         self.max_fitness = max_fitness
         self.max_generations = max_generations
@@ -118,6 +128,7 @@ class GenerateTimeTable:
             days=days,
             repeat=repeat,
             teachers=teachers,
+            teachers_config=list(self.teachers_config),
             population_size=population_size,
             max_fitness=max_fitness,
             max_generations=max_generations,
@@ -156,6 +167,7 @@ class GenerateTimeTable:
             days=config.days,
             repeat=config.repeat,
             teachers=config.teachers,
+            teachers_config=list(config.teachers_config) if config.teachers_config else None,
             population_size=config.population_size,
             max_fitness=config.max_fitness,
             max_generations=config.max_generations,
@@ -187,6 +199,16 @@ class GenerateTimeTable:
         state.course_quota = course_quota
         state.teacher_quota = teacher_quota
         state.repeat_quota = repeat_quota
+
+        # Teacher tracking (when teachers_config is provided)
+        if config.teachers_config:
+            state.course_teacher = build_teacher_assignments(
+                config.teachers_config, config.courses
+            )
+            state.teacher_weekly = {}
+            state.teacher_slot_busy = {}
+            state.teacher_total_weekly = {}
+            state.teachers_config = config.teachers_config
 
         self._cache = {}
         self._encoder = encoder
@@ -476,6 +498,16 @@ class GenerateTimeTable:
         state.course_quota = course_quota
         state.teacher_quota = teacher_quota
         state.repeat_quota = repeat_quota
+
+        # Teacher tracking (when teachers_config is provided)
+        if config.teachers_config:
+            state.course_teacher = build_teacher_assignments(
+                config.teachers_config, courses
+            )
+            state.teacher_weekly = {}
+            state.teacher_slot_busy = {}
+            state.teacher_total_weekly = {}
+            state.teachers_config = config.teachers_config
 
         self._cache = {}
         self._encoder = encoder
@@ -846,6 +878,16 @@ class GenerateTimeTable:
 
         state.tables[class_no - 1][day_no - 1][slot_no - 1] = course
         state.course_quota[class_no - 1][course - 1] -= 1
+
+        # Track teacher assignment
+        teacher_id = state.course_teacher.get(course, 0)
+        if teacher_id > 0:
+            state.teacher_weekly[(teacher_id, course)] = \
+                state.teacher_weekly.get((teacher_id, course), 0) + 1
+            state.teacher_slot_busy[(teacher_id, day_no, slot_no)] = 1
+            state.teacher_total_weekly[(teacher_id,)] = \
+                state.teacher_total_weekly.get((teacher_id,), 0) + 1
+
         self._evaluator.invalidate()  # type: ignore[union-attr]
         self._slots_filled += 1
 

@@ -1,0 +1,28 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# Explicitly declare text files we want to normalize
+*.py text
+*.md text
+*.yml text
+*.yaml text
+*.json text
+*.html text
+*.css text
+*.sh text
+*.cfg text
+*.toml text
+*.txt text
+*.rst text
+*.bat text
+
+# Binary files that should not be normalized
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.svg text
+*.ttf binary
+*.woff binary
+*.woff2 binary

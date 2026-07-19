@@ -341,7 +341,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 st.markdown(
-    '<p class="hero-sub">Generate conflict-free timetables for schools and universities using a genetic algorithm.</p>',
+    '<p class="hero-sub">Generate conflict-free timetables for universities and colleges using a genetic algorithm.</p>',
     unsafe_allow_html=True,
 )
 st.caption(
@@ -363,9 +363,9 @@ if st.session_state._show_info:
                         <p>
                             <strong>Genetictabler</strong> is a timetable generation engine that uses a
                             <strong>genetic algorithm</strong> to automatically produce conflict-free
-                            schedules for schools and universities.  It intelligently allocates courses
-                            to time-slots while respecting real-world constraints — no teacher
-                            double-booking, no student timetable collisions, no back-to-back overload.
+                            schedules for universities and colleges.  It intelligently allocates
+                            lectures to time-slots while respecting real-world constraints — no lecturer
+                            double-booking, no student timetable collisions, and lecturer workload limits.
                         </p>
                         <p style="margin-bottom:0;">
                             You can use it to plan <strong>class schedules</strong>,
@@ -384,7 +384,7 @@ if st.session_state._show_info:
                     <div class="feature-card">
                         <span class="icon">\U0001f512</span>
                         <span class="label">Constraint Enforcement</span>
-                        <span class="desc">No teacher clashes, no course overlap</span>
+                        <span class="desc">No lecturer clashes, no timetable overlaps, workload caps</span>
                     </div>
                     <div class="feature-card">
                         <span class="icon">\U0001f9ec</span>
@@ -420,10 +420,10 @@ with st.sidebar:
     st.header("\U0001f9e0 Configuration")
 
     st.subheader("\U0001f4cb General")
-    num_classes = st.slider("Classes", 1, 20, 4)
-    num_courses = st.slider("Courses", 1, 15, 6)
-    slots_per_day = st.slider("Slots per Day", 1, 10, 6)
-    num_days = st.slider("Days", 1, 7, 5)
+    num_classes = st.slider("Number of sections", 1, 30, 8)
+    num_courses = st.slider("Number of courses", 1, 20, 8)
+    slots_per_day = st.slider("Slots per day", 1, 10, 6)
+    num_days = st.slider("Days per week", 1, 7, 5)
 
     st.subheader("\U0001f9ec GA Parameters")
     population_size = st.slider("Population Size", 10, 200, 60)
@@ -438,11 +438,18 @@ with st.sidebar:
     st.subheader("\U0001f3f7️ Names")
     course_names_input = st.text_area(
         "Course names",
-        value="Maths,English,Science,History,PE,Art",
+        value=(
+            "Machine Learning,Digital Design,Data Structures,"
+            "Linear Algebra,Organic Chemistry,World History,"
+            "English Literature,Computer Networks"
+        ),
     )
     class_names_input = st.text_area(
         "Class names",
-        value="Year 7A,Year 7B,Year 8A,Year 8B",
+        value=(
+            "CS 101,CS 102,CS 201,CS 202,CS 301,CS 302,"
+            "Math 101,Physics 101"
+        ),
     )
     day_names_input = st.text_input(
         "Day names",
@@ -464,8 +471,14 @@ with st.sidebar:
 
     st.subheader("\U0001f468‍\U0001f3eb Teachers")
     st.caption(
-        "Define individual teachers with course assignments and weekly quotas. "
-        "Leave empty to use the simple 'Teachers' setting above."
+        "Define individual lecturers with the courses they teach and weekly workload limits. "
+        "Leave empty to use the simple 'Teachers (simultaneous)' setting above."
+    )
+    st.caption(
+        "\U0001f4a1 **Example:** Add \"Dr. Smith\", check **Machine Learning**, "
+        "set per-course quota to 3 → she handles at most 3 ML sections per week. "
+        "Set total weekly cap to 10 → she teaches at most 10 classes total across "
+        "all her courses. This prevents overloading lecturers."
     )
     _teacher_list: list[dict] = st.session_state._teachers  # type: ignore[assignment]
 
@@ -487,7 +500,11 @@ with st.sidebar:
 
             if name:
                 # Course checkboxes
-                st.markdown("**Teaches:**", key=f"_tcourses_{idx}")
+                st.markdown(
+                    "**Teaches:** "
+                        + "<sub style='color:#64748b;margin-left:4px;'>Select the courses this lecturer delivers</sub>",
+                    key=f"_tcourses_{idx}",
+                )
                 selected = t.get("courses", [])
                 cols_c = st.columns(min(len(course_names), 3))
                 for ci, cn in enumerate(course_names):
@@ -504,7 +521,14 @@ with st.sidebar:
 
                 # Per-course quotas
                 quotas = t.get("course_quota", {})
-                st.markdown("**Per-course weekly quota:**", key=f"_tq_{idx}")
+                st.markdown(
+                    "**Per-course weekly quota:** "
+                    + "<sub style='color:#64748b;margin-left:8px;'>"
+                    + "Max classes of this course the teacher handles per week "
+                    + "(0 = no limit)"
+                    + "</sub>",
+                    key=f"_tq_{idx}",
+                )
                 for cn in selected:
                     cn_idx = course_names.index(cn) + 1  # 1-based course ID
                     q_key = f"_tqval_{idx}_{cn_idx}"
@@ -519,8 +543,16 @@ with st.sidebar:
 
                 # Total weekly cap
                 total_q_key = f"_ttotal_{idx}"
+                st.markdown(
+                    "**Total weekly cap:** "
+                    + "<sub style='color:#64748b;margin-left:8px;'>"
+                    + "Max total classes the teacher handles across ALL courses per week "
+                    + "(0 = no limit)"
+                    + "</sub>",
+                    key=f"_ttotallabel_{idx}",
+                )
                 total_q = st.number_input(
-                    "Total weekly cap:",
+                    "  cap:",
                     min_value=0, max_value=50,
                     value=t.get("total_quota", 0),
                     key=total_q_key,
@@ -805,7 +837,7 @@ else:
 
 st.divider()
 st.caption(
-    "Genetictabler v3.0  •  Genetic Algorithm Timetable Generator  •  "
+    "Genetictabler v3.0  •  University & College Timetable Generator  •  "
     "Python stdlib only  •  "
     '[GitHub](https://github.com/themagicalmammal/genetictabler)'
 )

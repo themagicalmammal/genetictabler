@@ -1,6 +1,6 @@
 # 🧬 genetictabler
 
-> Generate conflict-free school and university timetables using genetic algorithms.
+> Generate conflict-free university and college timetables using genetic algorithms.
 > Available as a **Python library** (`genetictabler`), a **TypeScript/React npm package** (sibling repo [`genetictabler-js`](https://github.com/themagicalmammal/genetictabler-js)), and a **Streamlit GUI**.
 
 |                   |                                                                                                                                                                                                                                                                                                                                                                                                   |
@@ -67,8 +67,11 @@ scheduler = GenerateTimeTable(
     slots=6,
     days=5,
     seed=42,
-    course_names=["Maths", "English", "Science", "History", "PE", "Art"],
-    class_names=["Year 7A", "Year 7B", "Year 8A", "Year 8B"],
+    course_names=["Machine Learning", "Digital Design", "Data Structures",
+                  "Linear Algebra", "Organic Chemistry", "World History",
+                  "English Literature", "Computer Networks"],
+    class_names=["CS 101", "CS 102", "CS 201", "CS 202",
+                 "Math 101", "Physics 101"],
 )
 scheduler.run()
 scheduler.pretty_print()
@@ -90,8 +93,11 @@ const engine = new TimetableEngine({
   slots: 6,
   days: 5,
   seed: 42,
-  courseNames: ["Maths", "English", "Science", "History", "PE", "Art"],
-  classNames: ["Year 7A", "Year 7B", "Year 8A", "Year 8B"],
+  courseNames: ["Machine Learning", "Digital Design", "Data Structures",
+                "Linear Algebra", "Organic Chemistry", "World History",
+                "English Literature", "Computer Networks"],
+  classNames: ["CS 101", "CS 102", "CS 201", "CS 202",
+               "Math 101", "Physics 101"],
 });
 
 const timetable = engine.run();

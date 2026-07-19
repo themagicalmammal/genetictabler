@@ -7,6 +7,7 @@ Run with:  streamlit run genetictabler_gui.py
 
 from __future__ import annotations
 
+import json
 import tempfile
 import time
 from contextlib import suppress
@@ -384,8 +385,6 @@ st.caption(
     "Configure parameters in the sidebar and click **Run Scheduler** to get started."
 )
 
-st.divider()
-
 # ── Info / Feature Banner ────────────────────────────────────────────────────
 
 if st.session_state._show_info:
@@ -460,8 +459,6 @@ else:
             key="_show_info_btn",
             on_click=lambda: setattr(st.session_state, "_show_info", True),
         )
-
-st.divider()
 
 # ── Sidebar: Configuration ───────────────────────────────────────────────────
 
@@ -617,74 +614,45 @@ with st.sidebar:
                     st.rerun()
 
             if name:
-                # Item checkboxes
-                st.markdown(
-                    f"**{_teacher_label or 'Lecturer'}s this item:** "
-                    + "<sub style='color:#64748b;margin-left:4px;'>Select entities that handle this item</sub>",
-                    key=f"_tcourses_{idx}",
-                )
+                # Item selection — multiselect is 1 widget vs N checkboxes
                 selected = t.get("courses", [])
-                cols_c = st.columns(min(len(course_names), 3))
-                for ci, cn in enumerate(course_names):
-                    cidx = ci % len(cols_c)
-                    checked = st.checkbox(
-                        cn,
-                        value=cn in selected,
-                        key=f"_tchk_{idx}_{ci}",
-                    )
-                    if checked and cn not in selected:
-                        selected.append(cn)
-                    elif not checked and cn in selected:
-                        selected.remove(cn)
-
-                # Per-course quotas
-                quotas = t.get("course_quota", {})
-                st.markdown(
-                    "**Per-course weekly quota:** "
-                    + "<sub style='color:#64748b;margin-left:8px;'>"
-                    + "Max classes of this course the teacher handles per week "
-                    + "(0 = no limit)"
-                    + "</sub>",
-                    key=f"_tq_{idx}",
+                selected = st.multiselect(
+                    f"{_teacher_label or 'Lecturer'}s this item: ",
+                    options=course_names,
+                    default=selected,
+                    key=f"_tcourses_{idx}",
+                    help="Select items this teacher handles",
                 )
-                for cn in selected:
-                    cn_idx = course_names.index(cn) + 1  # 1-based course ID
-                    q_key = f"_tqval_{idx}_{cn_idx}"
-                    default = quotas.get(cn_idx, 0)
-                    q_val = st.number_input(
-                        f"  {cn}:",
-                        min_value=0,
-                        max_value=20,
-                        value=default,
-                        key=q_key,
-                        label_visibility="collapsed",
-                    )
-                    quotas[cn_idx] = q_val
+
+                # Per-course quotas — text area is 1 widget vs M number_inputs
+                quota_json = st.text_area(
+                    "Per-course quotas (JSON)",
+                    value=json.dumps(t.get("course_quota", {})),
+                    height=60,
+                    key=f"_tq_{idx}",
+                    help="JSON mapping of course name to max weekly classes (0 = no limit)",
+                )
+                try:
+                    raw = json.loads(quota_json) if quota_json else {}
+                    course_quotas = {str(k): int(v) for k, v in raw.items() if int(v)}
+                except (json.JSONDecodeError, ValueError, TypeError):
+                    course_quotas = {}
 
                 # Total weekly cap
-                total_q_key = f"_ttotal_{idx}"
-                st.markdown(
-                    "**Total weekly cap:** "
-                    + "<sub style='color:#64748b;margin-left:8px;'>"
-                    + "Max total classes the teacher handles across ALL courses per week "
-                    + "(0 = no limit)"
-                    + "</sub>",
-                    key=f"_ttotallabel_{idx}",
-                )
                 total_q = st.number_input(
-                    "  cap:",
+                    "Total weekly cap:",
                     min_value=0,
                     max_value=50,
                     value=t.get("total_quota", 0),
-                    key=total_q_key,
-                    label_visibility="collapsed",
+                    key=f"_ttotal_{idx}",
+                    help="Max total classes across ALL courses per week (0 = no limit)",
                 )
 
-                # Save back to session state
+                # Save back — store course names as keys, convert to IDs downstream
                 _teacher_list[idx] = {
                     "name": name,
                     "courses": selected,
-                    "course_quota": quotas,
+                    "course_quota": course_quotas,
                     "total_quota": total_q,
                 }
 
@@ -698,6 +666,7 @@ with st.sidebar:
             }
         )
         st.session_state._teachers = _teacher_list  # type: ignore[misc]
+        st.rerun()
 
 # ── Parse names ──────────────────────────────────────────────────────────────
 
@@ -778,10 +747,17 @@ if should_run:
                 for cn in t.get("courses", []):
                     with suppress(ValueError):
                         courses.append(course_names.index(cn) + 1)
+                # Convert string-keyed quotas -> int-keyed quotas
+                quotas = t.get("course_quota", {})
+                int_quotas: dict[int, int] = {}
+                for k, v in quotas.items():
+                    with suppress(ValueError):
+                        cid = course_names.index(str(k)) + 1
+                        int_quotas[cid] = int(v)
                 tc = TeacherConfig(
                     name=t["name"],
                     courses=courses,
-                    course_quota=t.get("course_quota", {}),
+                    course_quota=int_quotas,
                     total_quota=t.get("total_quota", 0),
                 )
                 tc_list.append(tc)

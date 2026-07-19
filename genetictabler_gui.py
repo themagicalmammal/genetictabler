@@ -201,17 +201,15 @@ _CSS = """
   font-size: 1.25rem;
   font-weight: 700;
   color: #1e293b;
-  margin-top: 2rem;
-  margin-bottom: 1rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 2px solid #e5e7eb !important;
+  margin-top: 2.75rem;
+  margin-bottom: 0.5rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.75rem;
+  padding-left: 0.25rem;
+  border-bottom: 2px solid #e5e7eb;
 }
-.section-hd + * {
-  margin-top: 0 !important;
-}
-.section-hd + div > :first-child,
-.section-hd + .stMarkdown > :first-child {
-  margin-top: 0.25rem !important;
+.section-hd:first-of-type {
+  margin-top: 0.75rem;
 }
 
 /* ── Export buttons ─────────────────────────────────────────────────────────── */
@@ -247,6 +245,7 @@ st.markdown(_JS_INJECT, unsafe_allow_html=True)
 
 # ── Config helpers ───────────────────────────────────────────────────────────
 
+
 def _parse_names(raw: str, want: int, prefix: str) -> list[str]:
     """Parse a comma-separated name string into at least *want* entries."""
     names = [n.strip() for n in raw.split(",") if n.strip()]
@@ -256,10 +255,18 @@ def _parse_names(raw: str, want: int, prefix: str) -> list[str]:
         idx += 1
     return names
 
+
 _COURSE_COLORS: list[str] = [
-    "#3b82f6", "#10b981", "#f59e0b", "#ef4444",
-    "#8b5cf6", "#ec4899", "#06b6d4", "#84cc16",
-    "#f97316", "#6366f1",
+    "#3b82f6",
+    "#10b981",
+    "#f59e0b",
+    "#ef4444",
+    "#8b5cf6",
+    "#ec4899",
+    "#06b6d4",
+    "#84cc16",
+    "#f97316",
+    "#6366f1",
 ]
 
 
@@ -273,7 +280,9 @@ def _course_color(course_id: int, course_names: list[str]) -> str:
     idx = abs(hash(name)) % len(_COURSE_COLORS)
     return _COURSE_COLORS[idx]
 
+
 # ── Helper functions ─────────────────────────────────────────────────────────
+
 
 def _build_timetable_html(
     tables: list,
@@ -284,7 +293,7 @@ def _build_timetable_html(
 ) -> str:
     """Build an HTML table for a single class's timetable."""
     html = '<table style="border-collapse:collapse;width:100%;font-size:0.8rem;">'
-    html += '<thead><tr>'
+    html += "<thead><tr>"
     html += '<th style="padding:10px;border:1px solid #e5e7eb;background:#f3f4f6;text-align:center;font-weight:700;font-size:0.75rem;letter-spacing:0.04em;text-transform:uppercase;color:#374151;">Time</th>'
     for day in day_names:
         html += f'<th style="padding:10px;border:1px solid #e5e7eb;background:#f3f4f6;text-align:center;font-weight:700;font-size:0.75rem;letter-spacing:0.04em;text-transform:uppercase;color:#374151;">{day}</th>'
@@ -306,7 +315,7 @@ def _build_timetable_html(
                 )
                 html += (
                     f'<td style="padding:10px;border:1px solid {color}25;'
-                    f'background:{color}10;color:{color};text-align:center;'
+                    f"background:{color}10;color:{color};text-align:center;"
                     f'font-weight:600;border-radius:6px;font-size:0.8rem;">{name}</td>'
                 )
         html += "</tr>"
@@ -321,22 +330,22 @@ def _build_frequency_chart(freq: dict, course_names: list[str] | None = None) ->
     if course_names is None:
         course_names = []
     max_val = max(freq.values()) if freq else 1
+    # Build name → deterministic color map (same logic as timetable)
+    name_color: dict[str, str] = {}
+    for cname in course_names:
+        name_color[cname] = _COURSE_COLORS[abs(hash(cname)) % len(_COURSE_COLORS)]
+
     html = '<div style="display:flex;flex-direction:column;gap:8px;">'
     for name, count in sorted(freq.items(), key=lambda x: -x[1]):
         pct = count / max_val * 100 if max_val else 0
-        # Try to find the 1-based course index for consistent colour
-        try:
-            course_id = course_names.index(name) + 1
-        except ValueError:
-            course_id = abs(hash(name)) % len(_COURSE_COLORS) + 1
-        color = _COURSE_COLORS[(course_id - 1) % len(_COURSE_COLORS)]
+        color = name_color.get(name, "#6366f1")
         html += (
             f'<div style="display:flex;align-items:center;gap:10px;">'
             f'<span style="min-width:100px;font-size:0.82rem;text-align:right;font-weight:500;color:#374151;">{name}</span>'
             f'<div style="flex:1;background:#f3f4f6;border-radius:6px;height:22px;overflow:hidden;">'
             f'<div style="width:{pct:.1f}%;background:{color};height:100%;border-radius:6px;transition:width 0.4s ease;display:flex;align-items:center;padding-left:8px;">'
             f'<span style="color:#fff;font-size:0.7rem;font-weight:600;">{count}</span></div>'
-            f'</div></div>'
+            f"</div></div>"
         )
     html += "</div>"
     return html
@@ -346,11 +355,11 @@ def _st_metric_card(label: str, value: str, icon: str = "") -> None:
     """Render a styled metric card."""
     st.markdown(
         f'<div style="background:linear-gradient(135deg,#ffffff,#f8fafc);'
-        f'border:1px solid #e2e8f0;border-radius:0.75rem;padding:0.85rem 1rem;'
+        f"border:1px solid #e2e8f0;border-radius:0.75rem;padding:0.85rem 1rem;"
         f'box-shadow:0 1px 3px rgba(0,0,0,0.06);display:flex;flex-direction:column;gap:0.15rem;">'
         f'<span style="font-size:0.78rem;color:#64748b;font-weight:500;text-transform:uppercase;letter-spacing:0.04em;">{label}</span>'
         f'<span style="font-size:1.5rem;font-weight:700;color:#1e293b;">{icon} {value}</span>'
-        f'</div>',
+        f"</div>",
         unsafe_allow_html=True,
     )
 
@@ -432,21 +441,25 @@ if st.session_state._show_info:
             unsafe_allow_html=True,
         )
 
-# Toggle button for info banner
+# Toggle button for info banner — right aligned
 if st.session_state._show_info:
-    st.button(
-        "✕  Hide info",
-        use_container_width=False,
-        key="_hide_info_btn",
-        on_click=lambda: setattr(st.session_state, "_show_info", False),
-    )
+    _col = st.columns([9, 1])[1]
+    with _col:
+        st.button(
+            "✕  Hide info",
+            use_container_width=True,
+            key="_hide_info_btn",
+            on_click=lambda: setattr(st.session_state, "_show_info", False),
+        )
 else:
-    st.button(
-        "🔄  Unhide info",
-        use_container_width=False,
-        key="_show_info_btn",
-        on_click=lambda: setattr(st.session_state, "_show_info", True),
-    )
+    _col = st.columns([9, 1])[1]
+    with _col:
+        st.button(
+            "🔄  Unhide info",
+            use_container_width=True,
+            key="_show_info_btn",
+            on_click=lambda: setattr(st.session_state, "_show_info", True),
+        )
 
 st.divider()
 
@@ -455,36 +468,47 @@ st.divider()
 # Use-case presets
 _USE_CASE_PRESETS = {
     "🏛 University": {
-        "num_classes": 8, "num_courses": 8, "slots": 6, "days": 5,
+        "num_classes": 8,
+        "num_courses": 8,
+        "slots": 6,
+        "days": 5,
         "courses": "Machine Learning,Digital Design,Data Structures,"
-                   "Linear Algebra,Organic Chemistry,World History,"
-                   "English Literature,Computer Networks",
-        "classes": "CS 101,CS 102,CS 201,CS 202,CS 301,CS 302,"
-                   "Math 101,Physics 101",
+        "Linear Algebra,Organic Chemistry,World History,"
+        "English Literature,Computer Networks",
+        "classes": "CS 101,CS 102,CS 201,CS 202,CS 301,CS 302," "Math 101,Physics 101",
         "days_name": "Mon,Tue,Wed,Thu,Fri",
         "teacher_label": "Lecturers",
     },
     "🏫 College": {
-        "num_classes": 6, "num_courses": 6, "slots": 6, "days": 5,
+        "num_classes": 6,
+        "num_courses": 6,
+        "slots": 6,
+        "days": 5,
         "courses": "Maths,English,Science,History,PE,Art",
         "classes": "Year 7A,Year 7B,Year 8A,Year 8B,Year 9A,Year 9B",
         "days_name": "Mon,Tue,Wed,Thu,Fri",
         "teacher_label": "Teachers",
     },
     "📚 Student": {
-        "num_classes": 1, "num_courses": 5, "slots": 8, "days": 5,
+        "num_classes": 1,
+        "num_courses": 5,
+        "slots": 8,
+        "days": 5,
         "courses": "Study Block 1,Study Block 2,Study Block 3,"
-                   "Study Block 4,Study Block 5",
+        "Study Block 4,Study Block 5",
         "classes": "My Schedule",
         "days_name": "Mon,Tue,Wed,Thu,Fri",
         "teacher_label": None,  # hide teacher section for student mode
     },
     "✈️ Airline": {
-        "num_classes": 10, "num_courses": 6, "slots": 12, "days": 7,
+        "num_classes": 10,
+        "num_courses": 6,
+        "slots": 12,
+        "days": 7,
         "courses": "Route A,Route B,Route C,Route D,Route E,Route F",
         "classes": "Flight 001,Flight 002,Flight 003,Flight 004,"
-                   "Flight 005,Flight 006,Flight 007,Flight 008,"
-                   "Flight 009,Flight 010",
+        "Flight 005,Flight 006,Flight 007,Flight 008,"
+        "Flight 009,Flight 010",
         "days_name": "Mon,Tue,Wed,Thu,Fri,Sat,Sun",
         "teacher_label": "Crew / Aircraft",
     },
@@ -500,21 +524,31 @@ with st.sidebar:
         index=0,
         label_visibility="collapsed",
     )
+    st.caption("Select a preset that configures sensible defaults for your use case")
     preset = _USE_CASE_PRESETS[_use_case]
 
     num_classes = st.slider("Entities", 1, 30, preset["num_classes"])
+    st.caption("Number of distinct entities (e.g. classes, rooms, flights)")
     num_courses = st.slider("Items", 1, 20, preset["num_courses"])
+    st.caption("Number of distinct items (e.g. courses, routes, subjects)")
     slots_per_day = st.slider("Slots per day", 1, 12, preset["slots"])
+    st.caption("Number of time slots available each day")
     num_days = st.slider("Days", 1, 7, preset["days"])
+    st.caption("Number of days to schedule across")
 
     st.subheader("\U0001f9ec GA Parameters")
     population_size = st.slider("Population Size", 10, 200, 60)
+    st.caption("Number of candidate solutions in each generation")
     max_generations = st.slider("Max Generations", 10, 500, 80)
+    st.caption("Maximum number of generations the algorithm will evolve")
     mutation_rate = st.slider("Mutation Rate", 0.01, 0.99, 0.25, 0.01)
+    st.caption("Probability that a gene mutates each generation")
     adaptive = st.toggle("Adaptive Mutation", True)
+    st.caption("Dynamically adjusts mutation rate when the population converges")
     seed_val = st.number_input(
         "Seed (None for random)", min_value=0, max_value=999999, value=42, step=1
     )
+    st.caption("Fixed seed for reproducible results. Enter 0 for random each run.")
     seed_val = int(seed_val) if seed_val else None
 
     st.subheader("\U0001f3f7️ Names")
@@ -522,14 +556,19 @@ with st.sidebar:
         "Item names",
         value=preset["courses"],
     )
+    st.caption(
+        "Comma-separated list of items/courses to schedule (e.g. Maths, Physics)"
+    )
     class_names_input = st.text_area(
         "Entity names",
         value=preset["classes"],
     )
+    st.caption("Comma-separated list of entities to schedule (e.g. Class 1A, Room 203)")
     day_names_input = st.text_input(
         "Day names",
         value=preset["days_name"],
     )
+    st.caption("Comma-separated list of day names (e.g. Mon,Tue,Wed,Thu,Fri)")
 
     # ── Parse names (inside sidebar so variables are in scope) ──────────
     course_names = _parse_names(course_names_input, num_courses, "Item")
@@ -540,9 +579,9 @@ with st.sidebar:
     repeat_val = st.number_input(
         "Max times per day", min_value=1, max_value=10, value=2
     )
-    teacher_val = st.number_input(
-        "Simultaneous", min_value=1, max_value=50, value=1
-    )
+    st.caption("Maximum times a single item can appear per day in the same entity")
+    teacher_val = st.number_input("Simultaneous", min_value=1, max_value=50, value=1)
+    st.caption("Maximum entities that can handle the same item at the same time")
 
     _teacher_label = preset["teacher_label"]
     if _teacher_label:
@@ -570,7 +609,9 @@ with st.sidebar:
                     label_visibility="collapsed",
                 )
             with t_col2:
-                if st.button("\U0001f5d1", key=f"_trem_{idx}", use_container_width=True):
+                if st.button(
+                    "\U0001f5d1", key=f"_trem_{idx}", use_container_width=True
+                ):
                     _teacher_list.pop(idx)
                     st.session_state._teachers = _teacher_list  # type: ignore[misc]
                     st.rerun()
@@ -579,7 +620,7 @@ with st.sidebar:
                 # Item checkboxes
                 st.markdown(
                     f"**{_teacher_label or 'Lecturer'}s this item:** "
-                        + "<sub style='color:#64748b;margin-left:4px;'>Select entities that handle this item</sub>",
+                    + "<sub style='color:#64748b;margin-left:4px;'>Select entities that handle this item</sub>",
                     key=f"_tcourses_{idx}",
                 )
                 selected = t.get("courses", [])
@@ -612,7 +653,9 @@ with st.sidebar:
                     default = quotas.get(cn_idx, 0)
                     q_val = st.number_input(
                         f"  {cn}:",
-                        min_value=0, max_value=20, value=default,
+                        min_value=0,
+                        max_value=20,
+                        value=default,
                         key=q_key,
                         label_visibility="collapsed",
                     )
@@ -630,7 +673,8 @@ with st.sidebar:
                 )
                 total_q = st.number_input(
                     "  cap:",
-                    min_value=0, max_value=50,
+                    min_value=0,
+                    max_value=50,
                     value=t.get("total_quota", 0),
                     key=total_q_key,
                     label_visibility="collapsed",
@@ -645,12 +689,14 @@ with st.sidebar:
                 }
 
     if st.button("+ Add Teacher", use_container_width=True):
-        _teacher_list.append({
-            "name": "",
-            "courses": [],
-            "course_quota": {},
-            "total_quota": 0,
-        })
+        _teacher_list.append(
+            {
+                "name": "",
+                "courses": [],
+                "course_quota": {},
+                "total_quota": 0,
+            }
+        )
         st.session_state._teachers = _teacher_list  # type: ignore[misc]
 
 # ── Parse names ──────────────────────────────────────────────────────────────
@@ -662,10 +708,20 @@ day_names = _parse_names(day_names_input, num_days, "Day")
 # ── Config tracking & run trigger ────────────────────────────────────────────
 
 current_config = (
-    num_classes, num_courses, slots_per_day, num_days,
-    population_size, max_generations, mutation_rate, adaptive, seed_val,
-    repeat_val, teacher_val,
-    course_names_input, class_names_input, day_names_input,
+    num_classes,
+    num_courses,
+    slots_per_day,
+    num_days,
+    population_size,
+    max_generations,
+    mutation_rate,
+    adaptive,
+    seed_val,
+    repeat_val,
+    teacher_val,
+    course_names_input,
+    class_names_input,
+    day_names_input,
     tuple(st.session_state._teachers),  # type: ignore[arg-type]
 )
 
@@ -675,7 +731,9 @@ config_changed = (
 )
 
 with st.form(key="run_form"):
-    run_clicked = st.form_submit_button("\U0001f680 Run Scheduler", use_container_width=True)
+    run_clicked = st.form_submit_button(
+        "\U0001f680 Run Scheduler", use_container_width=True
+    )
 
 if run_clicked and st.session_state._has_run:
     st.session_state._run_key += 1
@@ -744,9 +802,7 @@ if should_run:
 result = st.session_state._result  # type: ignore[union-attr]
 
 if result is None and config_changed:
-    st.warning(
-        "⚠️ Parameters changed. Click **Run Scheduler** to regenerate."
-    )
+    st.warning("⚠️ Parameters changed. Click **Run Scheduler** to regenerate.")
 
 if result is not None:
     tables = result["timetable"]
@@ -756,7 +812,10 @@ if result is not None:
     # ── Generation progress animation ────────────────────────────────────
     gen_log = st.session_state._gen_log
     if gen_log:
-        st.subheader("\U0001f9ea Generation Progress")
+        st.markdown(
+            '<p class="section-hd">\U0001f9ea Generation Progress</p>',
+            unsafe_allow_html=True,
+        )
         max_fitness = analytics.get("best_fitness", 0)
 
         gen_bar = st.progress(0)
@@ -781,7 +840,9 @@ if result is not None:
             st.markdown(f"✅ **Done.** Best fitness: {max_fitness:.2f}")
 
     # ── Analytics cards ──────────────────────────────────────────────────
-    st.markdown('<p class="section-hd">\U0001f4ca Analytics</p>', unsafe_allow_html=True)
+    st.markdown(
+        '<p class="section-hd">\U0001f4ca Analytics</p>', unsafe_allow_html=True
+    )
     cols = st.columns(4)
     with cols[0]:
         _st_metric_card("Runtime", f"{analytics.get('runtime_s', 0):.2f}s", "⏱")
@@ -795,10 +856,14 @@ if result is not None:
             "\U0001f4be",
         )
     with cols[3]:
-        _st_metric_card("Slots filled", str(analytics.get("slots_filled", 0)), "\U0001f4e6")
+        _st_metric_card(
+            "Slots filled", str(analytics.get("slots_filled", 0)), "\U0001f4e6"
+        )
 
     # ── Timetable tabs ───────────────────────────────────────────────────
-    st.markdown('<p class="section-hd">\U0001f4c5 Timetable</p>', unsafe_allow_html=True)
+    st.markdown(
+        '<br><p class="section-hd">\U0001f4c5 Timetable</p>', unsafe_allow_html=True
+    )
 
     try:
         num_cls = len(tables)
@@ -807,7 +872,9 @@ if result is not None:
     except (IndexError, TypeError):
         num_cls, num_slots, num_ds = 0, 0, 0
 
-    dim_ok = (num_cls == num_classes and num_slots == slots_per_day and num_ds == num_days)
+    dim_ok = (
+        num_cls == num_classes and num_slots == slots_per_day and num_ds == num_days
+    )
     if not dim_ok:
         st.warning(
             f"⚠️ Stored timetable dimensions ({num_cls}×{num_ds}×{num_slots}) "
@@ -834,12 +901,20 @@ if result is not None:
                 st.markdown(html, unsafe_allow_html=True)
 
     # ── Course frequency ─────────────────────────────────────────────────
-    st.markdown('<p class="section-hd">\U0001f4c8 Course Frequency</p>', unsafe_allow_html=True)
+    st.markdown(
+        '<p class="section-hd">\U0001f4c8 Course Frequency</p>',
+        unsafe_allow_html=True,
+    )
     freq = analytics.get("course_frequency", {})
-    st.markdown(_build_frequency_chart(freq, sched_course_names), unsafe_allow_html=True)
+    st.markdown(
+        _build_frequency_chart(freq, sched_course_names), unsafe_allow_html=True
+    )
 
     # ── Validation details ───────────────────────────────────────────────
-    st.markdown('<p class="section-hd">\U0001f50d Constraint Check</p>', unsafe_allow_html=True)
+    st.markdown(
+        '<br><p class="section-hd">\U0001f50d Constraint Check</p>',
+        unsafe_allow_html=True,
+    )
     v = analytics.get("validation", {})
     v_cols = st.columns(4)
     with v_cols[0]:
@@ -852,7 +927,9 @@ if result is not None:
         _st_metric_card("Total", str(v.get("total_violations", 0)))
 
     # ── Export ───────────────────────────────────────────────────────────
-    st.markdown('<p class="section-hd">\U0001f4e4 Export</p>', unsafe_allow_html=True)
+    st.markdown(
+        '<br><p class="section-hd">\U0001f4e4 Export</p>', unsafe_allow_html=True
+    )
 
     export_col1, export_col2, export_col3 = st.columns(3)
     with export_col1:
@@ -916,5 +993,5 @@ st.divider()
 st.caption(
     "Genetictabler v3.0  •  University, College, Student & Airline Scheduler  •  "
     "Python stdlib only  •  "
-    '[GitHub](https://github.com/themagicalmammal/genetictabler)'
+    "[GitHub](https://github.com/themagicalmammal/genetictabler)"
 )

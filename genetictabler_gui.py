@@ -6,14 +6,15 @@ Features:
   * Parameter controls (sliders, text inputs, checkboxes)
   * Named inputs (editable course/class/day names)
   * Color-coded timetable display (one tab per class)
+  * Live GA generation progress animation
   * Analytics panel (runtime, violations, cache hit ratio, course frequency)
   * Export buttons (JSON, CSV, HTML download links)
-  * Dark/light mode toggle
 """
 
 from __future__ import annotations
 
 import tempfile
+import time
 
 import streamlit as st
 
@@ -22,150 +23,87 @@ from genetictabler import GenerateTimeTable
 
 # ── Session state defaults ───────────────────────────────────────────────────
 
-if "dark_mode" not in st.session_state:
-    st.session_state.dark_mode = False
+if "_result" not in st.session_state:
+    st.session_state._result = None  # type: ignore[assignment]
 
-if "last_scheduler" not in st.session_state:
-    st.session_state.last_scheduler = None  # type: ignore[assignment]
+if "_last_config" not in st.session_state:
+    st.session_state._last_config = None  # type: ignore[assignment]
 
-if "last_analytics" not in st.session_state:
-    st.session_state.last_analytics = None  # type: ignore[assignment]
+if "_gen_log" not in st.session_state:
+    st.session_state._gen_log = []  # type: ignore[assignment]
 
-if "last_timetable" not in st.session_state:
-    st.session_state.last_timetable = None  # type: ignore[assignment]
+if "_has_run" not in st.session_state:
+    st.session_state._has_run = False
+
+if "_run_key" not in st.session_state:
+    st.session_state._run_key = 0
 
 # ── Custom CSS (shadcn/ui-style) ─────────────────────────────────────────────
 
-DARK_CSS = """
-<style>
-:root {
-  --background: 0 0% 100%;
-  --foreground: 240 10% 3.9%;
-  --card: 0 0% 100%;
-  --card-foreground: 240 10% 3.9%;
-  --primary: 240 5.9% 10%;
-  --primary-foreground: 0 0% 98%;
-  --secondary: 240 4.8% 95.9%;
-  --secondary-foreground: 240 5.9% 10%;
-  --muted: 240 4.8% 95.9%;
-  --muted-foreground: 240 3.8% 46.1%;
-  --accent: 240 4.8% 95.9%;
-  --border: 240 5.9% 90%;
-  --radius: 0.5rem;
-}
-.dark {
-  --background: 240 10% 3.9%;
-  --foreground: 0 0% 98%;
-  --card: 240 10% 3.9%;
-  --card-foreground: 0 0% 98%;
-  --primary: 0 0% 98%;
-  --primary-foreground: 240 5.9% 10%;
-  --secondary: 240 3.7% 15.9%;
-  --secondary-foreground: 0 0% 98%;
-  --muted: 240 3.7% 15.9%;
-  --muted-foreground: 240 5% 64.9%;
-  --accent: 240 3.7% 15.9%;
-  --border: 240 3.7% 15.9%;
-}
-
-/* Global overrides */
+# CSS overrides injected globally into the document head.
+CSS_OVERRIDES = """
 [data-testid="stAppViewContainer"] {
-  background-color: hsl(var(--background));
-  color: hsl(var(--foreground));
+  background-color: #ffffff !important;
+  color: #09090b !important;
 }
-.stMarkdown, .stText, h1, h2, h3, h4, h5, h6 {
-  color: hsl(var(--foreground)) !important;
-}
-[data-testid="stHeader"] {
-  color: hsl(var(--foreground)) !important;
-}
-.stMetric {
-  background-color: hsl(var(--card) / 0.5);
-  border: 1px solid hsl(var(--border));
-  border-radius: var(--radius);
-}
-.css-1d3uqb2 {
-  border: 1px solid hsl(var(--border));
-  border-radius: var(--radius);
-}
-.stButton > button {
-  border-radius: var(--radius);
-  border: 1px solid hsl(var(--border));
-  background-color: hsl(var(--secondary));
-  color: hsl(var(--secondary-foreground));
-  padding: 0.5rem 1rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-.stButton > button:hover {
-  background-color: hsl(var(--primary));
-  color: hsl(var(--primary-foreground));
-  border-color: hsl(var(--primary));
-}
-.stTabs [data-baseweb="tab-list"] {
-  gap: 4px;
-}
-.stTabs [data-baseweb="tab"] {
-  height: 40px;
-  border-radius: var(--radius);
-  padding: 0.5rem 1rem;
-  background: hsl(var(--secondary));
-}
-</style>
-"""
-
-LIGHT_CSS = """
-<style>
-[data-testid="stAppViewContainer"] {
-  background-color: #ffffff;
-  color: #09090b;
-}
-.stMarkdown, .stText, h1, h2, h3, h4, h5, h6 {
+.stMarkdown, .stText, h1, h2, h3, h4, h5, h6, p, span, label, a {
   color: #09090b !important;
 }
 .stMetric {
-  background-color: #f9fafb;
-  border: 1px solid #e4e4e7;
-  border-radius: 0.5rem;
+  background-color: #f9fafb !important;
+  border: 1px solid #e4e4e7 !important;
+  border-radius: 0.5rem !important;
+  color: #09090b !important;
 }
-.css-1d3uqb2 {
-  border: 1px solid #e4e4e7;
-  border-radius: 0.5rem;
-}
-.stButton > button {
-  border-radius: 0.5rem;
-  border: 1px solid #e4e4e7;
-  background-color: #f4f4f5;
-  color: #18181b;
-  padding: 0.5rem 1rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-.stButton > button:hover {
-  background-color: #18181b;
-  color: #fafafa;
-  border-color: #18181b;
+.stMetric div {
+  color: #09090b !important;
 }
 .stTabs [data-baseweb="tab-list"] {
   gap: 4px;
 }
-.stTabs [data-baseweb="tab"] {
-  height: 40px;
-  border-radius: 0.5rem;
-  padding: 0.5rem 1rem;
-  background: #f4f4f5;
+.stTabs [data-baseweb="tab"],
+.css-1d3uqb2 {
+  border: 1px solid #e4e4e7 !important;
+  border-radius: 0.5rem !important;
+  background-color: #f4f4f5 !important;
+  color: #18181b !important;
 }
-</style>
+.stButton > button {
+  border-radius: 0.5rem !important;
+  border: 1px solid #e4e4e7 !important;
+  background-color: #f4f4f5 !important;
+  color: #18181b !important;
+  padding: 0.5rem 1rem !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+}
+.stButton > button:hover {
+  background-color: #18181b !important;
+  color: #fafafa !important;
+  border-color: #18181b !important;
+}
+[data-testid="stSidebar"] {
+  background-color: #fafafa !important;
+  border-right: 1px solid #e4e4e7 !important;
+}
+[data-testid="stSidebar"] > div {
+  color: #09090b !important;
+}
+[data-testid="stSidebar"] .stSubheader,
+[data-testid="stSidebar"] .stHeader {
+  color: #09090b !important;
+}
+[data-testid="stSidebar"] .stSlider > div {
+  color: #09090b !important;
+}
 """
 
 
 # ── Helper functions ─────────────────────────────────────────────────────────
 
-COURSE_COLORS: dict[int, str] = {
+_COURSE_COLORS: dict[int, str] = {
     1: "#3b82f6",  # blue
     2: "#10b981",  # green
     3: "#f59e0b",  # amber
@@ -179,25 +117,22 @@ COURSE_COLORS: dict[int, str] = {
 }
 
 
-def _build_scheduler(**params) -> GenerateTimeTable:
-    """Build a scheduler from session params."""
-    kwargs = {k: v for k, v in params.items() if v is not None}
-    return GenerateTimeTable(**kwargs)
-
-
 def _build_timetable_html(
-    tables,
-    class_names,
-    day_names,
-    course_names,
-    slots,
-    days,
-    courses,
+    tables: list,
+    day_names: list,
+    course_names: list,
+    slots: int,
+    days: int,
 ) -> str:
-    """Build an HTML table for a single class's timetable."""
+    """Build an HTML table for a single class's timetable.
+
+    Parameters
+    ----------
+    tables : list
+        2-D list indexed as [day][slot] = 1-based course number (0 = empty).
+    """
     html = '<table style="border-collapse:collapse;width:100%;font-size:0.8rem;">'
-    # Header
-    html += "<thead><tr>"
+    html += '<thead><tr>'
     html += '<th style="padding:8px;border:1px solid #e4e4e7;background:#f4f4f5;text-align:center;font-weight:600;">Time</th>'
     for day in day_names:
         html += f'<th style="padding:8px;border:1px solid #e4e4e7;background:#f4f4f5;text-align:center;font-weight:600;">{day}</th>'
@@ -211,9 +146,17 @@ def _build_timetable_html(
             if course_id == 0:
                 html += '<td style="padding:8px;border:1px solid #f3f4f6;background:#fafafa;text-align:center;color:#9ca3af;">—</td>'
             else:
-                color = COURSE_COLORS.get(course_id, "#6b7280")
-                name = course_names[course_id - 1] if course_id <= len(course_names) else f"C{course_id}"
-                html += f'<td style="padding:8px;border:1px solid #e4e4e7;background:{color}15;color:{color};text-align:center;font-weight:500;border-radius:4px;">{name}</td>'
+                color = _COURSE_COLORS.get(course_id, "#6b7280")
+                name = (
+                    course_names[course_id - 1]
+                    if course_id <= len(course_names)
+                    else f"C{course_id}"
+                )
+                html += (
+                    f'<td style="padding:8px;border:1px solid #e4e4e7;'
+                    f'background:{color}15;color:{color};text-align:center;'
+                    f'font-weight:500;border-radius:4px;">{name}</td>'
+                )
         html += "</tr>"
     html += "</tbody></table>"
     return html
@@ -227,16 +170,16 @@ def _build_frequency_chart(freq: dict) -> str:
     html = '<div style="display:flex;flex-direction:column;gap:6px;">'
     for name, count in sorted(freq.items(), key=lambda x: -x[1]):
         pct = count / max_val * 100 if max_val else 0
-        color = COURSE_COLORS.get(abs(hash(name)) % 10 + 1, "#6b7280")
-        html += f"""
-        <div style="display:flex;align-items:center;gap:8px;">
-          <span style="min-width:100px;font-size:0.8rem;text-align:right;color:#374151;">{name}</span>
-          <div style="flex:1;background:#f3f4f6;border-radius:4px;height:20px;overflow:hidden;">
-            <div style="width:{pct}%;background:{color};height:100%;border-radius:4px;transition:width 0.3s;"></div>
-          </div>
-          <span style="min-width:30px;font-size:0.8rem;color:#6b7280;">{count}</span>
-        </div>
-        """
+        color = _COURSE_COLORS.get(abs(hash(name)) % 10 + 1, "#6b7280")
+        html += (
+            f'<div style="display:flex;align-items:center;gap:8px;">'
+            f'<span style="min-width:100px;font-size:0.8rem;text-align:right;color:#374151;">{name}</span>'
+            f'<div style="flex:1;background:#f3f4f6;border-radius:4px;height:20px;overflow:hidden;">'
+            f'<div style="width:{pct:.1f}%;background:{color};height:100%;border-radius:4px;transition:width 0.3s;"></div>'
+            f'</div>'
+            f'<span style="min-width:30px;font-size:0.8rem;color:#6b7280;">{count}</span>'
+            f'</div>'
+        )
     html += "</div>"
     return html
 
@@ -245,22 +188,25 @@ def _build_frequency_chart(freq: dict) -> str:
 
 st.set_page_config(
     page_title="Genetic Timetable Generator",
-    page_icon="🧬",
+    page_icon="\U0001f9ec",
     layout="wide",
 )
 
+# Inject CSS globally by appending <style> to document.head via JS.
+_js_inject = f"""
+<script>
+document.addEventListener('DOMContentLoaded', function() {{
+  var style = document.createElement('style');
+  style.textContent = `{CSS_OVERRIDES}`;
+  document.head.appendChild(style);
+}});
+</script>
+"""
+st.markdown(_js_inject, unsafe_allow_html=True)
+
 # Header
-st.markdown("# 🧬 Genetic Timetable Generator")
+st.markdown("# \U0001f9ec Genetic Timetable Generator")
 st.caption("Conflict-free school and university timetables via genetic algorithms")
-
-# Dark mode toggle (key manages session state automatically)
-dark = st.toggle("🌙 Dark mode", key="dark_mode")
-
-# Theme CSS (must come after widgets that use dark_mode key)
-if dark:
-    st.markdown(DARK_CSS, unsafe_allow_html=True)
-else:
-    st.markdown(LIGHT_CSS, unsafe_allow_html=True)
 
 # ── Sidebar: Configuration ───────────────────────────────────────────────────
 
@@ -268,23 +214,25 @@ with st.sidebar:
     st.header("⚙️ Configuration")
 
     # General parameters
-    st.subheader("📋 General")
+    st.subheader("\U0001f4cb General")
     num_classes = st.slider("Classes", 1, 20, 4)
     num_courses = st.slider("Courses", 1, 15, 6)
     slots_per_day = st.slider("Slots per Day", 1, 10, 6)
     num_days = st.slider("Days", 1, 7, 5)
 
     # GA parameters
-    st.subheader("🧬 GA Parameters")
+    st.subheader("\U0001f9ec GA Parameters")
     population_size = st.slider("Population Size", 10, 200, 60)
     max_generations = st.slider("Max Generations", 10, 500, 80)
     mutation_rate = st.slider("Mutation Rate", 0.01, 0.99, 0.25, 0.01)
     adaptive = st.toggle("Adaptive Mutation", True)
-    seed_val = st.number_input("Seed (None for random)", min_value=0, max_value=999999, value=42, step=1)
+    seed_val = st.number_input(
+        "Seed (None for random)", min_value=0, max_value=999999, value=42, step=1
+    )
     seed_val = int(seed_val) if seed_val else None
 
     # Labels
-    st.subheader("🏷️ Labels")
+    st.subheader("\U0001f3f7️ Labels")
     col_l1, col_l2 = st.columns(2)
     with col_l1:
         course_names_input = st.text_area(
@@ -316,91 +264,187 @@ with st.sidebar:
         day_names.append(f"Day-{len(day_names) + 1}")
 
     # Repeat and Teachers
-    st.subheader("📐 Constraints")
-    repeat_val = st.number_input("Repeat (slots per course per day)", min_value=1, max_value=5, value=2)
-    teacher_val = st.number_input("Teachers (simultaneous slots)", min_value=1, max_value=5, value=1)
+    st.subheader("\U0001f4d0 Constraints")
+    repeat_val = st.number_input(
+        "Repeat (slots per course per day)", min_value=1, max_value=5, value=2
+    )
+    teacher_val = st.number_input(
+        "Teachers (simultaneous slots)", min_value=1, max_value=5, value=1
+    )
 
-    # Run button
-    run_clicked = st.button("▶ Run Scheduler", use_container_width=True, type="primary")
+# ── Compute current config tuple ────────────────────────────────────────────
 
-# ── Main area ────────────────────────────────────────────────────────────────
+current_config = (
+    num_classes, num_courses, slots_per_day, num_days,
+    population_size, max_generations, mutation_rate, adaptive, seed_val,
+    repeat_val, teacher_val,
+    course_names_input, class_names_input, day_names_input,
+)
 
-if run_clicked:
-    with st.spinner("Running genetic algorithm..."):
-        sched = _build_scheduler(
-            classes=num_classes,
-            courses=num_courses,
-            slots=slots_per_day,
-            days=num_days,
-            repeat=repeat_val,
-            teachers=teacher_val,
-            population_size=population_size,
-            max_generations=max_generations,
-            mutation_rate=mutation_rate,
-            adaptive=adaptive,
-            seed=seed_val,
-            course_names=course_names,
-            class_names=class_names,
-            day_names=day_names,
-        )
-        timetable = sched.run()
-        analytics = sched.analytics()
-        validation = analytics.get("validation", {})
+# ── Detect config change + run trigger ──────────────────────────────────────
 
-        # Store in session state
-        st.session_state.last_scheduler = sched
-        st.session_state.last_analytics = analytics
-        st.session_state.last_timetable = timetable
+# If the stored config differs from current, a new run is needed
+config_changed = (
+    st.session_state._last_config is not None
+    and st.session_state._last_config != current_config
+)
 
-# ── Display results ──────────────────────────────────────────────────────────
+# Use a form so each "Run" click triggers a fresh rerun even after the first run.
+with st.form(key="run_form"):
+    run_clicked = st.form_submit_button("Run Scheduler", use_container_width=True, type="primary")
 
-if st.session_state.last_timetable:
-    tables = st.session_state.last_timetable
-    analytics = st.session_state.last_analytics or {}
-    sched = st.session_state.last_scheduler
+# If run was clicked, bump the key so the next click also fires
+if run_clicked and st.session_state._has_run:
+    st.session_state._run_key += 1
 
-    # Analytics summary
-    st.subheader("📊 Analytics")
+# ── Execute scheduler ───────────────────────────────────────────────────────
+
+should_run = run_clicked or (
+    config_changed
+    and not (st.session_state._last_config == current_config)
+)
+
+if should_run:
+    # Clear state for a fresh run
+    st.session_state._gen_log = []
+    st.session_state._result = None  # type: ignore[assignment]
+    st.session_state._has_run = True
+    st.session_state._last_config = current_config
+
+    # Build and run scheduler
+    sched = GenerateTimeTable(
+        classes=num_classes,
+        courses=num_courses,
+        slots=slots_per_day,
+        days=num_days,
+        repeat=repeat_val,
+        teachers=teacher_val,
+        population_size=population_size,
+        max_generations=max_generations,
+        mutation_rate=mutation_rate,
+        adaptive=adaptive,
+        seed=seed_val,
+        course_names=course_names,
+        class_names=class_names,
+        day_names=day_names,
+    )
+    timetable = sched.run()
+    analytics = sched.analytics()
+
+    # Store in session state
+    st.session_state._result = {  # type: ignore[assignment]
+        "timetable": timetable,
+        "analytics": analytics,
+        "sched": sched,
+    }
+    st.session_state._gen_log = list(analytics.get("generation_log_tail", []))  # type: ignore[union-attr]
+
+# ── Display ──────────────────────────────────────────────────────────────────
+
+result = st.session_state._result  # type: ignore[union-attr]
+
+if result is None and config_changed:
+    # Config just changed but we haven't auto-ran yet — nudge user
+    st.warning(
+        "⚠️ Parameters changed. Click **Run Scheduler** to regenerate."
+    )
+
+if result is not None:
+    tables = result["timetable"]
+    analytics = result["analytics"]
+    sched = result["sched"]
+
+    # ── Generation progress animation ────────────────────────────────────
+    gen_log = st.session_state._gen_log
+    if gen_log:
+        st.subheader("\U0001f9ea Generation Progress")
+        max_fitness = analytics.get("best_fitness", 0)
+
+        gen_bar = st.progress(0)
+        empty = st.empty()  # reusable placeholder for the animation loop
+
+        for i, gen in enumerate(gen_log):
+            pct = (i + 1) / len(gen_log)
+            gen_bar.progress(pct)
+            time.sleep(0.08)
+
+            with empty:
+                st.markdown(
+                    f"**Gen {gen['generation']:>4}**  "
+                    f"Best: {gen['best_fitness']:>8.2f}  "
+                    f"Avg:  {gen['avg_fitness']:>8.2f}  "
+                    f"Worst: {gen['worst_fitness']:>8.2f}  "
+                    f"Mutation: {gen['mutation_rate']:.2f}"
+                )
+
+        # Final state
+        time.sleep(0.2)
+        with empty:
+            st.markdown(f"✅ **Done.** Best fitness: {max_fitness:.2f}")
+
+    # ── Analytics summary ────────────────────────────────────────────────
+    st.divider()
+    st.subheader("\U0001f4ca Analytics")
     col_a, col_b, col_c, col_d = st.columns(4)
     with col_a:
         st.metric("⏱ Runtime", f"{analytics.get('runtime_s', 0):.2f}s")
     with col_b:
         v = analytics.get("validation", {})
-        st.metric("🔒 Violations", f"{v.get('total_violations', 0)}")
+        st.metric("\U0001f512 Violations", f"{v.get('total_violations', 0)}")
     with col_c:
-        st.metric("💾 Cache hit", f"{analytics.get('cache_hit_ratio', 0) * 100:.1f}%")
+        st.metric("\U0001f4be Cache hit", f"{analytics.get('cache_hit_ratio', 0) * 100:.1f}%")
     with col_d:
-        st.metric("📦 Slots filled", f"{analytics.get('slots_filled', 0)}")
+        st.metric("\U0001f4e6 Slots filled", f"{analytics.get('slots_filled', 0)}")
 
+    # ── Timetable display with tabs ──────────────────────────────────────
     st.divider()
+    st.subheader("\U0001f4c5 Timetable")
 
-    # Timetable display with tabs
-    st.subheader("📅 Timetable")
-    class_tabs = st.tabs([f"📋 {name}" for name in (sched.class_names if sched else class_names)])
-    for idx, tab in enumerate(class_tabs):
+    # Guard: ensure displayed dimensions match stored timetable
+    try:
+        num_cls = len(tables)
+        num_slots = len(tables[0][0]) if tables and tables[0] else 0
+        num_ds = len(tables[0]) if tables else 0
+    except (IndexError, TypeError):
+        num_cls, num_slots, num_ds = 0, 0, 0
+
+    dim_ok = (num_cls == num_classes and num_slots == slots_per_day and num_ds == num_days)
+
+    if not dim_ok:
+        st.warning(
+            f"⚠️ Stored timetable dimensions ({num_cls}×{num_ds}×{num_slots}) "
+            f"don't match current config ({num_classes}×{num_days}×{slots_per_day}). "
+            f"Re-run to refresh."
+        )
+
+    sched_class_names = getattr(sched, "class_names", class_names)
+    sched_day_names = getattr(sched, "day_names", day_names)
+    sched_course_names = getattr(sched, "course_names", course_names)
+
+    tab_names = [f"\U0001f4cb {n}" for n in sched_class_names]
+    tabs = st.tabs(tab_names)
+    for idx, tab in enumerate(tabs):
         with tab:
             if idx < len(tables):
                 class_table = tables[idx]
                 html = _build_timetable_html(
                     class_table,
-                    sched.class_names if sched else class_names,
-                    sched.day_names if sched else day_names,
-                    sched.course_names if sched else course_names,
+                    sched_day_names,
+                    sched_course_names,
                     slots_per_day,
                     num_days,
-                    num_courses,
                 )
                 st.markdown(html, unsafe_allow_html=True)
 
+    # ── Course frequency chart ───────────────────────────────────────────
     st.divider()
-
-    # Course frequency chart
-    st.subheader("📈 Course Frequency")
+    st.subheader("\U0001f4c8 Course Frequency")
     freq = analytics.get("course_frequency", {})
-    st.markdown(_build_frequency_chart(freq))
+    st.markdown(_build_frequency_chart(freq), unsafe_allow_html=True)
 
-    # Validation details
-    st.subheader("🔍 Constraint Violations")
+    # ── Validation details ───────────────────────────────────────────────
+    st.divider()
+    st.subheader("\U0001f50d Constraint Violations")
     v = analytics.get("validation", {})
     v_cols = st.columns(4)
     with v_cols[0]:
@@ -412,13 +456,12 @@ if st.session_state.last_timetable:
     with v_cols[3]:
         st.metric("Total", v.get("total_violations", 0))
 
+    # ── Export ───────────────────────────────────────────────────────────
     st.divider()
-
-    # Export
-    st.subheader("📤 Export")
+    st.subheader("\U0001f4e4 Export")
     export_col1, export_col2, export_col3 = st.columns(3)
     with export_col1:
-        if st.button("📄 Export JSON", use_container_width=True):
+        if st.button("\U0001f4c4 Export JSON", use_container_width=True):
             with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as f:
                 sched.export_json(f.name)
                 with open(f.name, "rb") as fh:
@@ -430,7 +473,7 @@ if st.session_state.last_timetable:
                         use_container_width=True,
                     )
     with export_col2:
-        if st.button("📊 Export CSV", use_container_width=True):
+        if st.button("\U0001f4ca Export CSV", use_container_width=True):
             with tempfile.NamedTemporaryFile(suffix=".csv", delete=False) as f:
                 sched.export_csv(f.name)
                 with open(f.name, "rb") as fh:
@@ -442,7 +485,7 @@ if st.session_state.last_timetable:
                         use_container_width=True,
                     )
     with export_col3:
-        if st.button("🌐 Export HTML", use_container_width=True):
+        if st.button("\U0001f310 Export HTML", use_container_width=True):
             with tempfile.NamedTemporaryFile(suffix=".html", delete=False) as f:
                 sched.export_html(f.name)
                 with open(f.name, "rb") as fh:
@@ -453,15 +496,19 @@ if st.session_state.last_timetable:
                         mime="text/html",
                         use_container_width=True,
                     )
+
 else:
     # Empty state
-    st.info("Configure parameters in the sidebar and click **Run Scheduler** to generate a timetable.")
+    st.info(
+        "\U0001f527 Configure parameters in the sidebar and click **Run Scheduler** "
+        "to generate a timetable."
+    )
 
     # Show a preview of what the output looks like
     st.subheader("Preview")
     preview_html = """
     <div style="padding:3rem;text-align:center;color:#6b7280;">
-        <p style="font-size:3rem;">🧬</p>
+        <p style="font-size:3rem;">\U0001f9ec</p>
         <p>Your conflict-free timetable will appear here.</p>
     </div>
     """

@@ -7,7 +7,7 @@
 | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Package**       | [![PyPI version](https://img.shields.io/pypi/v/genetictabler.svg)](https://pypi.org/project/genetictabler/) `@genetictabler/core`                                                                                                                                                                                                                                                                 |
 | **Quality**       | [![Tests & Lint](https://github.com/themagicalmammal/genetictabler/actions/workflows/tests.yml/badge.svg)](https://github.com/themagicalmammal/genetictabler/actions/workflows/tests.yml) [![Type safety](https://img.shields.io/badge/types-mypy%20strict-blue.svg)](https://mypy.readthedocs.io/) [![Lint](https://img.shields.io/badge/lint-ruff-lightgray.svg)](https://docs.astral.sh/ruff/) |
-| **Compatibility** | Python ≥ 3.12 · TypeScript 5+ · React ≥ 18                                                                                                                                                                                                                                                                                                                                                        |
+| **Compatibility** | Python ≥ 3.12                                                                                                                                                                                                                                                                                                                                                                                     |
 | **License**       | [![BSD-3-Clause](https://img.shields.io/badge/license-BSD--3--Clause-blue.svg)](LICENSE)                                                                                                                                                                                                                                                                                                          |
 
 ---
@@ -116,11 +116,11 @@ The generator uses a **genetic algorithm** (GA) to fill each timetable cell one 
 
 1. **Gene encoding** — Each possible assignment ("course X in slot Y for class Z") is a binary string:
 
-    ```md
-    gene = <course_bits> + <slot_bits> + <class_bits>
-    "010" + "00101" + "011"
-    course 2 slot 5 class 3
-    ```
+   ```md
+   gene = <course_bits> + <slot_bits> + <class_bits>
+   "010" + "00101" + "011"
+   course 2 slot 5 class 3
+   ```
 
 2. **Population** — Spawn ~60 random candidate genes for the current cell.
 3. **Fitness scoring** — Each gene is scored 0–100. The base score is 100; multiplicative penalties are applied for every constraint violation (clashes, quota exhaustion, back-to-back courses).

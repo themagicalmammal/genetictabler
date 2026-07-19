@@ -14,7 +14,8 @@ from __future__ import annotations
 
 import random
 import time
-from typing import TYPE_CHECKING
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Any
 
 from genetictabler.config import TeacherConfig, TimetableConfig
 from genetictabler.encoding import GeneEncoder
@@ -157,7 +158,7 @@ class GenerateTimeTable:
 
     @classmethod
     def from_config(
-        cls, config: TimetableConfig, **kwargs
+        cls, config: TimetableConfig, **kwargs: Any
     ) -> GenerateTimeTable:
         """Construct from a TimetableConfig dataclass."""
         return cls(
@@ -237,8 +238,11 @@ class GenerateTimeTable:
         self._run_start_time = time.perf_counter()
 
         course_bits, slot_bits, total_cells = self._build_components()
-        encoder = self._encoder  # type: ignore[assignment]
-        state = self._state  # type: ignore[assignment]
+        assert self._encoder is not None
+        assert self._evaluator is not None
+        assert self._state is not None
+        encoder = self._encoder
+        state = self._state
         config = self._config
 
         # Generate blank timetable
@@ -253,7 +257,7 @@ class GenerateTimeTable:
         remaining = total_cells
         while remaining > 0:
             gene = self._run_evolution(course_bits, slot_bits)
-            if self._evaluator.calculate(gene) > 0:  # type: ignore[union-attr]
+            if self._evaluator.calculate(gene) > 0:
                 self._fit_slot(gene)
                 remaining -= 1
             else:
@@ -271,7 +275,7 @@ class GenerateTimeTable:
         elapsed_total = time.perf_counter() - self._run_start_time
         print(f"\n\nScheduling complete in {elapsed_total:.2f}s  "
               f"({self._state.total_genes_eval:,} genes, "
-              f"{self._evaluator.cache_hits:,} cache hits)\n")  # type: ignore[union-attr]
+              f"{self._evaluator.cache_hits:,} cache hits)\n")
 
         return state.tables
 
@@ -292,11 +296,7 @@ class GenerateTimeTable:
 
     def analytics(self) -> AnalyticsResult:
         """Return a performance summary of the last run."""
-        runtime = time.perf_counter() - self._run_start_time
-        total_evals = self._evaluator.cache_hits + self._evaluator.cache_misses  # type: ignore[union-attr]
-        hit_ratio = self._evaluator.cache_hits / total_evals if total_evals else 0.0
-
-        if not self._state:
+        if self._evaluator is None:
             return {
                 "runtime_s": 0.0,
                 "genes_evaluated": 0,
@@ -306,7 +306,12 @@ class GenerateTimeTable:
                 "slots_filled": 0,
                 "generation_log_tail": [],
             }
+        runtime = time.perf_counter() - self._run_start_time
+        total_evals = self._evaluator.cache_hits + self._evaluator.cache_misses
+        hit_ratio = self._evaluator.cache_hits / total_evals if total_evals else 0.0
 
+        assert self._encoder is not None
+        assert self._state is not None
         encoder = self._encoder
         freq: dict[str, int] = {}
         for cls_idx in range(encoder.class_count):
@@ -348,6 +353,7 @@ class GenerateTimeTable:
     def pretty_print(self, class_idx: int | None = None) -> None:
         """Print timetable(s) to the terminal in a grid format."""
         assert self._encoder is not None
+        assert self._state is not None
         from genetictabler.export import pretty_print as _pp
 
         _pp(
@@ -362,6 +368,7 @@ class GenerateTimeTable:
 
     def export_json(self, filepath: str = "timetable.json") -> None:
         """Save the completed timetable to a JSON file."""
+        assert self._state is not None
         from genetictabler.export import export_json as _ej
 
         _ej(
@@ -375,6 +382,7 @@ class GenerateTimeTable:
 
     def export_csv(self, filepath: str = "timetable.csv") -> None:
         """Save the timetable as a flat CSV file."""
+        assert self._state is not None
         from genetictabler.export import export_csv as _ec
 
         _ec(
@@ -388,6 +396,7 @@ class GenerateTimeTable:
 
     def export_html(self, filepath: str = "timetable.html") -> None:
         """Export a colour-coded HTML timetable."""
+        assert self._state is not None
         from genetictabler.export import export_html as _eh
 
         _eh(
@@ -403,14 +412,19 @@ class GenerateTimeTable:
     def print_analytics(self) -> None:
         """Print a formatted analytics summary to the terminal."""
         a = self.analytics()
-        v = a["validation"]
+        v: dict[str, int] = a["validation"]  # type: ignore[assignment]
+        runtime_s: float = a["runtime_s"]  # type: ignore[assignment]
+        genes_evaluated: int = a["genes_evaluated"]  # type: ignore[assignment]
+        cache_hit_ratio: float = a["cache_hit_ratio"]  # type: ignore[assignment]
+        slots_filled: int = a["slots_filled"]  # type: ignore[assignment]
+        course_frequency: dict[str, int] = a["course_frequency"]  # type: ignore[assignment]
         print("┌─────────────────────────────────────────┐")
         print("│           RUN ANALYTICS                 │")
         print("├─────────────────────────────────────────┤")
-        print(f"│  Runtime          : {a['runtime_s']:.2f}s")
-        print(f"│  Genes evaluated  : {a['genes_evaluated']:,}")
-        print(f"│  Cache hit ratio  : {a['cache_hit_ratio']*100:.1f}%")
-        print(f"│  Slots filled     : {a['slots_filled']}")
+        print(f"│  Runtime          : {runtime_s:.2f}s")
+        print(f"│  Genes evaluated  : {genes_evaluated:,}")
+        print(f"│  Cache hit ratio  : {cache_hit_ratio * 100:.1f}%")
+        print(f"│  Slots filled     : {slots_filled}")
         print("├─────────────────────────────────────────┤")
         print(f"│  Empty cells      : {v['empty_cells']}")
         print(f"│  Teacher clashes  : {v['teacher_clashes']}")
@@ -418,7 +432,7 @@ class GenerateTimeTable:
         print(f"│  Total violations : {v['total_violations']}")
         print("├─────────────────────────────────────────┤")
         print("│  Course frequency:")
-        for course, cnt in sorted(a["course_frequency"].items()):
+        for course, cnt in sorted(course_frequency.items()):
             bar = "▓" * (cnt // 2)
             print(f"│    {course:<15} {cnt:3d}  {bar}")
         print("└─────────────────────────────────────────┘\n")
@@ -426,6 +440,7 @@ class GenerateTimeTable:
     def get_class_timetable(self, class_name: str) -> list[list[int]] | None:
         """Retrieve the timetable for a specific class by name."""
         assert self._encoder is not None
+        assert self._state is not None
         from genetictabler.queries import get_class_timetable as _gct
 
         return _gct(self._state.tables, self.class_names, class_name)
@@ -435,6 +450,7 @@ class GenerateTimeTable:
     ) -> list[tuple[str, str, str]]:
         """Find all scheduled occurrences of a course."""
         assert self._encoder is not None
+        assert self._state is not None
         from genetictabler.queries import find_course_slots as _fcs
 
         return _fcs(
@@ -450,6 +466,7 @@ class GenerateTimeTable:
     def get_teacher_schedule(self, course_name: str) -> dict[str, list[str]]:
         """Build a teacher-eye view for a subject."""
         assert self._encoder is not None
+        assert self._state is not None
         from genetictabler.queries import get_teacher_schedule as _gts
 
         return _gts(
@@ -565,24 +582,24 @@ class GenerateTimeTable:
         return self._encoder.course_count
 
     @property
-    def _calc_course_quota(self) -> staticmethod:
+    def _calc_course_quota(self) -> Callable[[int, int], list[int]]:
         """Expose calc_course_quota for test compatibility."""
-        return staticmethod(calc_course_quota)
+        return calc_course_quota
 
     @property
-    def _make_table_skeleton(self) -> staticmethod:
+    def _make_table_skeleton(self) -> Callable[[int, int, int], list[list[list[int]]]]:
         """Expose make_table_skeleton for test compatibility."""
-        return staticmethod(make_table_skeleton)
+        return make_table_skeleton
 
     @property
-    def _build_repeat_quota(self) -> staticmethod:
+    def _build_repeat_quota(self) -> Callable[[int | list[int], int, int], list[list[int]]]:
         """Expose build_repeat_quota for test compatibility."""
-        return staticmethod(build_repeat_quota)
+        return build_repeat_quota
 
     @property
-    def _build_teacher_quota(self) -> staticmethod:
+    def _build_teacher_quota(self) -> Callable[[int | list[int], int], list[int]]:
         """Expose build_teacher_quota for test compatibility."""
-        return staticmethod(build_teacher_quota)
+        return build_teacher_quota
 
     # ── State accessors for test compatibility ─────────────────────────────
 
@@ -666,8 +683,8 @@ class GenerateTimeTable:
 
     # Alias for _calc_course_quota
     @property
-    def _calc_course_quota_alias(self) -> staticmethod:
-        return staticmethod(calc_course_quota)
+    def _calc_course_quota_alias(self) -> Callable[[int, int], list[int]]:
+        return calc_course_quota
 
     def _to_binary(self, value: int, bit_length: int) -> str:
         """Convert an integer to a zero-padded binary string."""
@@ -751,7 +768,7 @@ class GenerateTimeTable:
         assert self._genetic is not None
         return self._genetic.smart_mutation(gene)
 
-    def selection_pair(self, population: list[str]) -> tuple[str, str]:
+    def selection_pair(self, population: list[str]) -> list[str]:
         """Select two parents via roulette-wheel selection."""
         assert self._genetic is not None
         return self._genetic.selection_pair(population)
@@ -838,19 +855,19 @@ class GenerateTimeTable:
             pairs = remaining // 2
 
             for _ in range(pairs):
-                if random.random() < 0.5:  # type: ignore[name-defined]
+                if random.random() < 0.5:
                     p_a = self._genetic.tournament_selection(population)
                     p_b = self._genetic.tournament_selection(population)
                 else:
                     p_a, p_b = self._genetic.selection_pair(population)
 
-                if random.random() < 0.15:  # type: ignore[name-defined]
+                if random.random() < 0.15:
                     children = self._genetic.uniform_crossover(p_a, p_b)
                 else:
                     children = self._genetic.single_point_crossover(p_a, p_b)
 
                 for child in children:
-                    if random.random() < mut_rate:  # type: ignore[name-defined]
+                    if random.random() < mut_rate:
                         if gen_idx > max_generations // 2:
                             child = self._genetic.smart_mutation(child)
                         else:
@@ -869,8 +886,11 @@ class GenerateTimeTable:
 
     def _fit_slot(self, gene: str) -> None:
         """Commit a gene to the timetable and decrement its quota."""
-        encoder = self._encoder  # type: ignore[union-attr]
-        state = self._state  # type: ignore[union-attr]
+        assert self._encoder is not None
+        assert self._state is not None
+        assert self._evaluator is not None
+        encoder = self._encoder
+        state = self._state
 
         course = int(gene[: encoder.course_bits], 2)
         slot_no, day_no = encoder.extract_slot_day(gene)
@@ -888,7 +908,7 @@ class GenerateTimeTable:
             state.teacher_total_weekly[(teacher_id,)] = \
                 state.teacher_total_weekly.get((teacher_id,), 0) + 1
 
-        self._evaluator.invalidate()  # type: ignore[union-attr]
+        self._evaluator.invalidate()
         self._slots_filled += 1
 
     def _run_evolution(self, course_bits: int, slot_bits: int) -> str:
@@ -940,19 +960,19 @@ class GenerateTimeTable:
             pairs = remaining // 2
 
             for _ in range(pairs):
-                if random.random() < 0.5:  # type: ignore[name-defined]
+                if random.random() < 0.5:
                     p_a = self._genetic.tournament_selection(population)
                     p_b = self._genetic.tournament_selection(population)
                 else:
                     p_a, p_b = self._genetic.selection_pair(population)
 
-                if random.random() < 0.15:  # type: ignore[name-defined]
+                if random.random() < 0.15:
                     children = self._genetic.uniform_crossover(p_a, p_b)
                 else:
                     children = self._genetic.single_point_crossover(p_a, p_b)
 
                 for child in children:
-                    if random.random() < mut_rate:  # type: ignore[name-defined]
+                    if random.random() < mut_rate:
                         if gen_idx > self.max_generations // 2:
                             child = self._genetic.smart_mutation(child)
                         else:

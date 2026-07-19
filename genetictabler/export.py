@@ -57,7 +57,7 @@ def export_json(
     filepath: str,
 ) -> None:
     """Save the timetable to a JSON file."""
-    output: dict = {}
+    output: dict[str, dict[str, list[str]]] = {}
     for cls_idx, cls_name in enumerate(class_names):
         output[cls_name] = {}
         for day_idx, day_name in enumerate(day_names):

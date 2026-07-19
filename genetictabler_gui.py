@@ -341,7 +341,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 st.markdown(
-    '<p class="hero-sub">Generate conflict-free timetables for universities and colleges using a genetic algorithm.</p>',
+    '<p class="hero-sub">Generate conflict-free timetables for universities, colleges, students, and airlines using a genetic algorithm.</p>',
     unsafe_allow_html=True,
 )
 st.caption(
@@ -363,14 +363,17 @@ if st.session_state._show_info:
                         <p>
                             <strong>Genetictabler</strong> is a timetable generation engine that uses a
                             <strong>genetic algorithm</strong> to automatically produce conflict-free
-                            schedules for universities and colleges.  It intelligently allocates
-                            lectures to time-slots while respecting real-world constraints — no lecturer
-                            double-booking, no student timetable collisions, and lecturer workload limits.
+                            schedules for <strong>universities</strong>, <strong>colleges</strong>,
+                            <strong>students</strong>, and <strong>airlines</strong>.  It intelligently
+                            allocates resources to time-slots while respecting real-world constraints — no
+                            lecturer double-booking, no student timetable collisions, workload limits, and
+                            aircraft utilisation optimisation.
                         </p>
                         <p style="margin-bottom:0;">
                             You can use it to plan <strong>class schedules</strong>,
                             <strong>exam timetables</strong>, <strong>university module rosters</strong>,
-                            or any domain where resources (rooms, teachers, equipment) must be shared
+                            <strong>personal study plans</strong>, <strong>flight crew rotations</strong>,
+                            or any domain where resources (rooms, teachers, equipment, aircraft) must be shared
                             without conflicts across a fixed set of time slots.
                         </p>
                     </div>
@@ -384,7 +387,7 @@ if st.session_state._show_info:
                     <div class="feature-card">
                         <span class="icon">\U0001f512</span>
                         <span class="label">Constraint Enforcement</span>
-                        <span class="desc">No lecturer clashes, no timetable overlaps, workload caps</span>
+                        <span class="desc">No clashes, no overlaps, workload caps, utilisation optimisation</span>
                     </div>
                     <div class="feature-card">
                         <span class="icon">\U0001f9ec</span>
@@ -416,14 +419,60 @@ st.divider()
 
 # ── Sidebar: Configuration ───────────────────────────────────────────────────
 
+# Use-case presets
+_USE_CASE_PRESETS = {
+    "🏛 University": {
+        "num_classes": 8, "num_courses": 8, "slots": 6, "days": 5,
+        "courses": "Machine Learning,Digital Design,Data Structures,"
+                   "Linear Algebra,Organic Chemistry,World History,"
+                   "English Literature,Computer Networks",
+        "classes": "CS 101,CS 102,CS 201,CS 202,CS 301,CS 302,"
+                   "Math 101,Physics 101",
+        "days_name": "Mon,Tue,Wed,Thu,Fri",
+        "teacher_label": "Lecturers",
+    },
+    "🏫 College": {
+        "num_classes": 6, "num_courses": 6, "slots": 6, "days": 5,
+        "courses": "Maths,English,Science,History,PE,Art",
+        "classes": "Year 7A,Year 7B,Year 8A,Year 8B,Year 9A,Year 9B",
+        "days_name": "Mon,Tue,Wed,Thu,Fri",
+        "teacher_label": "Teachers",
+    },
+    "📚 Student": {
+        "num_classes": 1, "num_courses": 5, "slots": 8, "days": 5,
+        "courses": "Study Block 1,Study Block 2,Study Block 3,"
+                   "Study Block 4,Study Block 5",
+        "classes": "My Schedule",
+        "days_name": "Mon,Tue,Wed,Thu,Fri",
+        "teacher_label": None,  # hide teacher section for student mode
+    },
+    "✈️ Airline": {
+        "num_classes": 10, "num_courses": 6, "slots": 12, "days": 7,
+        "courses": "Route A,Route B,Route C,Route D,Route E,Route F",
+        "classes": "Flight 001,Flight 002,Flight 003,Flight 004,"
+                   "Flight 005,Flight 006,Flight 007,Flight 008,"
+                   "Flight 009,Flight 010",
+        "days_name": "Mon,Tue,Wed,Thu,Fri,Sat,Sun",
+        "teacher_label": "Crew / Aircraft",
+    },
+}
+
 with st.sidebar:
     st.header("\U0001f9e0 Configuration")
 
     st.subheader("\U0001f4cb General")
-    num_classes = st.slider("Number of sections", 1, 30, 8)
-    num_courses = st.slider("Number of courses", 1, 20, 8)
-    slots_per_day = st.slider("Slots per day", 1, 10, 6)
-    num_days = st.slider("Days per week", 1, 7, 5)
+    _use_case = st.selectbox(
+        "Use case",
+        list(_USE_CASE_PRESETS.keys()),
+        index=0,
+        label_visibility="collapsed",
+    )
+    preset = _USE_CASE_PRESETS[_use_case]
+
+    num_classes = st.slider("Entities", 1, 30, preset["num_classes"])
+    num_courses = st.slider("Items", 1, 20, preset["num_courses"])
+    slots_per_day = st.slider("Slots per day", 1, 12, preset["slots"])
+    num_days = st.slider("Days", 1, 7, preset["days"])
 
     st.subheader("\U0001f9ec GA Parameters")
     population_size = st.slider("Population Size", 10, 200, 60)
@@ -437,49 +486,44 @@ with st.sidebar:
 
     st.subheader("\U0001f3f7️ Names")
     course_names_input = st.text_area(
-        "Course names",
-        value=(
-            "Machine Learning,Digital Design,Data Structures,"
-            "Linear Algebra,Organic Chemistry,World History,"
-            "English Literature,Computer Networks"
-        ),
+        "Item names",
+        value=preset["courses"],
     )
     class_names_input = st.text_area(
-        "Class names",
-        value=(
-            "CS 101,CS 102,CS 201,CS 202,CS 301,CS 302,"
-            "Math 101,Physics 101"
-        ),
+        "Entity names",
+        value=preset["classes"],
     )
     day_names_input = st.text_input(
         "Day names",
-        value="Mon,Tue,Wed,Thu,Fri",
+        value=preset["days_name"],
     )
 
     # ── Parse names (inside sidebar so variables are in scope) ──────────
-    course_names = _parse_names(course_names_input, num_courses, "Course")
-    class_names = _parse_names(class_names_input, num_classes, "Class")
+    course_names = _parse_names(course_names_input, num_courses, "Item")
+    class_names = _parse_names(class_names_input, num_classes, "Entity")
     day_names = _parse_names(day_names_input, num_days, "Day")
 
     st.subheader("\U0001f4d0 Constraints")
     repeat_val = st.number_input(
-        "Max times a course per day", min_value=1, max_value=5, value=2
+        "Max times per day", min_value=1, max_value=10, value=2
     )
     teacher_val = st.number_input(
-        "Teachers (simultaneous)", min_value=1, max_value=5, value=1
+        "Simultaneous", min_value=1, max_value=50, value=1
     )
 
-    st.subheader("\U0001f468‍\U0001f3eb Teachers")
-    st.caption(
-        "Define individual lecturers with the courses they teach and weekly workload limits. "
-        "Leave empty to use the simple 'Teachers (simultaneous)' setting above."
-    )
-    st.caption(
-        "\U0001f4a1 **Example:** Add \"Dr. Smith\", check **Machine Learning**, "
-        "set per-course quota to 3 → she handles at most 3 ML sections per week. "
-        "Set total weekly cap to 10 → she teaches at most 10 classes total across "
-        "all her courses. This prevents overloading lecturers."
-    )
+    _teacher_label = preset["teacher_label"]
+    if _teacher_label:
+        st.subheader(f"\U0001f468‍\U0001f3eb {_teacher_label}")
+        st.caption(
+            f"Define individual {_teacher_label.lower()}s with item assignments and weekly workload limits. "
+            f"Leave empty to use the simple 'Simultaneous' setting above."
+        )
+        st.caption(
+            f"\U0001f4a1 **Example:** Add a name, check items they handle, "
+            f"set per-course quota to 3 → handles at most 3 of that item per week. "
+            f"Set total weekly cap to 10 → handles at most 10 items total across "
+            f"all their items. This prevents overloading."
+        )
     _teacher_list: list[dict] = st.session_state._teachers  # type: ignore[assignment]
 
     for idx, t in enumerate(_teacher_list):
@@ -487,7 +531,7 @@ with st.sidebar:
             t_col1, t_col2 = st.columns([2, 1])
             with t_col1:
                 name = st.text_input(
-                    f"Teacher {idx + 1} name",
+                    f"{_teacher_label or 'Teacher'} {idx + 1} name",
                     value=t.get("name", ""),
                     key=f"_tname_{idx}",
                     label_visibility="collapsed",
@@ -499,10 +543,10 @@ with st.sidebar:
                     st.rerun()
 
             if name:
-                # Course checkboxes
+                # Item checkboxes
                 st.markdown(
-                    "**Teaches:** "
-                        + "<sub style='color:#64748b;margin-left:4px;'>Select the courses this lecturer delivers</sub>",
+                    f"**{_teacher_label or 'Lecturer'}s this item:** "
+                        + "<sub style='color:#64748b;margin-left:4px;'>Select entities that handle this item</sub>",
                     key=f"_tcourses_{idx}",
                 )
                 selected = t.get("courses", [])
@@ -837,7 +881,7 @@ else:
 
 st.divider()
 st.caption(
-    "Genetictabler v3.0  •  University & College Timetable Generator  •  "
+    "Genetictabler v3.0  •  University, College, Student & Airline Scheduler  •  "
     "Python stdlib only  •  "
     '[GitHub](https://github.com/themagicalmammal/genetictabler)'
 )

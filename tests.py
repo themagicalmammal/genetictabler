@@ -1,22 +1,17 @@
 """
-╔══════════════════════════════════════════════════════════════════════════════╗
-║            TEST SUITE — GENETIC ALGORITHM TIMETABLE GENERATOR                ║
-║                                                                              ║
-║  Full coverage across:                                                       ║
-║    • Unit tests  (encoding, decoding, fitness, operators)                    ║
-║    • Integration tests  (full run(), export, analytics)                      ║
-║    • Edge-case tests  (1 class, 1 course, large inputs, bad inputs)          ║
-║    • Property-based / invariant tests  (gene length, quota monotonicity)     ║
-║    • Regression tests  (seed reproducibility, cache correctness)             ║
-║                                                                              ║
-║  Run with:  python -m pytest test_timetable_generator.py -v                  ║
-║         or: python test_timetable_generator.py                               ║
-╚══════════════════════════════════════════════════════════════════════════════╝
+Test suite — genetic algorithm timetable generator.
+
+Full coverage across:
+  - Unit tests     (encoding, decoding, fitness, operators)
+  - Integration tests  (full run(), export, analytics)
+  - Edge-case tests  (1 class, 1 course, large inputs, bad inputs)
+  - Property / invariant tests  (gene length, quota monotonicity)
+  - Regression tests  (seed reproducibility, cache correctness)
+
+Run with:  python -m pytest tests.py -v
 """
 
-# pylint: disable=protected-access
-# pylint: disable=redefined-outer-name
-# pylint: disable=unspecified-encoding
+from __future__ import annotations
 
 import csv
 import json
@@ -26,9 +21,6 @@ import tempfile
 import unittest
 
 from genetictabler import GenerateTimeTable, TimetableConfig
-
-# ── Import the module under test ──────────────────────────────────────────────
-sys.path.insert(0, os.path.dirname(__file__))
 
 # ══════════════════════════════════════════════════════════════════════════════
 #  SHARED FACTORY HELPERS

@@ -201,8 +201,17 @@ _CSS = """
   font-size: 1.25rem;
   font-weight: 700;
   color: #1e293b;
-  margin-top: 1.75rem;
-  margin-bottom: 0.75rem;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #e5e7eb !important;
+}
+.section-hd + * {
+  margin-top: 0 !important;
+}
+.section-hd + div > :first-child,
+.section-hd + .stMarkdown > :first-child {
+  margin-top: 0.25rem !important;
 }
 
 /* ── Export buttons ─────────────────────────────────────────────────────────── */
@@ -247,11 +256,22 @@ def _parse_names(raw: str, want: int, prefix: str) -> list[str]:
         idx += 1
     return names
 
-_COURSE_COLORS: dict[int, str] = {
-    1: "#3b82f6", 2: "#10b981", 3: "#f59e0b", 4: "#ef4444",
-    5: "#8b5cf6", 6: "#ec4899", 7: "#06b6d4", 8: "#84cc16",
-    9: "#f97316", 10: "#6366f1",
-}
+_COURSE_COLORS: list[str] = [
+    "#3b82f6", "#10b981", "#f59e0b", "#ef4444",
+    "#8b5cf6", "#ec4899", "#06b6d4", "#84cc16",
+    "#f97316", "#6366f1",
+]
+
+
+def _course_color(course_id: int, course_names: list[str]) -> str:
+    """Deterministic colour from course name (same everywhere)."""
+    name = (
+        course_names[course_id - 1]
+        if 1 <= course_id <= len(course_names)
+        else f"C{course_id}"
+    )
+    idx = abs(hash(name)) % len(_COURSE_COLORS)
+    return _COURSE_COLORS[idx]
 
 # ── Helper functions ─────────────────────────────────────────────────────────
 
@@ -278,7 +298,7 @@ def _build_timetable_html(
             if course_id == 0:
                 html += '<td style="padding:10px;border:1px solid #f9fafb;background:#fafafa;text-align:center;color:#d1d5db;font-size:0.75rem;">—</td>'
             else:
-                color = _COURSE_COLORS.get(course_id, "#6b7280")
+                color = _course_color(course_id, course_names)
                 name = (
                     course_names[course_id - 1]
                     if course_id <= len(course_names)
@@ -294,15 +314,22 @@ def _build_timetable_html(
     return html
 
 
-def _build_frequency_chart(freq: dict) -> str:
+def _build_frequency_chart(freq: dict, course_names: list[str] | None = None) -> str:
     """Build a horizontal bar chart from frequency dict."""
     if not freq:
         return "<p style='color:#9ca3af;'>No data yet.</p>"
+    if course_names is None:
+        course_names = []
     max_val = max(freq.values()) if freq else 1
     html = '<div style="display:flex;flex-direction:column;gap:8px;">'
     for name, count in sorted(freq.items(), key=lambda x: -x[1]):
         pct = count / max_val * 100 if max_val else 0
-        color = _COURSE_COLORS.get(abs(hash(name)) % 10 + 1, "#6b7280")
+        # Try to find the 1-based course index for consistent colour
+        try:
+            course_id = course_names.index(name) + 1
+        except ValueError:
+            course_id = abs(hash(name)) % len(_COURSE_COLORS) + 1
+        color = _COURSE_COLORS[(course_id - 1) % len(_COURSE_COLORS)]
         html += (
             f'<div style="display:flex;align-items:center;gap:10px;">'
             f'<span style="min-width:100px;font-size:0.82rem;text-align:right;font-weight:500;color:#374151;">{name}</span>'
@@ -405,15 +432,21 @@ if st.session_state._show_info:
             unsafe_allow_html=True,
         )
 
-# Close-button for info banner
-st.button(
-    "✕  Hide info",
-    use_container_width=False,
-    key="_hide_info_btn",
-    on_click=lambda: setattr(st.session_state, "_show_info", False),
-)
-if not st.session_state._show_info:
-    st.balloons()
+# Toggle button for info banner
+if st.session_state._show_info:
+    st.button(
+        "✕  Hide info",
+        use_container_width=False,
+        key="_hide_info_btn",
+        on_click=lambda: setattr(st.session_state, "_show_info", False),
+    )
+else:
+    st.button(
+        "🔄  Unhide info",
+        use_container_width=False,
+        key="_show_info_btn",
+        on_click=lambda: setattr(st.session_state, "_show_info", True),
+    )
 
 st.divider()
 
@@ -519,10 +552,10 @@ with st.sidebar:
             f"Leave empty to use the simple 'Simultaneous' setting above."
         )
         st.caption(
-            f"\U0001f4a1 **Example:** Add a name, check items they handle, "
-            f"set per-course quota to 3 → handles at most 3 of that item per week. "
-            f"Set total weekly cap to 10 → handles at most 10 items total across "
-            f"all their items. This prevents overloading."
+            "\U0001f4a1 **Example:** Add a name, check items they handle, "
+            "set per-course quota to 3 → handles at most 3 of that item per week. "
+            "Set total weekly cap to 10 → handles at most 10 items total across "
+            "all their items. This prevents overloading."
         )
     _teacher_list: list[dict] = st.session_state._teachers  # type: ignore[assignment]
 
@@ -803,7 +836,7 @@ if result is not None:
     # ── Course frequency ─────────────────────────────────────────────────
     st.markdown('<p class="section-hd">\U0001f4c8 Course Frequency</p>', unsafe_allow_html=True)
     freq = analytics.get("course_frequency", {})
-    st.markdown(_build_frequency_chart(freq), unsafe_allow_html=True)
+    st.markdown(_build_frequency_chart(freq, sched_course_names), unsafe_allow_html=True)
 
     # ── Validation details ───────────────────────────────────────────────
     st.markdown('<p class="section-hd">\U0001f50d Constraint Check</p>', unsafe_allow_html=True)

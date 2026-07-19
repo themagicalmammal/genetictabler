@@ -3,12 +3,12 @@
 > Generate conflict-free school and university timetables using genetic algorithms.
 > Available as a **Python library** (`genetictabler`), a **TypeScript/React npm package** (sibling repo [`genetictabler-js`](https://github.com/themagicalmammal/genetictabler-js)), and a **Streamlit GUI**.
 
-| | |
-|---|---|
-| **Package** | [![PyPI version](https://img.shields.io/pypi/v/genetictabler.svg)](https://pypi.org/project/genetictabler/) `@genetictabler/core` [![npm version](https://img.shields.io/npm/v/@genetictabler/core.svg)](https://www.npmjs.com/package/@genetictabler/core) |
-| **Quality** | [![Tests & Lint](https://github.com/themagicalmammal/genetictabler/actions/workflows/tests.yml/badge.svg)](https://github.com/themagicalmammal/genetictabler/actions/workflows/tests.yml) [![Type safety](https://img.shields.io/badge/types-mypy%20strict-blue.svg)](https://mypy.readthedocs.io/) [![Lint](https://img.shields.io/badge/lint-ruff-lightgray.svg)](https://docs.astral.sh/ruff/) |
-| **Compatibility** | Python ≥ 3.12 · TypeScript 5+ · React ≥ 18 |
-| **License** | [![BSD-3-Clause](https://img.shields.io/badge/license-BSD--3--Clause-blue.svg)](LICENSE) |
+|                   |                                                                                                                                                                                                                                                                                                                                                                                                   |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Package**       | [![PyPI version](https://img.shields.io/pypi/v/genetictabler.svg)](https://pypi.org/project/genetictabler/) `@genetictabler/core`                                                                                                                                                                                                                                                                 |
+| **Quality**       | [![Tests & Lint](https://github.com/themagicalmammal/genetictabler/actions/workflows/tests.yml/badge.svg)](https://github.com/themagicalmammal/genetictabler/actions/workflows/tests.yml) [![Type safety](https://img.shields.io/badge/types-mypy%20strict-blue.svg)](https://mypy.readthedocs.io/) [![Lint](https://img.shields.io/badge/lint-ruff-lightgray.svg)](https://docs.astral.sh/ruff/) |
+| **Compatibility** | Python ≥ 3.12 · TypeScript 5+ · React ≥ 18                                                                                                                                                                                                                                                                                                                                                        |
+| **License**       | [![BSD-3-Clause](https://img.shields.io/badge/license-BSD--3--Clause-blue.svg)](LICENSE)                                                                                                                                                                                                                                                                                                          |
 
 ---
 
@@ -43,7 +43,7 @@
     - [React component](#react-component)
   - [Project structure](#project-structure)
   - [Testing](#testing)
-    - [Python](#python-1)
+    - [Python Tests](#python-tests)
   - [Contributing](#contributing)
   - [Contributors](#contributors)
   - [License](#license)
@@ -82,7 +82,7 @@ npm install @genetictabler/core
 ```
 
 ```typescript
-import { TimetableEngine } from '@genetictabler/core';
+import { TimetableEngine } from "@genetictabler/core";
 
 const engine = new TimetableEngine({
   classes: 4,
@@ -90,8 +90,8 @@ const engine = new TimetableEngine({
   slots: 6,
   days: 5,
   seed: 42,
-  courseNames: ['Maths', 'English', 'Science', 'History', 'PE', 'Art'],
-  classNames: ['Year 7A', 'Year 7B', 'Year 8A', 'Year 8B'],
+  courseNames: ["Maths", "English", "Science", "History", "PE", "Art"],
+  classNames: ["Year 7A", "Year 7B", "Year 8A", "Year 8B"],
 });
 
 const timetable = engine.run();
@@ -115,11 +115,13 @@ A full-featured web app with parameter sliders, dark/light mode, colour-coded ti
 The generator uses a **genetic algorithm** (GA) to fill each timetable cell one at a time:
 
 1. **Gene encoding** — Each possible assignment ("course X in slot Y for class Z") is a binary string:
-   ```
-   gene = <course_bits> + <slot_bits> + <class_bits>
-          "010"         + "00101"     + "011"
-           course 2       slot 5        class 3
-   ```
+
+    ```md
+    gene = <course_bits> + <slot_bits> + <class_bits>
+    "010" + "00101" + "011"
+    course 2 slot 5 class 3
+    ```
+
 2. **Population** — Spawn ~60 random candidate genes for the current cell.
 3. **Fitness scoring** — Each gene is scored 0–100. The base score is 100; multiplicative penalties are applied for every constraint violation (clashes, quota exhaustion, back-to-back courses).
 4. **Evolution** — Fittest genes survive (elitism), crossover to produce children, and some children mutate. Adaptive mutation kicks in if progress stalls.
@@ -134,25 +136,25 @@ See [Python API reference](#python-api-reference) and [TypeScript API reference]
 
 All parameters below are accepted by both Python's `GenerateTimeTable` constructor and TypeScript's `TimetableEngine` constructor.
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `classes` | `int` | `6` | Number of distinct class groups |
-| `courses` | `int` | `4` | Number of distinct subjects |
-| `slots` | `int` | `6` | Time-slots (periods) per day |
-| `days` | `int` | `5` | School days per week |
-| `repeat` | `int \| List[int]` | `2` | Max times a course per day. Scalar or per-course list. |
-| `teachers` | `int \| List[int]` | `1` | **Deprecated** — use `teachers_config` instead. |
-| `teachers_config` | `List[TeacherConfig]` | `[]` | Per-teacher definitions with course assignments and quotas. |
-| `population_size` | `int` | `60` | GA population size per generation |
-| `max_fitness` | `float` | `100.0` | Early-stop threshold — a gene reaching this is committed immediately |
-| `max_generations` | `int` | `80` | Hard cap on GA iterations per cell |
-| `elite_ratio` | `float` | `0.10` | Fraction of top genes carried unchanged into the next generation |
-| `mutation_rate` | `float` | `0.25` | Probability (0–1) that a child gene is mutated |
-| `adaptive` | `bool` | `True` | Mutation rate triples if no improvement for 5+ generations |
-| `seed` | `int \| None` | `None` | RNG seed for reproducible output |
-| `course_names` | `List[str]` | auto | Human-readable course labels |
-| `class_names` | `List[str]` | auto | Human-readable class labels |
-| `day_names` | `List[str]` | auto | Human-readable day labels |
+| Parameter         | Type                  | Default | Description                                                          |
+| ----------------- | --------------------- | ------- | -------------------------------------------------------------------- |
+| `classes`         | `int`                 | `6`     | Number of distinct class groups                                      |
+| `courses`         | `int`                 | `4`     | Number of distinct subjects                                          |
+| `slots`           | `int`                 | `6`     | Time-slots (periods) per day                                         |
+| `days`            | `int`                 | `5`     | School days per week                                                 |
+| `repeat`          | `int \| List[int]`    | `2`     | Max times a course per day. Scalar or per-course list.               |
+| `teachers`        | `int \| List[int]`    | `1`     | **Deprecated** — use `teachers_config` instead.                      |
+| `teachers_config` | `List[TeacherConfig]` | `[]`    | Per-teacher definitions with course assignments and quotas.          |
+| `population_size` | `int`                 | `60`    | GA population size per generation                                    |
+| `max_fitness`     | `float`               | `100.0` | Early-stop threshold — a gene reaching this is committed immediately |
+| `max_generations` | `int`                 | `80`    | Hard cap on GA iterations per cell                                   |
+| `elite_ratio`     | `float`               | `0.10`  | Fraction of top genes carried unchanged into the next generation     |
+| `mutation_rate`   | `float`               | `0.25`  | Probability (0–1) that a child gene is mutated                       |
+| `adaptive`        | `bool`                | `True`  | Mutation rate triples if no improvement for 5+ generations           |
+| `seed`            | `int \| None`         | `None`  | RNG seed for reproducible output                                     |
+| `course_names`    | `List[str]`           | auto    | Human-readable course labels                                         |
+| `class_names`     | `List[str]`           | auto    | Human-readable class labels                                          |
+| `day_names`       | `List[str]`           | auto    | Human-readable day labels                                            |
 
 ---
 
@@ -265,17 +267,17 @@ scheduler.run()
 
 The fitness function starts at **100** and applies multiplicative penalties for each violated rule:
 
-| Violation | Penalty | Type |
-|---|---|---|
-| Slot already occupied in this class | ×0.01 | Hard |
-| Weekly course quota exhausted | ×0.01 | Hard |
-| Course appears ≥ 2 times today | ×0.01 | Hard |
-| Teacher capacity saturated for this slot | ×0.01 | Hard |
-| Same course in the same slot across another class (teacher clash) | ×0.60 | Soft |
-| Course is adjacent to itself in the same class/day | ×0.60 | Soft |
-| Daily repeat cap exceeded | ×0.50 | Soft |
-| Teacher double-booking (different course same slot) | ×0.01 | Hard |
-| Teacher weekly quota exceeded | ×0.01 | Hard |
+| Violation                                                         | Penalty | Type |
+| ----------------------------------------------------------------- | ------- | ---- |
+| Slot already occupied in this class                               | ×0.01   | Hard |
+| Weekly course quota exhausted                                     | ×0.01   | Hard |
+| Course appears ≥ 2 times today                                    | ×0.01   | Hard |
+| Teacher capacity saturated for this slot                          | ×0.01   | Hard |
+| Same course in the same slot across another class (teacher clash) | ×0.60   | Soft |
+| Course is adjacent to itself in the same class/day                | ×0.60   | Soft |
+| Daily repeat cap exceeded                                         | ×0.50   | Soft |
+| Teacher double-booking (different course same slot)               | ×0.01   | Hard |
+| Teacher weekly quota exceeded                                     | ×0.01   | Hard |
 
 **Hard penalties** effectively zero out a gene's score (×0.01 = 1 %), making it extremely unlikely to be selected. **Soft penalties** stack gracefully — a gene with two soft violations scores 36 (0.6² × 100).
 
@@ -290,16 +292,19 @@ The fitness function starts at **100** and applies multiplicative penalties for 
 ```python
 scheduler.run() -> list[list[list[int]]]
 ```
+
 Execute the full scheduling algorithm. Returns a 3-D list `tables[class_idx][day_idx][slot_idx]` containing 1-based course numbers (`0` = unfilled).
 
 ```python
 scheduler.pretty_print(class_idx: int | None = None)
 ```
+
 Print a grid view to the terminal. Pass a 0-based index to print a single class.
 
 ```python
 scheduler.validate() -> dict
 ```
+
 Scan the completed timetable for constraint violations. Returns:
 
 ```python
@@ -314,6 +319,7 @@ Scan the completed timetable for constraint violations. Returns:
 ```python
 scheduler.analytics() -> dict
 ```
+
 Return a performance summary:
 
 ```python
@@ -331,6 +337,7 @@ Return a performance summary:
 ```python
 scheduler.reset()
 ```
+
 Wipe the timetable, quotas, cache, and telemetry so the scheduler can be run again.
 
 #### Query helpers
@@ -338,16 +345,19 @@ Wipe the timetable, quotas, cache, and telemetry so the scheduler can be run aga
 ```python
 scheduler.get_class_timetable(class_name: str) -> list[list[int]] | None
 ```
+
 Retrieve a single class's timetable as a 2-D list `[day][slot] = course_number`.
 
 ```python
 scheduler.find_course_slots(course_name: str, class_name: str | None = None) -> list[tuple[str, str, str]]
 ```
+
 Find all scheduled occurrences of a subject. Returns `(class_name, day_name, "Slot N")` tuples. Filter to one class with `class_name`.
 
 ```python
 scheduler.get_teacher_schedule(course_name: str) -> dict[str, list[str]]
 ```
+
 Build a teacher-eye view: `{"Mon Slot 2": ["Year 7A", "Year 8B"], ...}`.
 
 #### Export methods
@@ -357,9 +367,11 @@ scheduler.export_json(filepath: str)
 scheduler.export_csv(filepath: str)
 scheduler.export_html(filepath: str)
 ```
+
 Save the timetable to disk.
 
 **JSON** — Nested dict keyed by class name → day name → list of course names per slot:
+
 ```json
 {
   "Year 7A": {
@@ -370,7 +382,8 @@ Save the timetable to disk.
 ```
 
 **CSV** — Flat table with four columns:
-```
+
+```md
 Class,Day,Slot,Course
 Year 7A,Mon,Slot 1,Maths
 Year 7A,Mon,Slot 2,English
@@ -403,12 +416,12 @@ tc = TeacherConfig(
 )
 ```
 
-| Attribute | Type | Default | Description |
-|---|---|---|---|
-| `name` | `str` | required | Human-readable name (e.g. "Ms. Smith") |
-| `courses` | `List[int]` | required | 1-based course indices they teach |
-| `course_quota` | `Dict[int, int]` | `{}` | Per-course weekly limit: `{course_id: max_classes}` |
-| `total_quota` | `int` | `0` | Total classes per week across all subjects (`0` = unlimited) |
+| Attribute      | Type             | Default  | Description                                                  |
+| -------------- | ---------------- | -------- | ------------------------------------------------------------ |
+| `name`         | `str`            | required | Human-readable name (e.g. "Ms. Smith")                       |
+| `courses`      | `List[int]`      | required | 1-based course indices they teach                            |
+| `course_quota` | `Dict[int, int]` | `{}`     | Per-course weekly limit: `{course_id: max_classes}`          |
+| `total_quota`  | `int`            | `0`      | Total classes per week across all subjects (`0` = unlimited) |
 
 ### TimetableConfig
 
@@ -441,31 +454,31 @@ import { TimetableEngine, type TimetableConfig } from '@genetictabler/core';
 const engine = new TimetableEngine(config: TimetableConfig);
 ```
 
-| Method | Return | Description |
-|---|---|---|
-| `engine.run()` | `Timetable` | Execute scheduling. `Timetable` is `number[][][]` (`[class][day][slot]`). |
-| `engine.validate()` | `ValidationResult` | `{ empty_cells, teacher_clashes, back_to_back, total_violations }` |
-| `engine.analytics()` | `AnalyticsResult` | `{ runtime_s, genes_evaluated, cache_hit_ratio, course_frequency, validation, slots_filled, generation_log_tail }` |
-| `engine.reset()` | `void` | Wipe the engine for a fresh run. |
-| `engine.toJSON()` | `string` | JSON string export. |
-| `engine.toCSV()` | `string` | CSV string export. |
-| `engine.toHTML()` | `string` | Colour-coded HTML string export. |
+| Method               | Return             | Description                                                                                                        |
+| -------------------- | ------------------ | ------------------------------------------------------------------------------------------------------------------ |
+| `engine.run()`       | `Timetable`        | Execute scheduling. `Timetable` is `number[][][]` (`[class][day][slot]`).                                          |
+| `engine.validate()`  | `ValidationResult` | `{ empty_cells, teacher_clashes, back_to_back, total_violations }`                                                 |
+| `engine.analytics()` | `AnalyticsResult`  | `{ runtime_s, genes_evaluated, cache_hit_ratio, course_frequency, validation, slots_filled, generation_log_tail }` |
+| `engine.reset()`     | `void`             | Wipe the engine for a fresh run.                                                                                   |
+| `engine.toJSON()`    | `string`           | JSON string export.                                                                                                |
+| `engine.toCSV()`     | `string`           | CSV string export.                                                                                                 |
+| `engine.toHTML()`    | `string`           | Colour-coded HTML string export.                                                                                   |
 
 ### GeneEncoder
 
 Binary encoding and decoding:
 
 ```typescript
-import { GeneEncoder } from '@genetictabler/core';
+import { GeneEncoder } from "@genetictabler/core";
 
 const encoder = new GeneEncoder({ courses: 6, slots: 6, days: 5, classes: 4 });
 encoder.courseBits = 3;
 encoder.slotBits = 5;
 encoder.classBits = 3;
 
-encoder.toBinary(5, 4);    // "0101"
-encoder.generateGene();    // "01000101011"
-encoder.decodeGene(gene);  // [2, 3, 2, 3] — [course, slot, day, class]
+encoder.toBinary(5, 4); // "0101"
+encoder.generateGene(); // "01000101011"
+encoder.decodeGene(gene); // [2, 3, 2, 3] — [course, slot, day, class]
 encoder.extractSlotDay(gene); // [3, 2] — [slot_within_day, day_number]
 ```
 
@@ -474,11 +487,11 @@ encoder.extractSlotDay(gene); // [3, 2] — [slot_within_day, day_number]
 Score genes from 0 to 100:
 
 ```typescript
-import { FitnessEvaluator } from '@genetictabler/core';
+import { FitnessEvaluator } from "@genetictabler/core";
 
 const evaluator = new FitnessEvaluator(state, cache);
-const score = evaluator.calculate(gene);  // 0–100
-evaluator.invalidate();                    // clear cache after committing a gene
+const score = evaluator.calculate(gene); // 0–100
+evaluator.invalidate(); // clear cache after committing a gene
 ```
 
 Properties: `cacheHits: number`, `cacheMisses: number`.
@@ -488,7 +501,7 @@ Properties: `cacheHits: number`, `cacheMisses: number`.
 Genetic algorithm operators:
 
 ```typescript
-import { GeneticOperators } from '@genetictabler/core';
+import { GeneticOperators } from "@genetictabler/core";
 
 const ops = new GeneticOperators(evaluator, eliteRatio, mutationRate, adaptive);
 ops.geneLength = 16;
@@ -497,7 +510,7 @@ const [child1, child2] = ops.singlePointCrossover(geneA, geneB);
 const [c1, c2] = ops.uniformCrossover(geneA, geneB);
 const mutant = ops.mutation(gene);
 const smart = ops.smartMutation(gene);
-const winner = ops.tournamentSelection(population, tournamentSize = 3);
+const winner = ops.tournamentSelection(population, (tournamentSize = 3));
 const pair = ops.selectionPair(sortedPopulation);
 const pop = ops.generatePopulation(60);
 const sorted = ops.sortPopulation(population);
@@ -519,35 +532,35 @@ import { TimetableRenderer } from '@genetictabler/core/react';
 
 Props:
 
-| Prop | Type | Default | Description |
-|---|---|---|---|
-| `timetable` | `number[][][]` | required | `[class][day][slot] = courseNumber (1-based)` |
-| `config` | `TimetableConfig` | required | Configuration for labels and dimensions |
-| `analytics` | `AnalyticsResult \| undefined` | `undefined` | Optional analytics panel |
-| `darkMode` | `boolean` | `false` | Dark colour scheme |
-| `courseColors` | `Record<number, string>` | default palette | Custom per-course colours |
-| `className` | `string` | `""` | CSS class on root element |
+| Prop           | Type                           | Default         | Description                                   |
+| -------------- | ------------------------------ | --------------- | --------------------------------------------- |
+| `timetable`    | `number[][][]`                 | required        | `[class][day][slot] = courseNumber (1-based)` |
+| `config`       | `TimetableConfig`              | required        | Configuration for labels and dimensions       |
+| `analytics`    | `AnalyticsResult \| undefined` | `undefined`     | Optional analytics panel                      |
+| `darkMode`     | `boolean`                      | `false`         | Dark colour scheme                            |
+| `courseColors` | `Record<number, string>`       | default palette | Custom per-course colours                     |
+| `className`    | `string`                       | `""`            | CSS class on root element                     |
 
 ---
 
 ## Project structure
 
-```
-genetictabler/                     # Python package
-├── __init__.py                    # Re-exports: GenerateTimeTable, TimetableConfig, TeacherConfig, GenerationStats
-├── config.py                      # TimetableConfig and TeacherConfig dataclasses
-├── types.py                       # Type aliases, GenerationStats, ValidationResult, etc.
-├── encoding.py                    # GeneEncoder — binary encode/decode
-├── fitness.py                     # FitnessEvaluator — constraint scoring
-├── genetic.py                     # GeneticOperators — crossover, mutation, selection
-├── engine.py                      # GenerateTimeTable — core GA engine
-├── export.py                      # pretty_print, export_json/csv/html (pure functions)
-├── queries.py                     # get_class_timetable, find_course_slots, get_teacher_schedule
-├── validation.py                  # validate_timetable (pure function)
-├── utils.py                       # calc_course_quota, make_table_skeleton, quota builders
-└── py.typed                       # mypy type-checking marker
+```md
+genetictabler/ # Python package
+├── **init**.py # Re-exports: GenerateTimeTable, TimetableConfig, TeacherConfig, GenerationStats
+├── config.py # TimetableConfig and TeacherConfig dataclasses
+├── types.py # Type aliases, GenerationStats, ValidationResult, etc.
+├── encoding.py # GeneEncoder — binary encode/decode
+├── fitness.py # FitnessEvaluator — constraint scoring
+├── genetic.py # GeneticOperators — crossover, mutation, selection
+├── engine.py # GenerateTimeTable — core GA engine
+├── export.py # pretty_print, export_json/csv/html (pure functions)
+├── queries.py # get_class_timetable, find_course_slots, get_teacher_schedule
+├── validation.py # validate_timetable (pure function)
+├── utils.py # calc_course_quota, make_table_skeleton, quota builders
+└── py.typed # mypy type-checking marker
 
-genetictabler_gui.py               # Streamlit GUI application
+genetictabler_gui.py # Streamlit GUI application
 
 See the sibling [`genetictabler-js`](https://github.com/themagicalmammal/genetictabler-js)
 repository for the TypeScript/React package.
@@ -560,7 +573,7 @@ repository for the TypeScript/React package.
 The project maintains **123 Python tests** (TypeScript tests are maintained in the
 sibling [`genetictabler-js`](https://github.com/themagicalmammal/genetictabler-js) repo).
 
-### Python
+### Python Tests
 
 ```bash
 # Install dev dependencies
@@ -577,24 +590,24 @@ mypy genetictabler/
 ruff check genetictabler/
 ```
 
-| Test class | What's covered |
-|---|---|
-| `TestInitialisation` | Constructor, `from_config`, bit-width computation, invalid inputs |
-| `TestCourseQuota` | Quota sum invariant, fair distribution, class independence |
-| `TestEncoding` | Binary encoding, encode functions, gene length, decode roundtrip |
-| `TestFitness` | Score range, every penalty type, cache hit/miss, `invalidate_cache` |
+| Test class             | What's covered                                                                            |
+| ---------------------- | ----------------------------------------------------------------------------------------- |
+| `TestInitialisation`   | Constructor, `from_config`, bit-width computation, invalid inputs                         |
+| `TestCourseQuota`      | Quota sum invariant, fair distribution, class independence                                |
+| `TestEncoding`         | Binary encoding, encode functions, gene length, decode roundtrip                          |
+| `TestFitness`          | Score range, every penalty type, cache hit/miss, `invalidate_cache`                       |
 | `TestGeneticOperators` | Single/multi/uniform crossover, mutation, smart mutation, tournament & roulette selection |
-| `TestTableAndFitSlot` | Skeleton shape, all-zeros init, `fit_slot` writes/decrements/clears |
-| `TestEvolutionLoop` | Return type, gene length, max_fitness early-stop, generation log |
-| `TestFullRun` | Output dimensions, valid course values, slots-filled counter |
-| `TestValidation` | Key presence, sum invariant, back-to-back and teacher clash detection |
-| `TestAnalytics` | All keys present, cache ratio bounds, frequency total |
-| `TestExport` | File creation, JSON structure, CSV header/row count, HTML content |
-| `TestQueryHelpers` | Class lookup, course slot search, teacher schedule |
-| `TestReset` | Tables/cache/counters/log cleared, successful re-run |
-| `TestReproducibility` | Same seed → same output, different seeds → different output |
-| `TestInvariants` | Gene length for any config, quota monotonicity, crossover length stability |
-| `TestEdgeCases` | 1×1×1 grid, more courses than slots, excess teachers, degenerate populations |
+| `TestTableAndFitSlot`  | Skeleton shape, all-zeros init, `fit_slot` writes/decrements/clears                       |
+| `TestEvolutionLoop`    | Return type, gene length, max_fitness early-stop, generation log                          |
+| `TestFullRun`          | Output dimensions, valid course values, slots-filled counter                              |
+| `TestValidation`       | Key presence, sum invariant, back-to-back and teacher clash detection                     |
+| `TestAnalytics`        | All keys present, cache ratio bounds, frequency total                                     |
+| `TestExport`           | File creation, JSON structure, CSV header/row count, HTML content                         |
+| `TestQueryHelpers`     | Class lookup, course slot search, teacher schedule                                        |
+| `TestReset`            | Tables/cache/counters/log cleared, successful re-run                                      |
+| `TestReproducibility`  | Same seed → same output, different seeds → different output                               |
+| `TestInvariants`       | Gene length for any config, quota monotonicity, crossover length stability                |
+| `TestEdgeCases`        | 1×1×1 grid, more courses than slots, excess teachers, degenerate populations              |
 
 ---
 

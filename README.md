@@ -1,7 +1,8 @@
 # 🧬 genetictabler
 
 > Generate conflict-free timetables for universities, colleges, students, and airlines using genetic algorithms.
-> Available as a **Python library** (`genetictabler`), a **TypeScript/React npm package** (sibling repo [`genetictabler-js`](https://github.com/themagicalmammal/genetictabler-js)), and a **Streamlit GUI**.
+
+> Available as a **Python library** ([`genetictabler`](https://pypi.org/project/genetictabler/)) and [**Streamlit GUI**](https://genetictabler.streamlit.app/).
 
 |                   |                                                                                                                                                                                                                                                                                                                                                                                                   |
 | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
